@@ -253,6 +253,30 @@ Working branch: `claude/sweet-gauss-20esu8`
   **Not verified:** the real UserDefaults on a device; the 3 MB figure
   against real photos.
 
+**Change 19 — Stage 3: Welcome and Photos permission**
+- **What:** `PhotoLibrary` protocol (status + authorize only; the rest
+  arrives with its stage), `FakePhotoLibrary`, `PhotoKitLibrary` adapter,
+  `AppModel` (permission state; refreshes on foreground so revoked access
+  returns to Welcome), full Welcome screen per the brief (illustration drawn
+  in code, two glass hint rows, pill, footnote; denied → "Open Settings" and
+  one line on why), `RootView`. Albums is a placeholder ("Full / Limited
+  access granted") until Stage 4. Limited counts as granted.
+- **Files:** `Packages/SwipeCore/.../PhotoLibrary.swift`,
+  `Fakes/FakePhotoLibrary.swift`, `Packages/SwipeFeatures/.../AppModel.swift`,
+  `WelcomeView.swift`, `RootView.swift`, `App/PhotoKitLibrary.swift`,
+  `App/LighterApp.swift`, tests, screenshots (the Stage 1 empty-Welcome
+  shots were replaced).
+- **Verified:** 7 `AppModel` tests pass; app builds. Simulator (iPhone 18
+  Pro): undetermined and denied states in Dusk and Dawn (screenshots checked);
+  tapping the pill shows the real iOS prompt with our usage text; "Allow Full
+  Access" moves to the placeholder Albums.
+- **Not verified:** the Limited path ("Select Photos") and "Don't Allow" in the
+  real prompt (covered by unit tests only); the Open Settings tap; revoking
+  access while the app is open; a real device; Welcome at AX5 and on iPhone SE.
+- **Layout note:** the illustration reaches the top edge by letting the
+  scroll view ignore the top safe area (a plain negative offset left a band
+  under the status bar).
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |

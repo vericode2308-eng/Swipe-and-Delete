@@ -18,5 +18,7 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 
 | File | Build / commit | Date | Device |
 |---|---|---|---|
-| 01-welcome-empty-dark.png | Stage 1 skeleton (empty Welcome) | 2026-11-18 | iPhone 18 Pro simulator |
-| 01-welcome-empty-light.png | Stage 1 skeleton (empty Welcome) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-undetermined-dark.png | Stage 3 (Welcome, undetermined) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-undetermined-light.png | Stage 3 (Welcome, undetermined) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-denied-dark.png | Stage 3 (Welcome, denied) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-denied-light.png | Stage 3 (Welcome, denied) | 2026-11-18 | iPhone 18 Pro simulator |
