@@ -7,20 +7,39 @@ design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 
 ## 1. UI
 
-### Visual language
+### Visual language: Neumorphism + Glassmorphism
+Everything sits on **one soft grey surface**. Controls look pressed out of it
+(raised) or pressed into it (inset). Frosted glass is used only over photos.
+Colour appears only as small glowing "LED" dots and icons.
+
 | Token | Value | Use |
 |---|---|---|
-| Background (light) | `#F2F2F7` | Welcome, Albums, Review, Done |
-| Swipe background | `#F4F6FB` | Swipe screen (light, carousel) |
-| Primary | Indigo `#4338CA` | Main buttons, progress |
-| Keep | Teal `#0F766E` | Keep button, "kept" badges |
-| Delete | Coral `#C2410C` | Delete button, "DELETE" stamp, Delete N |
-| Text | `#1C1C1E` / secondary `#636366` | |
-| Font | SF Pro (system) | Large Title 34, Title 28, Body 17, Footnote 13 |
-| Radius | Cards 18–24, buttons 16–20 | |
+| Surface | `#E6E9EE` | Every screen background and control fill |
+| Shadow dark / light | `#C3C8D0` / `#FFFFFF` | Neumorphic pair |
+| Raised | `8 8 18 dark, -8 -8 18 light` | Buttons, cards, album tiles |
+| Pressed / inset | the same pair, `inset` | Tracks, pressed buttons, counters, Review grid well |
+| Glass | white 28–35 %, blur 14, 1 px white 55 % border | Date label, DELETE/KEEP tag and badges over photos |
+| Text | `#2B2F36`, secondary `#4F5560` (≥ 4.5:1 on surface) | |
+| LED coral | `#EA580C` + glow `#F97316` | Delete |
+| LED teal | `#14B8A6` + glow `#2DD4BF` | Keep |
+| LED indigo | `#4F46E5` + glow `#818CF8` | Primary "go" actions |
+| Font | Outfit (or SF Pro Rounded) | Titles 34–40 **Light 300**, body 15–17 Regular/Medium |
+| Radius | Cards 30–34, buttons fully round, pills 17–23 | |
 
-Every colour also carries an icon and a word (✕ Delete, ✓ Keep), so the app
-never depends on colour alone.
+Rules
+- Pressing a button switches it from raised to inset (150 ms). The swipe
+  buttons do the same when a swipe commits.
+- The album switcher is an **inset track** with the selected pill raised
+  inside it, like the "MANUAL" toggle in the kit.
+- The photo card sits in a raised 8 pt frame. Photos never get neumorphic
+  shadows themselves.
+- Neumorphism is low-contrast by nature: never rely on shadows alone to show
+  state. Pair with an LED, an icon or a word. With Increase Contrast on, add a
+  1 pt `#9AA1AC` border to all controls.
+- In SwiftUI, a `NeuButtonStyle` uses
+  `.shadow(color: dark, radius: 9, x: 8, y: 8).shadow(color: .white, radius: 9, x: -8, y: -8)`.
+  Inset uses an overlay stroke with blur and mask, and glass uses
+  `.background(.ultraThinMaterial)`.
 
 ### Screens
 1. **Welcome**: illustration, the line "Swipe left to delete, right to keep",
@@ -31,7 +50,7 @@ never depends on colour alone.
    Screenshots, Videos, Selfies) and a list of the user's own albums, each with
    a cover and a count. Limited access adds a **Manage selection** link.
    Empty albums are hidden.
-3. **Swipe (side-by-side carousel)**: a light screen (`#F4F6FB`) based on the
+3. **Swipe (side-by-side carousel)**: a light screen (soft grey `#E6E9EE`) based on the
    reference design. The top shows the album name as a large title, "38 of
    1,206", and a **Review** pill with a coral badge for the marked count.
    - **Album pills** sit under the title (All Photos, Screenshots, Videos,
@@ -102,7 +121,8 @@ SwipeAndDelete/
     ReviewView.swift
     DoneView.swift
   Shared/
-    Theme.swift                  // colours, radii
+    Theme.swift                  // surface, shadows, LEDs, radii
+    NeuStyles.swift              // NeuButtonStyle, .neuRaised(), .neuInset(), .glass()
 SwipeAndDeleteTests/
   SwipeSessionTests.swift
 ```
