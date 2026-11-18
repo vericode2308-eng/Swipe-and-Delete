@@ -16,8 +16,9 @@ elegant serif.
 |---|---|---|
 | Base | Slate `#262E3B` | Albums, Review; under every blur |
 | Photo backdrop | Current photo, blur 50, slate scrim 55 % | Swipe, Welcome, Done |
-| Glass | white 6–8 % (dark glass: slate 40 %), `.ultraThinMaterial` | Buttons, captions, info panels |
-| Hairline | 1 pt white 18–28 % | Glass edges, unselected pills |
+| Glass (light) | white 12 %, blur 24, saturation 170 %, 1 pt white 34 % edge, 1 pt inner top highlight white 45 %, soft drop shadow | Buttons, pills, control dock, panels |
+| Glass (dark) | slate 32 %, the same blur, edge and highlight | Captions and tags over photos |
+| Colour field | 3 large blurred blobs (steel blue `#5E7AA6`, rose `#9A6F80`, pine `#3F6B66`) | Behind glass on screens with no photo backdrop |
 | Text | `#F4F6FA`, secondary `#C9D2E0` (≥ 7:1 on slate) | |
 | Primary pill | Mist `#E6ECF5`, text `#1F2633` | Allow access, Review, Back to Albums, selected album |
 | Delete | Blush `#F2B8A8` | ✕ icon, DELETE tag, Delete N button (dark text) |
@@ -30,14 +31,21 @@ Rules
 - **The photo is the decoration.** The swipe screen background is the current
   photo, heavily blurred. It cross-fades (0.5 s) when the next photo arrives,
   so the whole screen shifts mood with each image.
+- **Glassmorphism everywhere.** Every control is a pane of frosted glass,
+  and glass always sits over colour (the blurred photo or the colour field),
+  never over flat slate.
+- The swipe buttons sit in a floating **glass dock** (capsule). The Review
+  grid and the Welcome hints sit in large glass panels.
 - Colour stays soft and sparse: only blush and sage, always with an icon or a
   word.
 - One light primary pill per screen. Everything else is glass or a hairline.
 - Serif only for titles, dates and big numbers. Never use it for buttons or
   body text.
 - SwiftUI: background = `Image(uiImage:).resizable().scaledToFill().blur(radius: 50)` plus
-  `Color(slate).opacity(0.55)`. Glass = `.background(.ultraThinMaterial, in: Capsule())`
-  plus `.overlay(Capsule().stroke(.white.opacity(0.28)))`. Bundle Cormorant
+  `Color(slate).opacity(0.55)`. Glass = `.background(.ultraThinMaterial, in: shape)`, then
+  `.overlay(shape.stroke(.white.opacity(0.34)))`, then a top highlight via
+  `.overlay(shape.stroke(LinearGradient(white 45 % → clear), lineWidth: 1))`,
+  then `.shadow(color: .black.opacity(0.28), radius: 15, y: 10)`. Bundle Cormorant
   Garamond (OFL licence).
 - Reduce Transparency → replace glass with solid `#323B4B`.
 
