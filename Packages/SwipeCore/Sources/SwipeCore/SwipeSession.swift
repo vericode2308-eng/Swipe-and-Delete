@@ -11,9 +11,34 @@ public final class SwipeSession {
     public private(set) var marked: [String] = []
     private var history: [Decision] = []
 
-    public init(album: Album, assets: [Asset]) {
+    /// Duplicate sets in play order; empty outside the Duplicates filter.
+    public let sets: [[String]]
+    private let setPosition: [String: SetPosition]
+
+    public struct SetPosition: Equatable, Sendable {
+        public let set: Int, ofSets: Int, item: Int, ofItems: Int
+    }
+
+    public init(album: Album, assets: [Asset], sets: [[String]] = []) {
         self.album = album
         self.assets = assets
+        self.sets = sets
+        var pos: [String: SetPosition] = [:]
+        for (s, members) in sets.enumerated() {
+            for (i, id) in members.enumerated() {
+                pos[id] = SetPosition(set: s + 1, ofSets: sets.count, item: i + 1, ofItems: members.count)
+            }
+        }
+        self.setPosition = pos
+    }
+
+    /// "Set 3 · 2 of 3" for the Duplicates filter; nil elsewhere.
+    public func setPosition(of id: String) -> SetPosition? { setPosition[id] }
+
+    /// Sets in which every copy is marked, so Review can remind the user to keep one.
+    public var fullyMarkedSets: Int {
+        let m = Set(marked)
+        return sets.filter { !$0.isEmpty && $0.allSatisfy(m.contains) }.count
     }
 
     public var isFinished: Bool { index >= assets.count }

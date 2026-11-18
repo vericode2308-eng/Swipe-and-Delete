@@ -108,7 +108,11 @@ public struct SwipeView: View {
         .padding(.top, 4)
     }
 
-    private func chips(_ t: Theme) -> some View {
+    @ViewBuilder private func chips(_ t: Theme) -> some View {
+        if !model.isFilter(session.album) { albumChips(t) }
+    }
+
+    private func albumChips(_ t: Theme) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(AlbumList.visible(model.albums, filter: .all)) { album in
@@ -182,7 +186,8 @@ public struct SwipeView: View {
             .accessibilityLabel("Undo last decision")
         case (let asset?, 0):
             let p = max(-1, min(1, dragX / (screenW * 0.3)))
-            PhotoCard(asset: asset, size: size, loader: model.images, theme: t, showsCaption: true)
+            PhotoCard(asset: asset, size: size, loader: model.images, theme: t, showsCaption: true,
+                      setPosition: session.setPosition(of: asset.id))
                 .overlay { tint(p, t) }
                 .overlay(alignment: .top) { tag(p, t).padding(.top, 18) }
                 .rotationEffect(.degrees(12 * Double(max(-1, min(1, dragX / (screenW * 0.5))))))
@@ -360,6 +365,7 @@ struct PhotoCard: View {
     let loader: PhotoImageLoading
     let theme: Theme
     let showsCaption: Bool
+    var setPosition: SwipeSession.SetPosition?
 
     var body: some View {
         PhotoImage(id: asset.id, pointSize: size, loader: loader)
@@ -372,8 +378,17 @@ struct PhotoCard: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(asset.created.formatted(.dateTime.day().month(.wide).year()))
                 .font(.display(24))
-            Text(kindLabel).font(.caption.weight(.semibold)).tracking(1.2)
-                .foregroundStyle(Color(hex: theme.textSecondary))
+            HStack(spacing: 8) {
+                Text(kindLabel).font(.caption.weight(.semibold)).tracking(1.2)
+                    .foregroundStyle(Color(hex: theme.textSecondary))
+                if let p = setPosition {
+                    Text("Set \(p.set) · \(p.item) of \(p.ofItems)")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10).padding(.vertical, 4)
+                        .glass(in: Capsule())
+                        .accessibilityLabel("Set \(p.set) of \(p.ofSets), photo \(p.item) of \(p.ofItems)")
+                }
+            }
         }
         .foregroundStyle(Color(hex: theme.text))
         .frame(maxWidth: .infinity, alignment: .leading)

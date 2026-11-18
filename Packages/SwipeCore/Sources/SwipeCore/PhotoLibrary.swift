@@ -19,6 +19,10 @@ public protocol PhotoLibrary: Sendable {
     func albums() async -> [Album]
     /// Every item in the album, oldest first.
     func assets(in album: Album) async -> [Asset]
+    /// Every plain photo or Live Photo (no videos, no screenshots), newest first, for the clean-up scan.
+    func scanItems() async -> [ScanItem]
+    /// These ids as assets, in the order given; ids that no longer exist are left out.
+    func assets(ids: [String]) async -> [Asset]
     /// The ids that still exist, in the order given. Used right before deleting.
     func existing(_ ids: [String]) async -> [String]
     /// Sum of the original file sizes, in bytes. Undocumented in PhotoKit, so a

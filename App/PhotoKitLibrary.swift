@@ -49,6 +49,33 @@ struct PhotoKitLibrary: PhotoLibrary {
         return out
     }
 
+    /// Plain photos and Live Photos, newest first. Screenshots and videos have their own albums.
+    func scanItems() async -> [ScanItem] {
+        let options = PHFetchOptions()
+        options.predicate = NSPredicate(format: "mediaType == %d AND (mediaSubtypes & %d) == 0",
+                                        PHAssetMediaType.image.rawValue, PHAssetMediaSubtype.photoScreenshot.rawValue)
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        let found = PHAsset.fetchAssets(with: options)
+        var out: [ScanItem] = []
+        out.reserveCapacity(found.count)
+        found.enumerateObjects { a, _, _ in
+            let created = a.creationDate ?? .distantPast
+            out.append(ScanItem(id: a.localIdentifier, created: created, modified: a.modificationDate ?? created))
+        }
+        return out
+    }
+
+    func assets(ids: [String]) async -> [Asset] {
+        guard !ids.isEmpty else { return [] }
+        let found = PHAsset.fetchAssets(withLocalIdentifiers: ids, options: nil)
+        var byID: [String: Asset] = [:]
+        found.enumerateObjects { a, _, _ in
+            byID[a.localIdentifier] = Asset(id: a.localIdentifier, kind: Self.kind(of: a),
+                                            created: a.creationDate ?? .distantPast)
+        }
+        return ids.compactMap { byID[$0] }
+    }
+
     func existing(_ ids: [String]) async -> [String] {
         guard !ids.isEmpty else { return [] }
         let found = PHAsset.fetchAssets(withLocalIdentifiers: ids, options: nil)

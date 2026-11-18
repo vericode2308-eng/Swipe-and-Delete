@@ -25,6 +25,7 @@ public struct ReviewView: View {
                 VStack(spacing: 14) {
                     grid(t)
                     note(t)
+                    if fullyMarked > 0 { setsNote(t) }
                 }
                 .padding(.bottom, 8)
             }
@@ -88,6 +89,22 @@ public struct ReviewView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(off ? "Photo, will be kept" : "Photo, will be deleted")
         .accessibilityHint(off ? "Double tap to delete it again" : "Double tap to keep it instead")
+    }
+
+    /// Duplicates only: sets whose every copy is still going to be deleted.
+    private var fullyMarked: Int {
+        let going = Set(toDelete)
+        return session.sets.filter { !$0.isEmpty && $0.allSatisfy(going.contains) }.count
+    }
+
+    private func setsNote(_ t: Theme) -> some View {
+        let n = fullyMarked
+        return Text(n == 1 ? "All copies of 1 set are marked. Tap one to keep it."
+                           : "All copies of \(n) sets are marked. Tap one to keep it.")
+            .font(.footnote.weight(.semibold)).foregroundStyle(Color(hex: t.text))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .glass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private func note(_ t: Theme) -> some View {

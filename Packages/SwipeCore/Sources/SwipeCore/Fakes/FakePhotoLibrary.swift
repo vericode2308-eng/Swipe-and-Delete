@@ -50,6 +50,17 @@ public final class FakePhotoLibrary: PhotoLibrary, @unchecked Sendable {
         lock.withLock { assetsByAlbum[album.id] ?? [] }
     }
 
+    private var scanList: [ScanItem] = []
+    private var assetIndex: [String: Asset] = [:]
+    public func setScanItems(_ items: [ScanItem]) { lock.withLock { scanList = items } }
+    public func setAsset(_ a: Asset) { lock.withLock { assetIndex[a.id] = a } }
+
+    public func scanItems() async -> [ScanItem] { lock.withLock { scanList.filter { !gone.contains($0.id) } } }
+
+    public func assets(ids: [String]) async -> [Asset] {
+        lock.withLock { ids.compactMap { gone.contains($0) ? nil : (assetIndex[$0] ?? Asset(id: $0)) } }
+    }
+
     public func existing(_ ids: [String]) async -> [String] {
         lock.withLock { ids.filter { !gone.contains($0) } }
     }

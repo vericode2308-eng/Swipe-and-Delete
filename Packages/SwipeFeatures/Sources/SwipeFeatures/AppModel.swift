@@ -37,6 +37,18 @@ public struct AppLinks: Sendable {
     }
 }
 
+/// The Quick clean-up rows on Albums (D-18).
+public enum CleanupFilter: Equatable, Hashable, Sendable {
+    case duplicates, pagesAndThings, whatsApp
+
+    public var title: String {
+        switch self { case .duplicates: "Duplicates"; case .pagesAndThings: "Pages & Things"; case .whatsApp: "From WhatsApp" }
+    }
+    var albumID: String {
+        switch self { case .duplicates: "filter.duplicates"; case .pagesAndThings: "filter.pages"; case .whatsApp: "filter.whatsapp" }
+    }
+}
+
 /// What Done shows after a confirmed delete.
 public struct DeletionSummary: Sendable {
     public let albumTitle: String
@@ -77,6 +89,13 @@ public final class AppModel {
     private let promptStore: ReviewPromptStore
     private let now: @Sendable () -> Date
 
+    /// Filters and scan progress. Grows while the scan runs; empty without a scanner.
+    public private(set) var cleanup = CleanupResult()
+    /// False in builds without a scanner (tests, previews): the rows stay hidden.
+    public var cleanupEnabled: Bool { scanner != nil }
+    private let scanner: CleanupScanner?
+    private var scanTask: Task<Void, Never>?
+
     private let library: PhotoLibrary
     private let openSettings: @MainActor () -> Void
     private let presentLimitedPicker: @MainActor () -> Void
@@ -85,6 +104,7 @@ public final class AppModel {
                 thumbnails: ThumbnailLoading = NoThumbnails(),
                 images: PhotoImageLoading = NoImages(),
                 links: AppLinks = AppLinks(),
+                scanner: CleanupScanner? = nil,
                 appVersion: String = "",
                 allowanceStore: AllowanceStore = AllowanceStore(),
                 promptStore: ReviewPromptStore = ReviewPromptStore(),
@@ -95,6 +115,7 @@ public final class AppModel {
         self.thumbnails = thumbnails
         self.images = images
         self.links = links
+        self.scanner = scanner
         self.appVersion = appVersion
         self.presentLimitedPicker = presentLimitedPicker
         self.openSettings = openSettings
@@ -116,9 +137,72 @@ public final class AppModel {
     /// photos show up in the counts.
     public func refresh() async {
         status = library.currentStatus()
-        guard status.isGranted else { albums = []; hasLoadedAlbums = false; session = nil; reviewing = false; summary = nil; return }
+        guard status.isGranted else {
+            albums = []; hasLoadedAlbums = false; session = nil; reviewing = false; summary = nil
+            stopScan(); cleanup = CleanupResult(); return
+        }
         await loadAlbums()
+        startScan()
     }
+
+    // MARK: Quick clean-up
+
+    /// The user's own "WhatsApp" album, if there is one. The row hides otherwise.
+    public var whatsAppAlbum: Album? { albums.first { $0.kind == .user && $0.title == "WhatsApp" } }
+
+    /// Photos each row would open. WhatsApp needs no scan.
+    public func count(for filter: CleanupFilter) -> Int {
+        switch filter {
+        case .duplicates: cleanup.duplicateCount
+        case .pagesAndThings: cleanup.pagesAndThings.count
+        case .whatsApp: whatsAppAlbum?.count ?? 0
+        }
+    }
+
+    /// Starts the scan at low priority; a scan already running is left alone.
+    public func startScan() {
+        guard let scanner, status.isGranted, scanTask == nil else { return }
+        scanTask = Task.detached(priority: .utility) { [weak self] in
+            await scanner.run { result in
+                Task { @MainActor in self?.apply(result) }
+            }
+            await MainActor.run { self?.scanTask = nil }
+        }
+    }
+
+    public func stopScan() { scanTask?.cancel(); scanTask = nil }
+
+    private func apply(_ result: CleanupResult) {
+        // A delete since the scan began removed photos that the scan may still list.
+        cleanup = result.removing(deletedSinceScan)
+    }
+    private var deletedSinceScan: [String] = []
+
+    /// Opens a filter through the normal swipe flow. Nothing is deleted without a swipe and Review.
+    public func openFilter(_ filter: CleanupFilter) async {
+        let assets: [Asset]
+        var sets: [[String]] = []
+        switch filter {
+        case .duplicates:
+            sets = cleanup.duplicateSets
+            let found = await library.assets(ids: sets.flatMap { $0 })
+            let alive = Set(found.map(\.id))
+            sets = sets.map { $0.filter(alive.contains) }.filter { $0.count > 1 }
+            let order = Dictionary(uniqueKeysWithValues: found.map { ($0.id, $0) })
+            assets = sets.flatMap { $0 }.compactMap { order[$0] }
+        case .pagesAndThings:
+            assets = await library.assets(ids: cleanup.pagesAndThings)
+        case .whatsApp:
+            guard let album = whatsAppAlbum else { return }
+            assets = await library.assets(in: album)
+        }
+        guard !assets.isEmpty else { return }
+        let album = Album(id: filter.albumID, title: filter.title, count: assets.count, kind: .smart)
+        session = SwipeSession(album: album, assets: assets, sets: sets)
+    }
+
+    /// Swipe hides the album chips for filters.
+    public func isFilter(_ album: Album) -> Bool { album.id.hasPrefix("filter.") }
 
     public func loadAlbums() async {
         guard status.isGranted else { return }
@@ -131,7 +215,7 @@ public final class AppModel {
         switch status {
         case .notDetermined:
             status = await library.authorize()
-            if status.isGranted { await loadAlbums() }
+            if status.isGranted { await loadAlbums(); startScan() }
         case .denied: openSettings()
         case .full, .limited: break
         }
@@ -213,6 +297,8 @@ public final class AppModel {
                                           kept: session.keptCount, deleted: ids.count,
                                           freedBytes: bytes, thumbnails: shots)
                 reviewing = false
+                deletedSinceScan += ids
+                cleanup = cleanup.removing(ids)
             }
         } catch {
             deleteMessage = "Couldn't delete the photos. Nothing was removed."

@@ -22,6 +22,7 @@ public struct AlbumsView: View {
             VStack(alignment: .leading, spacing: 20) {
                 header(t)
                 if model.status == .limited { limitedRow(t) }
+                if model.cleanupEnabled { QuickCleanupPanel(model: model) }
                 chips(t)
                 content(t)
             }
@@ -30,7 +31,7 @@ public struct AlbumsView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .appCanvas()
-        .task { await model.loadAlbums() }
+        .task { await model.loadAlbums(); model.startScan() }
         .sheet(isPresented: $showsAbout) { AboutSheet(model: model) }
     }
 

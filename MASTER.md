@@ -375,3 +375,10 @@ Working branch: `claude/sweet-gauss-20esu8`
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).
+
+
+**Change 23 — Stage 6b: Quick clean-up (scanner, cache, filters)**
+- **What:** `CleanupIndex` (duplicate sets by 64-bit hash within 2 bits, plus feature prints within 60 s at 0.35; Pages & Things = no people and utility or quality < -0.3), `CleanupCacheStore` (`cleanup-v1.bin`), `CleanupScanner` (newest first, resumes, pauses on Low Power Mode / serious heat), `VisionPhotoAnalyzer` (iOS 18 Vision, 300 px local thumbnails), Quick clean-up panel on Albums, filter sessions with "Set 3 · 2 of 3" chip, Review note for fully marked sets, From WhatsApp row.
+- **Choices:** flat-colour hashes (under 8 or over 56 set bits) never match; cache stores feature prints as Float32 (size on a large library not yet measured); cache revision = recipe + iOS major version.
+- **Verified:** SwipeCore 46 and SwipeFeatures 28 tests pass; app builds; panel renders in the simulator.
+- **Not verified:** everything the done condition names (real library, false-match rate, 5,000-photo scan, kill and resume), the Vision quality check (not available in the simulator), thresholds, battery.

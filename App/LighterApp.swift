@@ -1,6 +1,7 @@
 import Photos
 import PhotosUI
 import SwiftUI
+import SwipeCore
 import SwipeFeatures
 import UIKit
 
@@ -11,6 +12,12 @@ import UIKit
         library: PhotoKitLibrary(),
         thumbnails: loader,
         images: loader,
+        scanner: CleanupScanner(library: PhotoKitLibrary(), analyzer: VisionPhotoAnalyzer(),
+                                store: .standard(), shouldPause: {
+            // Low Power Mode or a hot phone: wait instead of draining the battery.
+            ProcessInfo.processInfo.isLowPowerModeEnabled
+                || ProcessInfo.processInfo.thermalState.rawValue >= ProcessInfo.ThermalState.serious.rawValue
+        }),
         appVersion: Self.version,
         presentLimitedPicker: {
             let root = UIApplication.shared.connectedScenes
