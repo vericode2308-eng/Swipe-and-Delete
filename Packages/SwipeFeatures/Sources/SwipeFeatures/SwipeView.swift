@@ -1,3 +1,4 @@
+import Photos
 import SwiftUI
 import SwipeCore
 import SwipeUI
@@ -15,6 +16,8 @@ public struct SwipeView: View {
     @State private var busy = false
     @State private var commitTick = 0
     @State private var pendingAlbum: Album?
+    @State private var viewing: Asset?
+    @State private var holdingLive = false
     @State private var width: CGFloat = 393   // last measured screen width, for prefetch sizing
 
     private let spring = Animation.spring(response: 0.3, dampingFraction: 0.8)
@@ -32,7 +35,8 @@ public struct SwipeView: View {
         }
             .background { backdrop(t) }
             .sensoryFeedback(.impact(weight: .light), trigger: commitTick)
-            .onChange(of: session.index) { prefetch() }
+            .onChange(of: session.index) { prefetch(); holdingLive = false }
+            .mediaCover(item: $viewing, model: model)
             .onAppear { prefetch() }
             .confirmationDialog("Discard \(session.marked.count) marks?", isPresented: Binding(
                 get: { pendingAlbum != nil }, set: { if !$0 { pendingAlbum = nil } }),
@@ -188,17 +192,23 @@ public struct SwipeView: View {
             let p = max(-1, min(1, dragX / (screenW * 0.3)))
             PhotoCard(asset: asset, size: size, loader: model.images, theme: t, showsCaption: true,
                       setPosition: session.setPosition(of: asset.id))
+                .overlay { livePlayback(asset) }
+                .overlay { playBadge(asset, t) }
                 .overlay { tint(p, t) }
                 .overlay(alignment: .top) { tag(p, t).padding(.top, 18) }
                 .rotationEffect(.degrees(12 * Double(max(-1, min(1, dragX / (screenW * 0.5))))))
                 .offset(x: dragX)
                 .contentShape(Rectangle())
+                .onTapGesture { viewing = asset }
+                .onLongPressGesture(minimumDuration: 0.3, maximumDistance: 24, perform: {},
+                                    onPressingChanged: { if asset.kind == .livePhoto { holdingLive = $0 } })
                 .transition(reduceMotion ? fade : .asymmetric(insertion: .offset(x: -screenW), removal: .identity))
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("\(asset.kind == .video ? "Video" : "Photo"), \(asset.created.formatted(.dateTime.day().month(.wide).year()))")
                 .accessibilityAction(named: "Delete") { commit(.left, screenW) }
                 .accessibilityAction(named: "Keep") { commit(.right, screenW) }
                 .accessibilityAction(named: "Undo") { undo(screenW) }
+                .accessibilityAction(named: asset.kind == .video ? "Play" : "Open") { viewing = asset }
         case (let asset?, _):
             PhotoCard(asset: asset, size: size, loader: model.images, theme: t, showsCaption: false)
                 .offset(x: step)
@@ -207,6 +217,24 @@ public struct SwipeView: View {
         default:
             endCard(size: size, t)
                 .transition(fade)
+        }
+    }
+
+    /// Video: a play button in the middle; tapping the card opens the player.
+    @ViewBuilder private func playBadge(_ asset: Asset, _ t: Theme) -> some View {
+        if asset.kind == .video {
+            Image(systemName: "play.fill").font(.system(size: 26, weight: .bold))
+                .foregroundStyle(Color(hex: t.text)).frame(width: 64, height: 64)
+                .glass(in: Circle()).allowsHitTesting(false).accessibilityHidden(true)
+        }
+    }
+
+    /// Live Photo: plays in place while the finger is held down.
+    @ViewBuilder private func livePlayback(_ asset: Asset) -> some View {
+        if asset.kind == .livePhoto, holdingLive {
+            InlineLivePhoto(model: model, id: asset.id)
+                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                .allowsHitTesting(false)
         }
     }
 
@@ -402,7 +430,34 @@ struct PhotoCard: View {
         case .photo: "PHOTO"
         case .screenshot: "SCREENSHOT"
         case .livePhoto: "LIVE PHOTO"
-        case .video: "VIDEO"
+        case .video: asset.duration.map { "VIDEO · \(Formatting.clock($0))" } ?? "VIDEO"
         }
+    }
+}
+
+
+/// Loads the Live Photo on first hold and plays it with sound until the finger lifts.
+private struct InlineLivePhoto: View {
+    let model: AppModel
+    let id: String
+    @State private var photo: PHLivePhoto?
+
+    var body: some View {
+        Group {
+            if let photo { LivePhotoRepresentable(photo: photo, playing: true) }
+        }
+        .task { photo = await model.media.livePhoto(id: id, size: CGSize(width: 1200, height: 1600)) }
+    }
+}
+
+
+private extension View {
+    /// Full-screen cover on iPhone; host test builds (macOS) have none.
+    @ViewBuilder func mediaCover(item: Binding<Asset?>, model: AppModel) -> some View {
+        #if os(iOS)
+        fullScreenCover(item: item) { MediaViewer(model: model, asset: $0) }
+        #else
+        self
+        #endif
     }
 }

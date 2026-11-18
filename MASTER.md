@@ -388,3 +388,10 @@ See the decision log in `APP_PLAN.md` (D-01 onwards).
 - **Behaviour:** Delete with more marked than today's allowance opens the paywall instead of the iOS prompt (R-13). "Delete N now" deletes the first N and drops the other marks (D-22). A successful purchase closes the paywall and the user taps Delete again; it does not delete by itself. Price comes only from the store; if it can't load the pill reads "Price unavailable" and is disabled.
 - **Verified:** SwipeFeatures 36 tests pass (paywall trigger, success, cancel, pending, failure, price failure, restore found / none / error, Pro skips paywall, debug flag, overflow drop). App builds. About sheet in the simulator shows "Price unavailable" with Unlock disabled, as intended.
 - **Not verified:** a real purchase, cancel, pending and restore with `Products.storekit` from Xcode, then sandbox (the stage's done condition); the paywall sheet's look; Dawn; VoiceOver; AX5.
+
+**Change 25 — Stage 8: video, Live Photo playback and zoom**
+- **What:** `MediaLoading` (video player item, Live Photo) with a PhotoKit version in `PhotoKitImageLoader`; `MediaViewer` full-screen cover (video with controls and sound, Live Photo, photo with pinch and double-tap zoom via a tested `ZoomState`); play button on video cards; Live Photo plays in place while held; caption "VIDEO · 0:10" (`Formatting.clock`); `Asset.duration`.
+- **Audio:** the viewer is modal, so there is no swiping while a video plays. Closing it pauses, drops the player and releases the audio session; backgrounding pauses. Inline Live Photo playback stops when the finger lifts or the card changes.
+- **Verified (simulator):** SwipeCore 47 and SwipeFeatures 41 tests pass; a 10 s test video shows the play button and "VIDEO · 0:10"; tapping opens a full-screen player and the picture advances; Close returns to the card.
+- **Not verified:** sound (the simulator tool can't hear it), Live Photo playback (no Live Photo in the simulator), pinch and double-tap zoom by touch, iCloud-only video, Dawn, VoiceOver, AX5, rotating.
+- **Test data:** a 2 MB mp4 was added to the iPhone 18 Pro simulator's library only.

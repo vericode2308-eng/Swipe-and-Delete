@@ -7,6 +7,13 @@ public enum Formatting {
     private static let locale = Locale(identifier: "en_GB")
 
     /// Decimal units, like Settings › Storage: "0 KB", "999 MB", "1.2 GB".
+    /// Video length: "0:14", "1:05", "1:02:03". Rounds to the nearest second; negatives count as 0.
+    public static func clock(_ seconds: TimeInterval) -> String {
+        let total = max(0, Int(seconds.rounded()))
+        let h = total / 3600, m = (total % 3600) / 60, s = total % 60
+        return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
+    }
+
     public static func size(_ bytes: Int64) -> String {
         let units = ["KB", "MB", "GB", "TB"]
         var value = Double(max(0, bytes)) / 1000

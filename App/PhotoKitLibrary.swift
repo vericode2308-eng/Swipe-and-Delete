@@ -44,7 +44,8 @@ struct PhotoKitLibrary: PhotoLibrary {
         out.reserveCapacity(found.count)
         found.enumerateObjects { a, _, _ in
             out.append(Asset(id: a.localIdentifier, kind: Self.kind(of: a),
-                             created: a.creationDate ?? .distantPast))
+                             created: a.creationDate ?? .distantPast,
+                             duration: a.mediaType == .video ? a.duration : nil))
         }
         return out
     }
@@ -71,7 +72,8 @@ struct PhotoKitLibrary: PhotoLibrary {
         var byID: [String: Asset] = [:]
         found.enumerateObjects { a, _, _ in
             byID[a.localIdentifier] = Asset(id: a.localIdentifier, kind: Self.kind(of: a),
-                                            created: a.creationDate ?? .distantPast)
+                                            created: a.creationDate ?? .distantPast,
+                                            duration: a.mediaType == .video ? a.duration : nil)
         }
         return ids.compactMap { byID[$0] }
     }

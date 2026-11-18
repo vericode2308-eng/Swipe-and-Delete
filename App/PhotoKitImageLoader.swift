@@ -1,10 +1,11 @@
+import AVFoundation
 import Photos
 import SwipeFeatures
 import UIKit
 
 /// Album covers and the swipe screen's photos. One caching manager, so the
 /// prefetched next photos are served from memory when they become current.
-final class PhotoKitImageLoader: ThumbnailLoading, PhotoImageLoading, @unchecked Sendable {
+final class PhotoKitImageLoader: ThumbnailLoading, PhotoImageLoading, MediaLoading, @unchecked Sendable {
     private let manager = PHCachingImageManager()
     private let lock = NSLock()
     private var assets: [String: PHAsset] = [:]
@@ -65,6 +66,31 @@ final class PhotoKitImageLoader: ThumbnailLoading, PhotoImageLoading, @unchecked
                 for: asset, targetSize: CGSize(width: side, height: side),
                 contentMode: .aspectFill, options: o
             ) { image, _ in cont.resume(returning: image?.cgImage) }
+        }
+    }
+
+    func video(id: String) async -> AVPlayerItem? {
+        guard let asset = asset(id) else { return nil }
+        let o = PHVideoRequestOptions()
+        o.isNetworkAccessAllowed = true
+        o.deliveryMode = .automatic
+        return await withCheckedContinuation { cont in
+            PHImageManager.default().requestPlayerItem(forVideo: asset, options: o) { item, _ in
+                cont.resume(returning: item)
+            }
+        }
+    }
+
+    func livePhoto(id: String, size: CGSize) async -> PHLivePhoto? {
+        guard let asset = asset(id) else { return nil }
+        let o = PHLivePhotoRequestOptions()
+        o.isNetworkAccessAllowed = true
+        o.deliveryMode = .highQualityFormat
+        return await withCheckedContinuation { cont in
+            PHImageManager.default().requestLivePhoto(for: asset, targetSize: size, contentMode: .aspectFit, options: o) { photo, info in
+                if (info?[PHImageResultIsDegradedKey] as? Bool) == true { return }
+                cont.resume(returning: photo)
+            }
         }
     }
 }

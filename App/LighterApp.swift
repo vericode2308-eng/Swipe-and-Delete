@@ -12,6 +12,7 @@ import UIKit
         library: PhotoKitLibrary(),
         thumbnails: loader,
         images: loader,
+        media: loader,
         scanner: CleanupScanner(library: PhotoKitLibrary(), analyzer: VisionPhotoAnalyzer(),
                                 store: .standard(), shouldPause: {
             // Low Power Mode or a hot phone: wait instead of draining the battery.

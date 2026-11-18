@@ -71,3 +71,13 @@ struct SpokenSizeTests {
         #expect(Formatting.spokenSize(48_000_000) == "48 megabytes")
     }
 }
+
+@Suite struct ClockTests {
+    @Test func formats() {
+        #expect(Formatting.clock(14) == "0:14")
+        #expect(Formatting.clock(65.4) == "1:05")
+        #expect(Formatting.clock(3723) == "1:02:03")
+        #expect(Formatting.clock(0) == "0:00")
+        #expect(Formatting.clock(-3) == "0:00")
+    }
+}

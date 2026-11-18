@@ -71,6 +71,7 @@ public final class AppModel {
     public private(set) var session: SwipeSession?
     public let thumbnails: ThumbnailLoading
     public let images: PhotoImageLoading
+    public let media: MediaLoading
     public let links: AppLinks
     public let appVersion: String
     /// Review screen is up (marks are listed, nothing deleted yet).
@@ -114,6 +115,7 @@ public final class AppModel {
     public init(library: PhotoLibrary,
                 thumbnails: ThumbnailLoading = NoThumbnails(),
                 images: PhotoImageLoading = NoImages(),
+                media: MediaLoading = NoMedia(),
                 links: AppLinks = AppLinks(),
                 scanner: CleanupScanner? = nil,
                 purchases: Purchases? = nil,
@@ -127,6 +129,7 @@ public final class AppModel {
         self.library = library
         self.thumbnails = thumbnails
         self.images = images
+        self.media = media
         self.links = links
         self.scanner = scanner
         self.purchases = purchases

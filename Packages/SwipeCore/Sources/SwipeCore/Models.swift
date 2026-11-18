@@ -26,8 +26,10 @@ public struct Asset: Equatable, Hashable, Sendable, Identifiable {
     public let id: String
     public let kind: AssetKind
     public let created: Date
-    public init(id: String, kind: AssetKind = .photo, created: Date = .distantPast) {
-        self.id = id; self.kind = kind; self.created = created
+    /// Seconds, for videos only.
+    public let duration: TimeInterval?
+    public init(id: String, kind: AssetKind = .photo, created: Date = .distantPast, duration: TimeInterval? = nil) {
+        self.id = id; self.kind = kind; self.created = created; self.duration = duration
     }
 }
 
