@@ -428,3 +428,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **What:** "Select" button on the swipe screen opens `SelectView`, a grid of the open album: tap tiles (red tint + tick), "Select all" / "Clear", "Review N photos" sends the picks to the normal Review screen, so the single iOS prompt and the 50-a-day free limit still apply. Marks already made by swiping start selected. Non-goal "select all and delete" superseded by D-24.
 - **Verified:** SwipeFeatures tests pass; builds; installed on the owner's iPhone (Reftyy).
 - **Not verified:** how the grid looks or behaves (not run); performance with thousands of photos; AX5 / SE / Dawn / VoiceOver; no new unit test for the grid (logic reuses `SwipeSession.mark/unmark`).
+
+## Change 34 — Select grid: smooth scroll, drag-to-select, exact taps
+- **Why (owner, from a screen recording, 2026-11-18):** scrolling felt stuck; no Photos-style drag to select; tapping the bottom of a photo selected the one below.
+- **Cause / fix:** (1) one big glass card behind the whole grid and every tile re-drawing on each pick → plain grid, each tile is an `Equatable` view that only sees its own state. (2) Tiles were Buttons whose scaled-to-fill image could overflow the cell, so touches landed on a neighbour → fixed-size cells and taps resolved by arithmetic on the touch position (one tile per touch point, no overlap). (3) Added a sideways swipe that selects (or deselects, depending on the first tile touched) every tile it passes, including fast moves; mostly-vertical drags still scroll.
+- **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
+- **Not verified:** nothing seen running (the simulator run did not reach the grid, the recording was not played back), so smoothness, drag-select and tap accuracy are untested; no auto-scroll while dragging near the screen edge; AX5 / SE / VoiceOver.

@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 import SwipeCore
 import SwipeUI
 
@@ -16,26 +19,79 @@ public struct SelectView: View {
     private var allIDs: [String] { session.assets.map(\.id) }
     private var allPicked: Bool { !allIDs.isEmpty && picked.count == allIDs.count }
 
+    private let spacing: CGFloat = 4
+    @State private var dragMode: Bool?       // true = selecting, false = deselecting
+    @State private var lastIndex = 0
+
     public var body: some View {
         let t = Theme.resolve(scheme)
         VStack(spacing: 14) {
             header(t)
-            ScrollView {
-                let cols = [GridItem(.adaptive(minimum: 96), spacing: 8)]
-                LazyVGrid(columns: cols, spacing: 8) {
-                    ForEach(Array(session.assets.enumerated()), id: \.element.id) { i, a in tile(a, i, t) }
+            GeometryReader { geo in
+                let w = geo.size.width
+                let cols = max(3, Int((w + spacing) / (100 + spacing)))
+                let cell = (w - spacing * CGFloat(cols - 1)) / CGFloat(cols)
+                ScrollView {
+                    grid(cols: cols, cell: cell, width: w)
+                        .padding(.bottom, 8)
                 }
-                .padding(10)
-                .glass(in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-                .padding(.bottom, 8)
+                .scrollIndicators(.visible)
+                .scrollDisabled(dragMode != nil)
             }
-            .scrollIndicators(.hidden)
-            .scrollClipDisabled()
             footer(t)
         }
         .padding(.horizontal, 16).padding(.bottom, 8)
         .background { AppCanvas() }
         .onAppear { picked = Set(session.marked) }
+    }
+
+    /// Hit-testing is arithmetic on fixed cells, so a touch can only ever land on the tile drawn under it.
+    private func grid(cols: Int, cell: CGFloat, width: CGFloat) -> some View {
+        let assets = session.assets
+        let columns = Array(repeating: GridItem(.fixed(cell), spacing: spacing), count: cols)
+        func index(at p: CGPoint) -> Int? {
+            guard p.x >= 0, p.y >= 0, p.x < width else { return nil }
+            let c = min(cols - 1, Int(p.x / (cell + spacing)))
+            let i = Int(p.y / (cell + spacing)) * cols + c
+            return i < assets.count ? i : nil
+        }
+        return LazyVGrid(columns: columns, spacing: spacing) {
+            ForEach(Array(assets.enumerated()), id: \.element.id) { i, a in
+                SelectTile(id: a.id, on: picked.contains(a.id), cell: cell, loader: model.images,
+                           label: "Photo \(i + 1) of \(assets.count), \(picked.contains(a.id) ? "selected" : "not selected")") {
+                    toggle(a.id)
+                }
+            }
+        }
+        .frame(width: width)
+        .contentShape(Rectangle())
+        .gesture(SpatialTapGesture().onEnded { v in
+            if let i = index(at: v.location) { toggle(assets[i].id) }
+        })
+        .swipeSelect(
+            began: { p in
+                guard let i = index(at: p) else { return }
+                dragMode = !picked.contains(assets[i].id)
+                lastIndex = i
+                set(i...i, dragMode!)
+            },
+            moved: { p in
+                guard let mode = dragMode, let i = index(at: p) else { return }
+                set(min(i, lastIndex)...max(i, lastIndex), mode)
+                lastIndex = i
+            },
+            ended: { dragMode = nil })
+    }
+
+    private func toggle(_ id: String) {
+        if picked.contains(id) { picked.remove(id) } else { picked.insert(id) }
+    }
+
+    private func set(_ range: ClosedRange<Int>, _ on: Bool) {
+        let a = session.assets
+        for i in range where i < a.count {
+            if on { picked.insert(a[i].id) } else { picked.remove(a[i].id) }
+        }
     }
 
     private func header(_ t: Theme) -> some View {
@@ -62,34 +118,6 @@ public struct SelectView: View {
         .padding(.top, 4)
     }
 
-    private func tile(_ a: Asset, _ i: Int, _ t: Theme) -> some View {
-        let on = picked.contains(a.id)
-        return Button {
-            if on { picked.remove(a.id) } else { picked.insert(a.id) }
-        } label: {
-            Color.clear.aspectRatio(1, contentMode: .fit)
-                .overlay { PhotoImage(id: a.id, pointSize: CGSize(width: 120, height: 120), loader: model.images) }
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay {
-                    if on {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color(hex: Theme.blush, opacity: 0.35))
-                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .strokeBorder(Color(hex: Theme.blush), lineWidth: 3))
-                    }
-                }
-                .overlay(alignment: .topTrailing) {
-                    Image(systemName: on ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(on ? Color(hex: Theme.blush) : Color.white.opacity(0.9))
-                        .shadow(radius: 2).padding(6)
-                }
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Photo \(i + 1) of \(session.assets.count), \(on ? "selected" : "not selected")")
-        .accessibilityAddTraits(on ? .isSelected : [])
-    }
-
     private func footer(_ t: Theme) -> some View {
         Button { apply(); model.endSelect(); model.beginReview() } label: {
             Text(picked.isEmpty ? "Select photos to delete"
@@ -110,3 +138,90 @@ public struct SelectView: View {
         for id in allIDs { picked.contains(id) ? session.mark(id) : session.unmark(id) }
     }
 }
+
+
+/// One cell. Takes only its own state, so a pick re-draws one tile, not the whole grid.
+private struct SelectTile: View, Equatable {
+    let id: String
+    let on: Bool
+    let cell: CGFloat
+    let loader: PhotoImageLoading
+    let label: String
+    let toggle: () -> Void
+
+    nonisolated static func == (l: Self, r: Self) -> Bool { l.id == r.id && l.on == r.on && l.cell == r.cell }
+
+    var body: some View {
+        PhotoImage(id: id, pointSize: CGSize(width: 120, height: 120), loader: loader)
+            .frame(width: cell, height: cell)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay {
+                if on {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color(hex: Theme.blush, opacity: 0.35))
+                        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(Color(hex: Theme.blush), lineWidth: 3))
+                }
+            }
+            .overlay(alignment: .topTrailing) {
+                Image(systemName: on ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(on ? Color(hex: Theme.blush) : Color.white.opacity(0.9))
+                    .shadow(radius: 2).padding(5)
+            }
+            .allowsHitTesting(false)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(label)
+            .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
+            .accessibilityAction { toggle() }
+    }
+}
+
+private extension View {
+    @ViewBuilder func swipeSelect(began: @escaping (CGPoint) -> Void, moved: @escaping (CGPoint) -> Void,
+                                  ended: @escaping () -> Void) -> some View {
+        #if os(iOS)
+        gesture(HorizontalSwipeSelect(began: began, moved: moved, ended: ended))
+        #else
+        self
+        #endif
+    }
+}
+
+#if os(iOS)
+/// Photos-style drag select: starts only when the finger moves mostly sideways,
+/// so up and down still scrolls.
+private struct HorizontalSwipeSelect: UIGestureRecognizerRepresentable {
+    let began: (CGPoint) -> Void
+    let moved: (CGPoint) -> Void
+    let ended: () -> Void
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizerShouldBegin(_ g: UIGestureRecognizer) -> Bool {
+            guard let pan = g as? UIPanGestureRecognizer, let v = pan.view else { return false }
+            let t = pan.translation(in: v)
+            return abs(t.x) > abs(t.y)
+        }
+        func gestureRecognizer(_ a: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith b: UIGestureRecognizer) -> Bool { true }
+    }
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator { Coordinator() }
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let g = UIPanGestureRecognizer()
+        g.maximumNumberOfTouches = 1
+        g.delegate = context.coordinator
+        return g
+    }
+
+    func handleUIGestureRecognizerAction(_ g: UIPanGestureRecognizer, context: Context) {
+        let p = context.converter.localLocation
+        switch g.state {
+        case .began: began(p)
+        case .changed: moved(p)
+        case .ended, .cancelled, .failed: ended()
+        default: break
+        }
+    }
+}
+#endif
