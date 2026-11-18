@@ -72,6 +72,19 @@ icons) in both looks, checked over the lightest and darkest photo scrim.
 
 ### 2. Albums
 - Colour-field backdrop. Serif title "Albums" and an ⓘ glass button (About).
+- **Quick clean-up** (D-18): serif heading, small caption "Found on this
+  iPhone", then one large glass panel with three rows (58 pt high, radius 18):
+  round tinted icon · name · one-line detail · count · chevron.
+  - Duplicates — two overlapping squares, mist tint — "Same or near-identical
+    shots" — "86 in 31 sets".
+  - Pages & Things — page icon, blush tint — "Notes, documents, no people" —
+    "212".
+  - From WhatsApp — chat-bubble icon (never the WhatsApp logo), sage tint —
+    "Saved from your chats" — "1,480". Hidden if there is no WhatsApp album.
+  - While scanning: the detail line becomes "Checking 1,240 of 4,812" with a
+    2 pt progress hairline under the row; the count grows as results arrive.
+    Reduce Motion: no animated hairline, text only.
+  - Nothing found: "None found", dimmed, not a button.
 - Glass filter chips: All / Smart Albums / My Albums.
 - Two-column grid of album tiles (radius 22) with a glass caption bar: name and
   count. Empty albums hidden.
@@ -88,6 +101,10 @@ icons) in both looks, checked over the lightest and darkest photo scrim.
   ✓/✕ badge; tapping it = Undo.
 - Caption on the card (caption glass): date in serif, type in caps (PHOTO /
   SCREENSHOT / LIVE PHOTO / VIDEO · 0:14).
+- From a clean-up filter the title is the filter name. In Duplicates the
+  caption adds a small glass chip "Set 3 · 2 of 3"; sets follow each other
+  with no divider cards. Album chips are hidden for
+  filters (back returns to Albums).
 - **Drag:** the card follows the finger with tilt (max 12°). A DELETE or KEEP
   glass tag fades in, the card tints blush or sage, the matching dock button
   grows.
@@ -107,6 +124,9 @@ icons) in both looks, checked over the lightest and darkest photo scrim.
   tapping dims it and shows ✓.
 - Glass note: "Deleted photos stay in Recently Deleted for 30 days. With iCloud
   Photos on, they're removed from your other devices too."
+- Duplicates only: if every copy of a set is marked, a glass note "All
+  copies of 2 sets are marked. Tap one to keep it." (a reminder, never a
+  block).
 - Free plan only: a small line above the button, "Free plan: 50 deletions a
   day · 32 left today". Pro users never see it.
 - Primary pill (blush) **Delete 9 photos** → iOS prompt. Zero marked → back to
@@ -152,5 +172,7 @@ skips to the end.
 - The card is one element: "Photo, 14 March 2024".
 - Dynamic Type to AX5: album grid → one column; titles on their own line; no
   truncation of content; dock buttons keep 44 pt minimum.
+- Clean-up rows read as one element: "Duplicates, 86 photos in 31 sets,
+  button". While scanning: "Checking photos, 1,240 of 4,812".
 - Done reads as "1.2 gigabytes cleared. 38 reviewed, 31 kept, 7 deleted."
 - Check iPhone SE and the largest iPhone in both looks.

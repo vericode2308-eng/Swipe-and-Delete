@@ -11,7 +11,7 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 ## Core
 - **Core function:** clear out your iPhone photos by swiping: left deletes,
   right keeps.
-- **Core loop:** pick album → swipe each photo left or right → review the
+- **Core loop:** pick an album or a quick clean-up filter → swipe each photo left or right → review the
   marked ones → delete → celebrate → pick the next album.
 - **Time to value:** the first swipe happens within 2 taps of a granted
   permission (tap an album, then swipe).
@@ -37,12 +37,24 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 | R-15 | Light and dark looks that follow the iPhone's appearance setting. |
 | R-16 | Full VoiceOver, Dynamic Type up to AX5, Reduce Motion and Reduce Transparency support. |
 | R-17 | The app never uploads anything. No account, no server, no analytics. |
+| R-18 | **Quick clean-up** section at the top of Albums with three filters. Each opens the normal swipe flow (nothing is ever deleted automatically). Free for everyone, whole library (D-19). |
+| R-19 | **Duplicates:** exact copies anywhere in the library, plus near-identical shots taken within 60 seconds of each other. Shown set by set; the card says "Set 3 · 2 of 3". |
+| R-20 | **Pages & Things:** photos with no people that Apple's photo-quality check flags as "utility" (pages, notes, documents, receipts, things snapped as a reminder) or scores very low (blurred, accidental shots). Screenshots and videos excluded (they have their own albums). |
+| R-21 | **From WhatsApp:** the "WhatsApp" album that WhatsApp creates when "Save to Camera Roll" is on. Received and forwarded photos are both in it; WhatsApp does not mark which were forwarded. Row hidden if the album does not exist. |
+| R-22 | The clean-up scan runs on the iPhone (Apple Vision), only while the app is open, from local thumbnails (no iCloud downloads). Rows show progress ("Checking 1,240 of 4,812") and fill in as results arrive. Pauses in Low Power Mode or when the phone is hot. |
 
 ## Non-goals
 Adding any of these needs a new dated row in the decision log first.
 
 - A "Later" or "Skip" choice; saved progress; remembering kept photos.
-- Duplicate or similar-photo detection; whole-library storage scans.
+- Whole-library storage totals ("you could free 8 GB"). The clean-up scan
+  finds photos; it does not report storage. *(Duplicate detection was a
+  non-goal until D-18.)*
+- Automatic deletion or "select all and delete" from a filter: every photo
+  is still swiped.
+- Telling forwarded WhatsApp photos from received ones (not possible).
+- Filters beyond the three in R-18 (blurry-only, people, places, large
+  videos…) unless a new decision adds them.
 - Statistics or history beyond the Done screen of the current delete.
 - Video compression, editing, sharing, cloud backup.
 - Accounts, sign-in, sync, analytics, ads.
@@ -62,12 +74,16 @@ Adding any of these needs a new dated row in the decision log first.
 | Permission revoked while open | Return to Welcome with "Open Settings". |
 | Purchase failed / cancelled / pending / restricted | Plain message on the paywall; "Delete 50 now" still works. |
 | Daily count | Increases only after iOS confirms the deletion. Resets at local midnight. |
+| App closed mid-scan | Scan stops; what was already analysed is kept (D-21) and the scan continues from there next time. |
+| Photo only in iCloud, no local thumbnail | Skipped by the scan; still reachable in its normal album. |
+| Filter wrongly includes a good photo | The user swipes right (Keep). Nothing is deleted without a swipe and the Review screen. |
+| Every copy in a duplicate set is marked | Review shows "All copies of 2 sets are marked" so the user can keep one. |
+| No duplicates / no matches found | Row says "None found" and is not a button. |
 
 ## Owner questions still open
 - Bundle ID: confirm `com.vericodestudio.lighter` (permanent once registered).
 - Support email address and the URL for privacy, terms and support pages.
 - Apple team ID for `project.yml`.
-- Minimum iOS: 17 assumed (needed for `@Observable`, `PhaseAnimator`, `sensoryFeedback`).
 
 ## Decision log
 
@@ -90,3 +106,7 @@ Adding any of these needs a new dated row in the decision log first.
 | D-15 | 2026-11-18 | Add a light look alongside Dusk, following the system appearance. | Active |
 | D-16 | 2026-11-18 | Add an About sheet for Restore, Rate, Privacy and Acknowledgements (required by the standing rules once Pro exists). Not a Settings screen. | Active (proposed by Claude, confirm) |
 | D-17 | 2026-11-18 | App name **Lighter**; App Store title "Lighter: Swipe Photo Cleaner". Reason: at least 6 App Store apps already use "Swipe & Delete", one exactly "Swipe & Delete - Photo Cleaner". Bundle ID proposed `com.vericodestudio.lighter` (not yet registered). | Active (bundle ID: confirm) |
+| D-18 | 2026-11-18 | Add **Quick clean-up** filters: Duplicates, Pages & Things (no people: pages, notes, documents, accidental shots), From WhatsApp. They open the same swipe flow. Reverses the non-goal "duplicate or similar-photo detection". | Active |
+| D-19 | 2026-11-18 | The filters are free for everyone on the whole library. Pro still only removes the 50-a-day deletion limit. | Active |
+| D-20 | 2026-11-18 | Minimum **iOS 18** (was 17): needed for Apple Vision's photo-quality check (`isUtility`, aesthetics score) behind Pages & Things. | Active |
+| D-21 | 2026-11-18 | The scan's results (per-photo labels and image fingerprints, not swipe progress) are kept on the iPhone so the scan does not repeat on every launch. D-02 still holds: swiping always starts from item 1. | Active (proposed by Claude, confirm) |

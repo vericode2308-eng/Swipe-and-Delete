@@ -3,7 +3,7 @@
 Scope: `APP_PLAN.md`. Look: `DESIGN_BRIEF.md`.
 
 ## 1. Setup
-- Native SwiftUI, **iOS 17+**, Swift 6 strict concurrency, portrait only.
+- Native SwiftUI, **iOS 18+** (D-20), Swift 6 strict concurrency, portrait only.
 - **XcodeGen:** `project.yml` is the source of truth. `*.xcodeproj` is
   git-ignored; run `xcodegen generate` after a checkout or a `project.yml`
   change. `DEVELOPMENT_TEAM` lives in `project.yml` (owner to supply).
@@ -35,6 +35,8 @@ App/
   PhotoKitLibrary.swift          // the ONLY code that deletes
   PhotoKitImageLoader.swift      // PHCachingImageManager, prefetch next 3
   StoreKitPurchases.swift        // StoreKit 2: product, purchase, restore, entitlements
+  VisionPhotoAnalyzer.swift      // Vision: faces/people, quality (isUtility, score),
+                                 // feature print, 64-bit image hash, from thumbnails
   Resources/ (Assets, fonts, PrivacyInfo.xcprivacy, Products.storekit)
 Packages/
   SwipeCore/                     // no SwiftUI, no PhotoKit, no StoreKit
@@ -45,6 +47,9 @@ Packages/
     DeletionAllowance.swift      // 50 a day, local-midnight reset, injected clock
     AccessPolicy.swift           // free vs pro: how many can be deleted now
     ReviewPromptPolicy.swift     // when to ask for a rating
+    PhotoAnalyzer.swift          // protocol: analyse(asset) -> PhotoTraits
+    CleanupIndex.swift           // pure rules: duplicate sets, Pages & Things
+    CleanupScanner.swift         // walks the library, resumes, pauses, caches
     Formatting.swift             // bytes → "1.2 GB", "room for about N photos"
     Fakes/ FakePhotoLibrary.swift, FakePurchases.swift
     Tests/
@@ -63,6 +68,22 @@ public protocol PhotoLibrary: Sendable {
     func assets(in album: Album) async -> [Asset]     // oldest → newest
     func byteSize(of ids: [String]) async -> Int64    // Done screen
     func delete(_ ids: [String]) async throws         // one performChanges
+    func whatsAppAlbum() async -> Album?              // user album titled "WhatsApp"
+}
+
+public struct PhotoTraits: Codable, Sendable {        // one per analysed photo
+    public let id: String, modified: Date, created: Date
+    public let hasPeople: Bool                        // face or human body found
+    public let isUtility: Bool                        // Vision quality check
+    public let qualityScore: Float                    // -1 … 1
+    public let imageHash: UInt64                      // exact / near-exact copies
+    public let featurePrint: Data                     // near-identical shots
+    public let visionRevision: Int                    // re-analyse if it changes
+}
+
+public struct CleanupIndex {                          // pure, host-tested
+    public func duplicateSets(_ t: [PhotoTraits]) -> [[String]]
+    public func pagesAndThings(_ t: [PhotoTraits]) -> [String]
 }
 
 public protocol Purchases: Sendable {
@@ -122,6 +143,26 @@ public struct AccessPolicy {
   `.contentTransition(.numericText(value:))` for the count-up, one `Canvas`
   in `TimelineView(.animation)` for the sparkles, attached to the whole
   screen. `.sensoryFeedback(.success, trigger:)`.
+- **Clean-up scan** (D-18 to D-21): `CleanupScanner` runs at `.utility`
+  priority while the app is open, newest photos first, from local 300 px
+  thumbnails (`isNetworkAccessAllowed = false`; no local thumbnail → skip).
+  Per photo: `DetectFaceRectanglesRequest` + `DetectHumanRectanglesRequest`,
+  `CalculateImageAestheticsScoresRequest` (iOS 18; device only, not the
+  simulator), `GenerateImageFeaturePrintRequest`, and a 64-bit difference
+  hash. Pauses on Low Power Mode or thermal state `.serious`.
+- **Cache:** `PhotoTraits` stored in Application Support (`cleanup-v1.bin`),
+  keyed by `localIdentifier` + modification date + Vision revision; entries
+  for deleted photos are dropped on the next scan. Holds no swipe progress
+  (D-02). A corrupt or unreadable file is deleted and the scan starts again.
+- **Duplicates:** (a) same image hash (Hamming distance ≤ 2) anywhere in the
+  library; (b) feature-print distance below a threshold for photos taken
+  within 60 s of each other. Start at 0.35 and tune on the owner's library
+  (one public report: 0.2 missed duplicates, 0.5 grouped unrelated scenes).
+  Sets ordered newest first; within a set, oldest first.
+- **Pages & Things:** photo (not video, not screenshot), `hasPeople == false`
+  and (`isUtility` or `qualityScore < −0.3`, tuned on device).
+- **From WhatsApp:** fetch the user album whose title is exactly "WhatsApp";
+  no scan needed.
 - Review prompt (`ReviewPromptPolicy`): after a successful delete on the
   third completed album on at least the second distinct day, shown after the
   user taps Back to Albums. Never after an error, a purchase or on first run.
@@ -137,6 +178,7 @@ public struct AccessPolicy {
 | 4 | Albums with PhotoKit + About sheet (no purchases yet) | Counts match the Photos app |
 | 5 | Swipe carousel, dock, drag, haptics, ImageLoader | Smooth on a 1,000+ item album on device |
 | 6 | Review + delete + Done celebration | Prompt; cancel stays; freed size plausible vs Settings › Storage |
+| 6b | Quick clean-up: scanner, cache, Duplicates, Pages & Things, From WhatsApp rows | Real library on device: sets look right, few false matches; scan of 5,000 photos finishes with the app open; killing the app mid-scan resumes |
 | 7 | StoreKit 2 Pro, paywall, Restore, daily limit | Purchase / cancel / restore / pending with `Products.storekit` from Xcode, then sandbox |
 | 8 | Video / Live Photo playback, zoom | Plays; audio stops on swipe |
 | 9 | Accessibility + Dynamic Type AX5 + Reduce Motion / Transparency + iPhone SE pass | VoiceOver finishes a full album |
@@ -153,6 +195,11 @@ Host tests (`swift test` in `SwipeCore`):
   true; Pro → 72, paywall false.
 - Count is not recorded when delete throws (fake library).
 - Formatting: 0, 999 MB, 1.2 GB, "room for about N photos" rounding.
+- CleanupIndex: identical hashes in different years form one set; two
+  similar prints 30 s apart form a set, 2 minutes apart do not; a photo with
+  people is never in Pages & Things; videos and screenshots are excluded.
+- Scanner cache: changed modification date or Vision revision → re-analyse;
+  corrupt file → deleted, scan restarts; deleted photo → entry dropped.
 - ReviewPromptPolicy: thresholds and the "never after purchase/error" cases.
 
 App-level checks (device, listed as Not verified until done):
@@ -165,9 +212,17 @@ App-level checks (device, listed as Not verified until done):
 - `fileSize` KVC could change in a future iOS → fall back to "about" or hide
   the size; the celebration still works with counts.
 - Guideline 4.3 (crowded "photo cleaner" category): the difference is the
-  calm, glass, one-gesture experience and no subscription.
+  calm, glass, one-gesture experience and no subscription. Duplicate filters
+  are common in this category, so the swipe flow must stay the centre.
 - Guideline 3.1.1: the free plan stays genuinely useful (unlimited swiping,
   50 deletions a day).
+- **Clean-up accuracy** can only be judged on a real library on a real
+  iPhone (the quality check does not run in the simulator). Thresholds are
+  starting points; tune them before release and record the values.
+- Clean-up scan time and battery on 50k libraries: newest first, resumable,
+  paused on Low Power Mode / heat; measure on device.
+- The "WhatsApp" album title is set by WhatsApp; if it changes the row just
+  hides.
 - Large libraries (50k+): fetch with `PHFetchResult` lazily; never map the
   whole album into memory for "All Photos".
 - **Environment:** this cloud container has no Xcode. Builds, simulator and

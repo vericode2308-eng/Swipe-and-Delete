@@ -23,6 +23,9 @@ Why this split:
 - The **keyword field** adds words not already in the title or subtitle
   (repeating words gives no extra ranking), with no spaces after commas, no
   competitor names and no features we do not have (no "duplicates", no "AI").
+  **Once Duplicates (D-18) is built and verified**, swap a weak word (likely
+  "memory") for "duplicate"; until then the draft stays as it is (rule 10.2).
+  Never put "WhatsApp" in the name, subtitle or keywords (trademark).
   Apple combines words across fields, so "camera" + "roll" covers "camera
   roll", "clean" + "up" via subtitle + title covers "clean up photos".
 - en-US spelling ("organize") in the US keyword field. A later en-GB
@@ -70,6 +73,8 @@ Why this split:
   cleaners.
 - No subscription. Free with 50 deletions a day; Pro is a one-time $4.99.
 - Private: photos never leave the iPhone; no account; no tracking.
+- Quick clean-up (after it is verified): duplicates, pages and notes, and
+  WhatsApp saves, found on the iPhone, each still swiped by the user.
 
 ## Pricing
 - Free download; non-consumable `com.vericodestudio.lighter.pro` at
@@ -81,6 +86,8 @@ Why this split:
 3. Review — "Check before anything goes."
 4. Done celebration — "See the space you cleared."
 5. Paywall terms (labelled Pro) — "No subscription. One-time Pro."
+6. Quick clean-up rows (after verification) — "Duplicates and notes, found
+   for you."
 Native sizes, RGB without alpha, captured from the real build, both looks
 considered; no screenshot with a StoreKit "price unavailable" state.
 

@@ -133,6 +133,33 @@ Working branch: `claude/sweet-gauss-20esu8`
   keyword popularity (Apple Search Ads), trademark search; bundle ID
   `com.vericodestudio.lighter` awaits owner confirmation.
 
+**Change 12 — Quick clean-up filters (Duplicates, Pages & Things, WhatsApp)**
+- **What:** owner asked for filters that gather photos worth deleting:
+  duplicates; photos of pages, notes, cupboards, doors or accidental shots
+  ("anything which is not a human"); and WhatsApp forwarded photos. Claude
+  researched Apple Vision: the iOS 18 photo-quality check flags "utility"
+  images (receipts, documents, screenshots); feature prints compare images
+  but have no official similarity threshold; WhatsApp saves to an album
+  named "WhatsApp" and does not mark forwarded photos. Owner chose: filters
+  free for everyone on the whole library (D-19); minimum iOS raised to 18
+  (D-20). Added D-18 (the filters, reversing the duplicate-detection
+  non-goal) and D-21 (scan results kept on the iPhone; proposed, confirm).
+  Every filter opens the normal swipe flow; nothing is deleted
+  automatically.
+- **Design:** Albums board now has a "Quick clean-up" glass panel with the
+  three rows; the old "Swipe & Delete" wordmark on that board was replaced
+  by the ⓘ About button (R-14); canvas title renamed "Lighter — App Design".
+- **Files:** `APP_PLAN.md` (R-18 to R-22, non-goals, failure paths,
+  D-18 to D-21), `DESIGN_BRIEF.md`, `BUILD_PLAN.md` (iOS 18, scanner, cache,
+  rules, stage 6b, tests, risks), `ASO_PLAN.md`, design canvas (version 29).
+- **Verified:** web research (sources in the chat); all docs searched for
+  "iOS 17" and the old non-goal. **Not verified:** detection accuracy and
+  scan speed (need a real library on a real iPhone; the quality check does
+  not run in the simulator); canvas rendering not viewed by Claude.
+- **Gap found:** the Albums board still showed "Swipe & Delete" after the
+  rename in Change 11. **Fix:** removed. Lesson: after a rename, check every
+  design board, not only the Welcome screen.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |
@@ -146,6 +173,7 @@ Working branch: `claude/sweet-gauss-20esu8`
 | M-07 | 2026-11-18 | Old coral / teal / indigo wording left in the Swipe screen spec | Claude | Rewritten in `DESIGN_BRIEF.md` | Same as M-04 |
 | M-08 | 2026-11-18 | Rules said "commit" but not "push"; owner had to raise it | Owner | Rule 1.1 now says commit and push automatically | Write the habit into the rules, not just do it |
 | M-09 | 2026-11-18 | Name "Swipe & Delete" was recommended and approved (D-13) before checking the App Store; six apps already use it | Claude (during ASO research) | Renamed to Lighter (D-17) before any bundle ID was registered | Search the App Store for the name before recommending it |
+| M-10 | 2026-11-18 | After the rename to Lighter, the Albums design board still said "Swipe & Delete" | Claude (Change 12) | Replaced with the ⓘ About button | After a rename, search every design file too, not only the docs |
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).
