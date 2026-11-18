@@ -50,8 +50,8 @@ Adding any of these needs a new dated row in the decision log first.
 - Whole-library storage totals ("you could free 8 GB"). The clean-up scan
   finds photos; it does not report storage. *(Duplicate detection was a
   non-goal until D-18.)*
-- Automatic deletion or "select all and delete" from a filter: every photo
-  is still swiped.
+- Automatic deletion. *(Superseded by D-24: the user may now pick many photos in a
+  grid; nothing is ever deleted without the Review screen and the iOS prompt.)*
 - Telling forwarded WhatsApp photos from received ones (not possible).
 - Filters beyond the three in R-18 (blurry-only, people, places, large
   videos…) unless a new decision adds them.
@@ -111,3 +111,4 @@ Adding any of these needs a new dated row in the decision log first.
 | D-21 | 2026-11-18 | The scan's results (per-photo labels and image fingerprints, not swipe progress) are kept on the iPhone so the scan does not repeat on every launch. D-02 still holds: swiping always starts from item 1. Owner confirmed ("Keep d21"). | Active |
 | D-22 | 2026-11-18 | After **Delete N now** on the paywall, the marks beyond N are dropped, not kept for the next day (keeps D-02: nothing is remembered). | Active |
 | D-23 | 2026-11-18 | Confirmed: switching album with marks asks "Discard 9 marks?" first (R-06). | Active |
+| D-24 | 2026-11-18 | Add **Select** on the swipe screen: a grid of the open album where the user taps many photos (or Select all) and goes to Review. Owner request (150 screenshots). Supersedes the non-goal "select all and delete". Still ends in Review and the one iOS prompt; free-plan limit unchanged. | Active |

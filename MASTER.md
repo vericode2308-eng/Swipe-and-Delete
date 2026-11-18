@@ -422,3 +422,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **What:** albums now open newest first (`PhotoKitLibrary.assets(in:)`; R-03 in APP_PLAN updated, old rule superseded). Swipe screen: dock buttons are labelled ("Delete" with trash on red, "Keep" with heart on green), a line above them reads "Swipe left to delete / Swipe right to keep" with arrows, the drag tag and the peek-card badge use trash / heart instead of ✕ / ✓.
 - **Verified:** SwipeCore 48 and SwipeFeatures 41 tests pass; app builds for the iOS Simulator.
 - **Not verified:** how it looks on a simulator or device (not run); Dawn look; AX5 and iPhone SE layout of the new dock; the Review screen still uses ✓ / ✕ on tiles; screenshots in media/screenshots are now out of date for Swipe.
+
+## Change 33 — Select many photos at once (D-24)
+- **Why (owner, 2026-11-18):** 150 screenshots to delete; swiping one by one is too slow.
+- **What:** "Select" button on the swipe screen opens `SelectView`, a grid of the open album: tap tiles (red tint + tick), "Select all" / "Clear", "Review N photos" sends the picks to the normal Review screen, so the single iOS prompt and the 50-a-day free limit still apply. Marks already made by swiping start selected. Non-goal "select all and delete" superseded by D-24.
+- **Verified:** SwipeFeatures tests pass; builds; installed on the owner's iPhone (Reftyy).
+- **Not verified:** how the grid looks or behaves (not run); performance with thousands of photos; AX5 / SE / Dawn / VoiceOver; no new unit test for the grid (logic reuses `SwipeSession.mark/unmark`).

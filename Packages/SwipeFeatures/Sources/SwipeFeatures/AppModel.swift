@@ -76,6 +76,8 @@ public final class AppModel {
     public let appVersion: String
     /// Review screen is up (marks are listed, nothing deleted yet).
     public private(set) var reviewing = false
+    /// Multi-select grid is up (D-24): pick many photos at once instead of swiping.
+    public private(set) var selecting = false
     public private(set) var isDeleting = false
     /// Calm, authored text for the Review screen; nil when there is nothing to say.
     public private(set) var deleteMessage: String?
@@ -309,7 +311,10 @@ public final class AppModel {
         session = SwipeSession(album: album, assets: assets)
     }
 
-    public func closeAlbum() { session = nil; reviewing = false; summary = nil }
+    public func closeAlbum() { session = nil; reviewing = false; selecting = false; summary = nil }
+
+    public func beginSelect() { guard session != nil else { return }; selecting = true }
+    public func endSelect() { selecting = false }
 
     // MARK: Review and delete
 

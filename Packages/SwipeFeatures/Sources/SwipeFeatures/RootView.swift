@@ -19,6 +19,8 @@ public struct RootView: View {
                 DoneView(model: model, summary: summary).id(ObjectIdentifier(session))
             } else if let session = model.session, model.reviewing {
                 ReviewView(model: model, session: session).id(ObjectIdentifier(session))
+            } else if let session = model.session, model.selecting {
+                SelectView(model: model, session: session).id(ObjectIdentifier(session))
             } else if let session = model.session {
                 SwipeView(model: model, session: session).id(ObjectIdentifier(session))
             } else {

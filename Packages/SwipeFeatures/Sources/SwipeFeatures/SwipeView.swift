@@ -107,15 +107,27 @@ public struct SwipeView: View {
         }
         .disabled(session.marked.isEmpty)
         .accessibilityLabel("Review \(session.marked.count) marked for deletion")
+        let select = Button { model.beginSelect() } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.circle")
+                Text("Select")
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color(hex: t.text))
+            .padding(.horizontal, 14).frame(minHeight: 44)
+            .glass(in: Capsule())
+        }
+        .accessibilityLabel("Select many photos")
+        .accessibilityHint("Pick several photos at once to delete")
         return Group {
             if typeSize.isAccessibilitySize {
                 // Big text: buttons share a row, the title gets the full width below.
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack { back; Spacer(minLength: 8); review }
+                    HStack { back; Spacer(minLength: 8); select; review }
                     title
                 }
             } else {
-                HStack(spacing: 12) { back; title; Spacer(minLength: 8); review }
+                HStack(spacing: 8) { back; title; Spacer(minLength: 4); select; review }
             }
         }
         .padding(.top, 4)
