@@ -39,6 +39,7 @@ public struct SwipeView: View {
         }
             .background { backdrop(t) }
             .sensoryFeedback(.impact(weight: .light), trigger: commitTick)
+            .sensoryFeedback(.selection, trigger: scrubbing) { _, now in !now }
             .onChange(of: session.index) { prefetch(); holdingLive = false }
             .mediaCover(item: $viewing, model: model)
             .onAppear { prefetch() }
@@ -171,16 +172,25 @@ public struct SwipeView: View {
     private struct Slot: Identifiable {
         let asset: Asset?          // nil = the "That's all" card
         let rel: Int               // -1 previous, 0 current, 1 next
-        var id: String { rel == -1 ? "peek-\(asset!.id)" : (asset.map { "card-\($0.id)" } ?? "end") }
+        var id: String { rel < 0 ? "peek-\(asset!.id)" : (asset.map { "card-\($0.id)" } ?? "end") }
     }
 
     private var slots: [Slot] {
         var out: [Slot] = []
         let i = session.index, a = session.assets
-        if i - 1 >= 0, i - 1 < a.count { out.append(Slot(asset: a[i - 1], rel: -1)) }
-        if i < a.count { out.append(Slot(asset: a[i], rel: 0)) } else { out.append(Slot(asset: nil, rel: 0)) }
-        if i + 1 < a.count { out.append(Slot(asset: a[i + 1], rel: 1)) }
+        let n = ring.visible
+        for rel in -n...n {
+            let j = i + rel
+            if rel == 0 { out.append(Slot(asset: i < a.count ? a[i] : nil, rel: 0)) }
+            else if j >= 0, j < a.count { out.append(Slot(asset: a[j], rel: rel)) }
+        }
         return out
+    }
+
+    private var ring: CoverFlowRing {
+        var r = CoverFlowRing()
+        if reduceMotion { r.tilt = 0; r.maxTilt = 0 }
+        return r
     }
 
     private func carousel(_ t: Theme) -> some View {
@@ -188,15 +198,17 @@ public struct SwipeView: View {
             let cardW = geo.size.width * 0.78
             let size = CGSize(width: cardW, height: geo.size.height)
             let step = cardW + gap
+            let ring = self.ring
             ZStack {
                 ForEach(slots) { slot in
-                    let r = CGFloat(slot.rel) - scrubFrac
+                    let pose = ring.pose(at: CGFloat(slot.rel) - scrubFrac, step: step, cardWidth: cardW)
                     slotView(slot, size: size, step: step, screenW: geo.size.width, t)
-                        .rotation3DEffect(.degrees(Double(-r) * 32), axis: (x: 0, y: 1, z: 0),
-                                          anchor: .center, perspective: 0.2)
-                        .offset(x: -scrubFrac * step)
-                        .scaleEffect(1 - min(abs(r), 1.5) * 0.04)
-                        .zIndex(1 - Double(min(abs(r), 1)))
+                        .rotation3DEffect(.degrees(pose.rotation), axis: (x: 0, y: 1, z: 0),
+                                          anchor: .center, perspective: ring.perspective)
+                        .scaleEffect(pose.scale)
+                        .opacity(pose.opacity)
+                        .offset(x: pose.x, y: pose.y)
+                        .zIndex(pose.depth)
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height)
@@ -217,8 +229,6 @@ public struct SwipeView: View {
                     .overlay(alignment: .topTrailing) { badge(for: asset, t).padding(.top, 14).padding(.trailing, 3) }
             }
             .buttonStyle(.plain)
-            .scaleEffect(0.94)
-            .offset(x: -step)
             .transition(fade)
             .accessibilityLabel("Undo last decision")
         case (let asset?, 0):
@@ -244,7 +254,6 @@ public struct SwipeView: View {
                 .accessibilityAction(named: asset.kind == .video ? "Play" : "Open") { viewing = asset }
         case (let asset?, _):
             PhotoCard(asset: asset, size: size, loader: model.images, theme: t, showsCaption: false)
-                .offset(x: step)
                 .transition(.asymmetric(insertion: fade, removal: .identity))
                 .accessibilityHidden(true)
         default:
@@ -396,7 +405,7 @@ public struct SwipeView: View {
             LazyHStack(spacing: 0) {
                 ForEach(session.assets) { a in
                     let isMarked = marked.contains(a.id)
-                    Circle()
+                    Capsule()
                         .fill(isMarked ? Color(hex: Theme.blush) : Color(hex: t.text))
                         .frame(width: 8, height: 8)
                         .frame(width: pitch, height: 44)
@@ -404,8 +413,13 @@ public struct SwipeView: View {
                         .visualEffect { c, proxy in
                             let f = proxy.frame(in: .scrollView(axis: .horizontal))
                             let d = min(6, abs(f.midX - viewW / 2) / pitch)
-                            return c.scaleEffect(max(0.45, 1.9 - d * 0.3))
+                            let near = max(0, 1 - d)          // 1 at the centre: dot stretches into a pill
+                            let s = max(0.45, 1.5 - d * 0.2)
+                            return c.scaleEffect(x: s * (1 + 1.2 * near), y: s)
                                 .opacity(max(0.25, 1 - d * 0.12))
+                        }
+                        .onTapGesture {
+                            withAnimation(reduceMotion ? nil : spring) { stripID = a.id }
                         }
                         .id(a.id)
                 }

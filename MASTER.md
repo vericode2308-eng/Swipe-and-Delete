@@ -469,3 +469,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **Files:** `SwipeView.swift`.
 - **Verified:** tests pass; device build and install.
 - **Not verified:** not seen on screen; whether the cut-off is fully gone, and the look of the tilt.
+
+## Change 41 — Cover Flow ring carousel (D-26)
+- **What:** owner pasted a React Native "3D ring carousel" spec; this app is SwiftUI, so it was translated. New `CoverFlowRing` (pure geometry, configurable: tilt per card, cap, perspective, scale/opacity falloff, drop, spacing, visible count). The swipe carousel now draws 2 cards each side, each turned, shrunk, dropped and faded by its distance from the centre, all moving together as the dot scrubber turns the ring. The active dot stretches into a pill; tapping a dot jumps there; a selection haptic fires when scrubbing settles. Reduce Motion: tilt off. Drag on the photo is unchanged (Delete / Keep). Wrap-around left out on purpose (finite album).
+- **Files:** `CoverFlowRing.swift`, `SwipeView.swift`, `CoverFlowRingTests.swift`; `APP_PLAN.md` D-26.
+- **Verified:** SwipeFeatures tests pass (46, incl. 5 new ring-geometry tests).
+- **Not verified:** nothing seen running (no simulator or device pass): look and balance of the ring, overlap with the current photo (cf. Change 40), pill animation, tap-to-jump, haptic, 60/120 FPS and memory with 5 live cards, Reduce Motion, SE / AX sizes. Spec items not done: press-and-drag *position-mapped* scrubbing (dots still scroll under the finger), infinite loop, flick-across-many-photos is the scroll view's own momentum, not custom physics.
