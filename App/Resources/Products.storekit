@@ -1,0 +1,20 @@
+{
+  "identifier" : "7A1C2E40",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "6740000001",
+      "localizations" : [
+        { "description" : "Delete as many photos as you like, every day. Paid once.", "displayName" : "Lighter Pro", "locale" : "en_US" }
+      ],
+      "productID" : "com.vericodestudio.lighter.pro",
+      "referenceName" : "Lighter Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {},
+  "subscriptionGroups" : [],
+  "version" : { "major" : 3, "minor" : 0 }
+}

@@ -2,7 +2,7 @@ import SwiftUI
 import SwipeCore
 import SwipeUI
 
-/// Pro, Restore and Unlock rows arrive with purchases in Stage 7.
+/// Pro status, Unlock and Restore (R-14).
 /// Rate and Privacy rows show only once the owner supplies the links.
 struct AboutSheet: View {
     let model: AppModel
@@ -17,7 +17,22 @@ struct AboutSheet: View {
                 Text("Lighter").font(.display(40)).foregroundStyle(Color(hex: t.text))
                     .accessibilityAddTraits(.isHeader)
                 VStack(spacing: 0) {
-                    row("Free · \(DeletionAllowance.dailyFree) deletions a day", t)
+                    row(model.isPro ? "Lighter Pro · unlimited deletions" : "Free · \(DeletionAllowance.dailyFree) deletions a day", t)
+                    if model.hasStore {
+                        if !model.isPro {
+                            divider(t)
+                            action(model.proPrice.map { "Unlock Pro – \($0)" } ?? (model.priceFailed ? "Price unavailable" : "Loading price…"), t,
+                                   enabled: model.proPrice != nil) { await model.unlockPro() }
+                        }
+                        divider(t)
+                        action("Restore Purchases", t) { await model.restorePurchases() }
+                        if let m = model.purchaseMessage {
+                            Text(m).font(.footnote).foregroundStyle(Color(hex: t.textSecondary))
+                                .padding(.horizontal, 16).padding(.bottom, 12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .accessibilityAddTraits(.updatesFrequently)
+                        }
+                    }
                     if let url = model.links.rateOnAppStore { divider(t); link("Rate on the App Store", url, t) }
                     if let url = model.links.privacyPolicy { divider(t); link("Privacy Policy", url, t) }
                     divider(t)
@@ -50,6 +65,7 @@ struct AboutSheet: View {
             .padding(20)
         }
         .appCanvas()
+        .onAppear { model.dismissPaywallMessage() }
         .presentationDetents([.medium, .large])
         .presentationBackground(.clear)
         .overlay(alignment: .topTrailing) {
@@ -62,6 +78,17 @@ struct AboutSheet: View {
     private func row(_ text: String, _ t: Theme) -> some View {
         Text(text).foregroundStyle(Color(hex: t.text))
             .padding(.horizontal, 16).frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+    }
+
+    private func action(_ title: String, _ t: Theme, enabled: Bool = true,
+                        _ run: @escaping () async -> Void) -> some View {
+        Button { Task { await run() } } label: {
+            Text(title).foregroundStyle(Color(hex: t.text))
+                .padding(.horizontal, 16).frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled || model.isPurchasing)
+        .opacity(enabled ? 1 : 0.5)
     }
 
     private func link(_ title: String, _ url: URL, _ t: Theme) -> some View {

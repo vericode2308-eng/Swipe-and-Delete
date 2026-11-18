@@ -382,3 +382,9 @@ See the decision log in `APP_PLAN.md` (D-01 onwards).
 - **Choices:** flat-colour hashes (under 8 or over 56 set bits) never match; cache stores feature prints as Float32 (size on a large library not yet measured); cache revision = recipe + iOS major version.
 - **Verified:** SwipeCore 46 and SwipeFeatures 28 tests pass; app builds; panel renders in the simulator.
 - **Not verified:** everything the done condition names (real library, false-match rate, 5,000-photo scan, kill and resume), the Vision quality check (not available in the simulator), thresholds, battery.
+
+**Change 24 — Stage 7: StoreKit 2 Pro, paywall, Restore**
+- **What:** `Purchases` protocol + `FakePurchases` (core), `StoreKitPurchases` (product `com.vericodestudio.lighter.pro`, entitlements, `Transaction.updates` listener), `Products.storekit` wired to the scheme's Run action, `PaywallSheet`, Pro/Unlock/Restore rows in About, `-debug.pro YES` (Debug builds only).
+- **Behaviour:** Delete with more marked than today's allowance opens the paywall instead of the iOS prompt (R-13). "Delete N now" deletes the first N and drops the other marks (D-22). A successful purchase closes the paywall and the user taps Delete again; it does not delete by itself. Price comes only from the store; if it can't load the pill reads "Price unavailable" and is disabled.
+- **Verified:** SwipeFeatures 36 tests pass (paywall trigger, success, cancel, pending, failure, price failure, restore found / none / error, Pro skips paywall, debug flag, overflow drop). App builds. About sheet in the simulator shows "Price unavailable" with Unlock disabled, as intended.
+- **Not verified:** a real purchase, cancel, pending and restore with `Products.storekit` from Xcode, then sandbox (the stage's done condition); the paywall sheet's look; Dawn; VoiceOver; AX5.

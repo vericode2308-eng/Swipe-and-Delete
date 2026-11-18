@@ -83,6 +83,17 @@ public final class AppModel {
     /// Set after a confirmed delete; the root asks for a rating once after Back to Albums.
     public private(set) var reviewPromptDue = false
     public var isPro = false
+    /// Paywall sheet over Review (R-13). Only ever set by a delete that does not fit today's allowance.
+    public private(set) var showsPaywall = false
+    /// Store price text; nil while loading or when it cannot be loaded (never a made-up price).
+    public private(set) var proPrice: String?
+    public private(set) var priceFailed = false
+    public private(set) var isPurchasing = false
+    /// Plain message for the paywall and About after a purchase or restore attempt.
+    public private(set) var purchaseMessage: String?
+    private let purchases: Purchases?
+    private let debugPro: Bool
+    private var proTask: Task<Void, Never>?
     public private(set) var allowance: DeletionAllowance
     private var prompts: ReviewPromptPolicy
     private let allowanceStore: AllowanceStore
@@ -105,6 +116,8 @@ public final class AppModel {
                 images: PhotoImageLoading = NoImages(),
                 links: AppLinks = AppLinks(),
                 scanner: CleanupScanner? = nil,
+                purchases: Purchases? = nil,
+                debugPro: Bool = false,
                 appVersion: String = "",
                 allowanceStore: AllowanceStore = AllowanceStore(),
                 promptStore: ReviewPromptStore = ReviewPromptStore(),
@@ -116,6 +129,8 @@ public final class AppModel {
         self.images = images
         self.links = links
         self.scanner = scanner
+        self.purchases = purchases
+        self.debugPro = debugPro
         self.appVersion = appVersion
         self.presentLimitedPicker = presentLimitedPicker
         self.openSettings = openSettings
@@ -137,12 +152,73 @@ public final class AppModel {
     /// photos show up in the counts.
     public func refresh() async {
         status = library.currentStatus()
+        if status.isGranted { await startStore() }
         guard status.isGranted else {
             albums = []; hasLoadedAlbums = false; session = nil; reviewing = false; summary = nil
             stopScan(); cleanup = CleanupResult(); return
         }
         await loadAlbums()
         startScan()
+    }
+
+    // MARK: Pro
+
+    public var hasStore: Bool { purchases != nil }
+
+    /// Entitlement and price. Call on launch; also starts listening for store changes
+    /// (an approved Ask to Buy, a refund).
+    public func startStore() async {
+        guard let purchases else { return }
+        isPro = await purchases.isPro() || debugPro
+        if proTask == nil {
+            proTask = Task { [weak self] in
+                for await pro in purchases.proChanges() { self?.isPro = pro || (self?.debugPro ?? false) }
+            }
+        }
+        await loadPrice()
+    }
+
+    public func loadPrice() async {
+        guard let purchases else { return }
+        do { proPrice = try await purchases.product().displayPrice; priceFailed = false }
+        catch { proPrice = nil; priceFailed = true }
+    }
+
+    public func presentPaywall() { purchaseMessage = nil; showsPaywall = true; if proPrice == nil { Task { await loadPrice() } } }
+    public func dismissPaywallMessage() { purchaseMessage = nil }
+    public func dismissPaywall() { showsPaywall = false; purchaseMessage = nil }
+
+    public func unlockPro() async {
+        guard let purchases, !isPurchasing, proPrice != nil else { return }
+        isPurchasing = true; purchaseMessage = nil
+        defer { isPurchasing = false }
+        switch await purchases.purchase() {
+        case .success:
+            isPro = true; showsPaywall = false
+        case .cancelled:
+            break
+        case .pending:
+            purchaseMessage = "Your purchase is waiting for approval. Lighter unlocks as soon as it's approved."
+        case .failed:
+            purchaseMessage = "The purchase didn't go through. You haven't been charged."
+        }
+    }
+
+    public func restorePurchases() async {
+        guard let purchases, !isPurchasing else { return }
+        isPurchasing = true; purchaseMessage = nil
+        defer { isPurchasing = false }
+        do {
+            try await purchases.restore()
+            if await purchases.isPro() {
+                isPro = true; showsPaywall = false
+                purchaseMessage = "Lighter Pro is restored."
+            } else {
+                purchaseMessage = "No earlier purchase was found for this Apple Account."
+            }
+        } catch {
+            purchaseMessage = "Couldn't reach the App Store. Try again in a moment."
+        }
     }
 
     // MARK: Quick clean-up
@@ -262,13 +338,19 @@ public final class AppModel {
     /// One iOS prompt for the photos that still exist and fit today's allowance.
     /// Cancel leaves marks, count and screen exactly as they were; the count is
     /// recorded only when iOS confirms the delete.
-    public func confirmDelete() async {
+    /// More marked than today's allowance → the paywall opens instead of the iOS prompt.
+    /// `dropOverflow` is "Delete N now": delete the first N and drop the other marks (D-22).
+    public func confirmDelete(dropOverflow: Bool = false) async {
         guard let session, !isDeleting else { return }
         isDeleting = true; deleteMessage = nil
         defer { isDeleting = false }
         let marked = session.marked
         let present = await library.existing(marked)
         session.unmark(marked.filter { !present.contains($0) })
+        if !dropOverflow, policy.needsPaywall(marked: present.count, now: now()) {
+            presentPaywall()
+            return
+        }
         let n = policy.deletable(marked: present.count, now: now())
         guard n > 0 else {
             deleteMessage = present.isEmpty
@@ -297,6 +379,7 @@ public final class AppModel {
                                           kept: session.keptCount, deleted: ids.count,
                                           freedBytes: bytes, thumbnails: shots)
                 reviewing = false
+                if dropOverflow { session.unmark(Array(present.dropFirst(ids.count))) }
                 deletedSinceScan += ids
                 cleanup = cleanup.removing(ids)
             }

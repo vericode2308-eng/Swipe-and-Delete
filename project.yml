@@ -19,7 +19,8 @@ targets:
     type: application
     platform: iOS
     sources:
-      - App
+      - path: App
+        excludes: ['**/Products.storekit']
     dependencies:
       - package: SwipeFeatures
       - package: SwipeUI
@@ -51,4 +52,6 @@ targets:
 schemes:
   Lighter:
     build: { targets: { Lighter: all } }
+    run:
+      storeKitConfiguration: App/Resources/Products.storekit
     test: { targets: [LighterTests] }

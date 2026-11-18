@@ -30,3 +30,4 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 | 03-swipe-end-dark.png | Stage 5 (end card) | 2026-11-18 | iPhone 18 Pro simulator |
 | 04-review-ios-prompt-dark.png | Stage 6 (Review with the real iOS delete prompt) | 2026-11-18 | iPhone 18 Pro simulator |
 - 05-albums-quick-cleanup-dark.png — Stage 6b: Quick clean-up panel, simulator (6 photos, scan finished, none found)
+- 06-about-pro-rows-dark.png — Stage 7: About sheet with Pro rows, simulator without a store file ("Price unavailable", Unlock disabled)

@@ -18,6 +18,8 @@ import UIKit
             ProcessInfo.processInfo.isLowPowerModeEnabled
                 || ProcessInfo.processInfo.thermalState.rawValue >= ProcessInfo.ThermalState.serious.rawValue
         }),
+        purchases: StoreKitPurchases(),
+        debugPro: Self.debugPro,
         appVersion: Self.version,
         presentLimitedPicker: {
             let root = UIApplication.shared.connectedScenes
@@ -32,6 +34,15 @@ import UIKit
         })
     }()
     var body: some Scene { WindowGroup { RootView(model: model) } }
+
+    /// `-debug.pro YES` unlocks Pro in Debug builds only; Release builds ignore it.
+    private static var debugPro: Bool {
+        #if DEBUG
+        UserDefaults.standard.bool(forKey: "debug.pro")
+        #else
+        false
+        #endif
+    }
 
     private static var version: String {
         let info = Bundle.main.infoDictionary

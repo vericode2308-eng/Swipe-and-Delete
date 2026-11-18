@@ -57,13 +57,14 @@ struct DeleteFlowTests {
     }
     @Test func freePlanDeletesOnlyWhatFits() async {
         let (m, lib, _) = await setup(used: 48)
-        await m.confirmDelete()
+        await m.confirmDelete(dropOverflow: true)
         #expect(lib.deleteRequests == [["1", "2"]] && m.freeRemaining == 0)
+        #expect(m.session?.marked == ["1", "2"])             // the third mark is dropped (D-22)
     }
     @Test func nothingLeftTodayShowsMessageAndNoPrompt() async {
         let (m, lib, _) = await setup(used: 50)
         await m.confirmDelete()
-        #expect(lib.deleteRequests.isEmpty && m.deleteMessage != nil && m.summary == nil)
+        #expect(lib.deleteRequests.isEmpty && m.showsPaywall && m.summary == nil)
     }
     @Test func proIgnoresTheLimit() async {
         let (m, lib, _) = await setup(pro: true, used: 50)

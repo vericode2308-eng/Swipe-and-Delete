@@ -36,6 +36,9 @@ public struct ReviewView: View {
         .background { AppCanvas() }
         .onAppear { shown = session.marked }
         .onChange(of: model.reviewBytesKey) { Task { await model.refreshReviewBytes() } }
+        .sheet(isPresented: Binding(get: { model.showsPaywall }, set: { if !$0 { model.dismissPaywall() } })) {
+            PaywallSheet(model: model, marked: toDelete.count)
+        }
     }
 
     // MARK: Pieces
@@ -149,7 +152,6 @@ public struct ReviewView: View {
 
     private var deleteTitle: String {
         let n = toDelete.count
-        if allowed < n { return "Delete \(allowed.formatted()) now" }
         return "Delete \(n.formatted()) photo\(n == 1 ? "" : "s")"
     }
 
