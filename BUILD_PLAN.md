@@ -65,7 +65,7 @@ Packages/
 public protocol PhotoLibrary: Sendable {
     func authorize() async -> AuthStatus              // .full, .limited, .denied
     func albums() async -> [Album]
-    func assets(in album: Album) async -> [Asset]     // oldest → newest
+    func assets(in album: Album) async -> [Asset]     // newest → oldest
     func byteSize(of ids: [String]) async -> Int64    // Done screen
     func delete(_ ids: [String]) async throws         // one performChanges
     func whatsAppAlbum() async -> Album?              // user album titled "WhatsApp"

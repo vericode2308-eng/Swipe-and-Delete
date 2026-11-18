@@ -416,3 +416,9 @@ Checked closed / half-open / open poses on the iPhone Duo simulator. Fixed: (1) 
 
 ## Change 31 — Re-check after the Duo pass; Quick clean-up width
 Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simulator: Albums (light), Albums in dark at the largest accessibility size, Welcome in dark at normal and largest sizes — nothing clipped, grid keeps 2 columns, panel no longer stretches. Not verified: Swipe, Review, Done and Paywall on the SE or at AX5 (no tap access to the simulator panel); scrolling Welcome at AX5 now that the hero art sits behind the scroll view; Dawn at AX5 on the other screens; the open-pose Duo panel width after the cap.
+
+## Change 32 — Newest-first albums; clearer Delete / Keep cues
+- **Why (owner report 2026-11-18):** Recents opened on old photos, not the latest; the ✕ / ✓ icons did not say which side deletes.
+- **What:** albums now open newest first (`PhotoKitLibrary.assets(in:)`; R-03 in APP_PLAN updated, old rule superseded). Swipe screen: dock buttons are labelled ("Delete" with trash on red, "Keep" with heart on green), a line above them reads "Swipe left to delete / Swipe right to keep" with arrows, the drag tag and the peek-card badge use trash / heart instead of ✕ / ✓.
+- **Verified:** SwipeCore 48 and SwipeFeatures 41 tests pass; app builds for the iOS Simulator.
+- **Not verified:** how it looks on a simulator or device (not run); Dawn look; AX5 and iPhone SE layout of the new dock; the Review screen still uses ✓ / ✕ on tiles; screenshots in media/screenshots are now out of date for Swipe.

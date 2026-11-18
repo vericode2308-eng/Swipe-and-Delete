@@ -265,7 +265,7 @@ public struct SwipeView: View {
 
     private func badge(for asset: Asset, _ t: Theme) -> some View {
         let deleted = session.marked.contains(asset.id)
-        return Image(systemName: deleted ? "xmark" : "checkmark")
+        return Image(systemName: deleted ? "trash.fill" : "heart.fill")
             .font(.system(size: 12, weight: .bold))
             .foregroundStyle(Color(hex: deleted ? t.deleteTint : t.keepTint))
             .frame(width: 28, height: 28).glass(in: Circle())
@@ -282,7 +282,7 @@ public struct SwipeView: View {
         if abs(p) > 0.05 {
             let del = p < 0
             HStack(spacing: 6) {
-                Image(systemName: del ? "xmark" : "checkmark")
+                Image(systemName: del ? "trash.fill" : "heart.fill")
                 Text(del ? "DELETE" : "KEEP").tracking(1)
             }
             .font(.footnote.weight(.bold))
@@ -317,35 +317,55 @@ public struct SwipeView: View {
 
     private func dock(_ t: Theme, _ screenW: CGFloat) -> some View {
         let p = max(-1, min(1, dragX / (screenW * 0.3)))
-        return HStack(spacing: 22) {
-            dockButton("xmark", "Delete", fill: Theme.blush, size: 64, grow: p < 0 ? -p : 0) {
-                commit(.left, screenW)
+        return VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.left")
+                Text("Swipe left to delete")
+                Spacer(minLength: 4)
+                Text("Swipe right to keep")
+                Image(systemName: "arrow.right")
             }
-            dockButton("arrow.uturn.backward", "Undo", fill: nil, size: 48, grow: 0, t: t) {
-                undo(screenW)
-            }
-            .disabled(!session.canUndo)
-            .opacity(session.canUndo ? 1 : 0.4)
-            dockButton("checkmark", "Keep", fill: Theme.sage, size: 64, grow: p > 0 ? p : 0) {
-                commit(.right, screenW)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(Color(hex: t.textSecondary))
+            .accessibilityHidden(true)
+            HStack(spacing: 12) {
+                dockButton("trash.fill", "Delete", fill: Theme.blush, grow: p < 0 ? -p : 0) {
+                    commit(.left, screenW)
+                }
+                dockButton("arrow.uturn.backward", "Undo", fill: nil, grow: 0, t: t) {
+                    undo(screenW)
+                }
+                .disabled(!session.canUndo)
+                .opacity(session.canUndo ? 1 : 0.4)
+                dockButton("heart.fill", "Keep", fill: Theme.sage, grow: p > 0 ? p : 0) {
+                    commit(.right, screenW)
+                }
             }
         }
-        .padding(.horizontal, 22).padding(.vertical, 12)
-        .glass(in: Capsule())
+        .padding(.horizontal, 14).padding(.vertical, 12)
+        .glass(in: RoundedRectangle(cornerRadius: 30, style: .continuous))
         .disabled(session.isFinished && !session.canUndo)
     }
 
-    private func dockButton(_ symbol: String, _ label: String, fill: UInt32?, size: CGFloat,
+    private func dockButton(_ symbol: String, _ label: String, fill: UInt32?,
                             grow: CGFloat, t: Theme? = nil, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: size * 0.38, weight: .bold))
-                .foregroundStyle(Color(hex: fill == nil ? (t?.text ?? 0xFFFFFF) : Theme.onFill))
-                .frame(width: size, height: size)
-                .background { if let fill { Circle().fill(Color(hex: fill)) } else { Circle().fill(Color(hex: t?.text ?? 0xFFFFFF, opacity: 0.12)) } }
-                .scaleEffect(1 + 0.25 * grow)
+        let isUndo = fill == nil
+        return Button(action: action) {
+            VStack(spacing: 3) {
+                Image(systemName: symbol).font(.system(size: 22, weight: .bold))
+                Text(label).font(.footnote.weight(.bold))
+            }
+            .foregroundStyle(Color(hex: isUndo ? (t?.text ?? 0xFFFFFF) : Theme.onFill))
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .background {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(isUndo ? Color(hex: t?.text ?? 0xFFFFFF, opacity: 0.12) : Color(hex: fill!))
+            }
+            .scaleEffect(1 + 0.06 * grow)
         }
         .buttonStyle(.plain)
+        .layoutPriority(isUndo ? 0 : 1)
+        .frame(maxWidth: isUndo ? 96 : .infinity)
         .disabled(label != "Undo" && session.isFinished)
         .accessibilityLabel(label)
     }

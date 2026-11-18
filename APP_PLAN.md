@@ -22,7 +22,7 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 |---|---|
 | R-01 | Ask for Photos access. Support full, limited (with "Manage selection") and denied (with "Open Settings"). |
 | R-02 | List albums: All Photos, Screenshots, Videos, Selfies, Favourites and the user's own albums, each with a cover and a count. Hide empty albums. |
-| R-03 | Opening an album always starts at its first item (oldest first). Nothing from an earlier visit is remembered. |
+| R-03 | Opening an album always starts at its first item (newest first, changed 2026-11-18; was oldest first). Nothing from an earlier visit is remembered. |
 | R-04 | Swipe left = mark for deletion. Swipe right = keep. Buttons do the same. |
 | R-05 | One Undo reverses the last decision, repeatedly back to the first item. |
 | R-06 | Album chips on the Swipe screen switch album and start from item 1. Switching discards current marks after a confirm ("Discard 9 marks?") if any exist (owner confirmed, D-23). |
