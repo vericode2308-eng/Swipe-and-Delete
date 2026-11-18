@@ -277,6 +277,29 @@ Working branch: `claude/sweet-gauss-20esu8`
   scroll view ignore the top safe area (a plain negative offset left a band
   under the status bar).
 
+**Change 20 — Stage 4: Albums with PhotoKit and the About sheet**
+- **What:** `Album` gains `kind` and `coverID`; `PhotoLibrary.albums()`; pure
+  `AlbumList` rules (empty hidden, smart before mine, filters) in
+  `SwipeCore`; `AppModel` loads albums after permission and on every return to
+  the foreground; `AlbumsView` (title, ⓘ, Limited-access row, All / Smart /
+  My chips, two-column tile grid, one column at accessibility sizes);
+  `AboutSheet` (free allowance line, Acknowledgements for the OFL font,
+  version); `PhotoKitLibrary.albums()` (12 smart albums, user albums, no
+  Hidden or Recently Deleted); `PhotoKitImageLoader` for covers.
+- **Left out on purpose:** Quick clean-up rows (Stage 6b); Unlock Pro and
+  Restore (Stage 7); Rate and Privacy Policy rows show only once the links
+  exist (owner has not supplied them); album tiles are not tappable until the
+  swipe screen exists (Stage 5).
+- **Verified:** 17 new/updated tests pass (`SwipeCore` 26, `SwipeFeatures` 13);
+  app builds; simulator (iPhone 18 Pro) Dusk and Dawn: Recents shows 6 and the
+  library holds 6 files; cover image loads; About sheet opens with the real
+  version.
+- **Not verified:** counts against a large real library; user albums and
+  other smart albums (the simulator library has only Recents); the Limited
+  row and the "Manage selection" picker; the empty state; Albums at AX5 and on
+  iPhone SE; a real device; a photo added or deleted while the app is open
+  (refresh runs on foreground only, not live).
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |

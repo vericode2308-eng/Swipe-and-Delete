@@ -31,17 +31,17 @@ struct AppModelTests {
         await m.pillTapped()
         #expect(opened == 1 && lib.promptCount == 0)
     }
-    @Test func revokedWhileAwayReturnsToWelcome() {
+    @Test func revokedWhileAwayReturnsToWelcome() async {
         let lib = FakePhotoLibrary(status: .full)
         let m = AppModel(library: lib) {}
         #expect(!m.showsWelcome)
-        lib.set(.denied); m.refresh()
+        lib.set(.denied); await m.refresh()
         #expect(m.showsWelcome)
     }
-    @Test func grantedInSettingsMovesOnAfterRefresh() {
+    @Test func grantedInSettingsMovesOnAfterRefresh() async {
         let lib = FakePhotoLibrary(status: .denied)
         let m = AppModel(library: lib) {}
-        lib.set(.limited); m.refresh()
+        lib.set(.limited); await m.refresh()
         #expect(!m.showsWelcome)
     }
 }

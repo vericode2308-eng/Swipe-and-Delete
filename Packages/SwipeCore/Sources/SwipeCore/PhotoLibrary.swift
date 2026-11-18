@@ -6,11 +6,12 @@ public enum AuthStatus: Equatable, Sendable {
     public var isGranted: Bool { self == .full || self == .limited }
 }
 
-/// Stage 3 needs permission only. Albums, assets and delete arrive with
-/// their stages; PhotoKit lives behind this protocol in the app target.
+/// Permission and albums so far. Assets and delete arrive with their stages; PhotoKit lives behind this protocol in the app target.
 public protocol PhotoLibrary: Sendable {
     /// Current status; never shows a prompt.
     func currentStatus() -> AuthStatus
     /// Shows the iOS prompt when undetermined; returns the resulting status.
     func authorize() async -> AuthStatus
+    /// Smart albums first (Photos order), then the user's own albums.
+    func albums() async -> [Album]
 }

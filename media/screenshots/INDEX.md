@@ -22,3 +22,6 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 | 01-welcome-undetermined-light.png | Stage 3 (Welcome, undetermined) | 2026-11-18 | iPhone 18 Pro simulator |
 | 01-welcome-denied-dark.png | Stage 3 (Welcome, denied) | 2026-11-18 | iPhone 18 Pro simulator |
 | 01-welcome-denied-light.png | Stage 3 (Welcome, denied) | 2026-11-18 | iPhone 18 Pro simulator |
+| 02-albums-dark.png | Stage 4 (Albums) | 2026-11-18 | iPhone 18 Pro simulator |
+| 02-about-dark.png | Stage 4 (About sheet over Albums) | 2026-11-18 | iPhone 18 Pro simulator |
+| 02-about-light.png | Stage 4 (About sheet over Albums) | 2026-11-18 | iPhone 18 Pro simulator |
