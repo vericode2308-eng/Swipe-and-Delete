@@ -457,3 +457,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **Files:** `SwipeView.swift`.
 - **Verified:** SwipeFeatures tests (41) pass; device build and install on Reftyy.
 - **Not verified:** nothing seen running. Tilt direction/strength, snap feel, many-photo performance, Reduce Motion (carousel rotation off while scrubbing), AX sizes.
+
+## Change 39 — Slimmer dock and smaller date caption
+- **What:** Owner wanted more photo on screen. Dock is now one row of 48 pt buttons (icon beside label), hint line removed (swipe cues remain on the card); date caption on the photo shrunk (footnote text, tighter box); gap between sections 14→10.
+- **Files:** `SwipeView.swift`.
+- **Verified:** SwipeFeatures tests pass; device build and install.
+- **Not verified:** not seen running; AX sizes and iPhone SE layout.

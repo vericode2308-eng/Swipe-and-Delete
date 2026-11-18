@@ -54,7 +54,7 @@ public struct SwipeView: View {
     }
 
     private func content(_ t: Theme, screenW: CGFloat) -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 10) {
             topBar(t)
             chips(t)
             carousel(t)
@@ -338,17 +338,7 @@ public struct SwipeView: View {
 
     private func dock(_ t: Theme, _ screenW: CGFloat) -> some View {
         let p = max(-1, min(1, dragX / (screenW * 0.3)))
-        return VStack(spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: "arrow.left")
-                Text("Swipe left to delete")
-                Spacer(minLength: 4)
-                Text("Swipe right to keep")
-                Image(systemName: "arrow.right")
-            }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(Color(hex: t.textSecondary))
-            .accessibilityHidden(true)
+        return VStack(spacing: 0) {
             HStack(spacing: 12) {
                 dockButton("trash.fill", "Delete", fill: Theme.blush, grow: p < 0 ? -p : 0) {
                     commit(.left, screenW)
@@ -363,8 +353,8 @@ public struct SwipeView: View {
                 }
             }
         }
-        .padding(.horizontal, 14).padding(.vertical, 12)
-        .glass(in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .padding(.horizontal, 8).padding(.vertical, 6)
+        .glass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
         .disabled(session.isFinished && !session.canUndo)
     }
 
@@ -372,21 +362,21 @@ public struct SwipeView: View {
                             grow: CGFloat, t: Theme? = nil, action: @escaping () -> Void) -> some View {
         let isUndo = fill == nil
         return Button(action: action) {
-            VStack(spacing: 3) {
-                Image(systemName: symbol).font(.system(size: 22, weight: .bold))
-                Text(label).font(.footnote.weight(.bold))
+            HStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 17, weight: .bold))
+                Text(label).font(.subheadline.weight(.bold))
             }
             .foregroundStyle(Color(hex: isUndo ? (t?.text ?? 0xFFFFFF) : Theme.onFill))
-            .frame(maxWidth: .infinity, minHeight: 64)
+            .frame(maxWidth: .infinity, minHeight: 48)
             .background {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(isUndo ? Color(hex: t?.text ?? 0xFFFFFF, opacity: 0.12) : Color(hex: fill!))
             }
             .scaleEffect(1 + 0.06 * grow)
         }
         .buttonStyle(.plain)
         .layoutPriority(isUndo ? 0 : 1)
-        .frame(maxWidth: isUndo ? 96 : .infinity)
+        .frame(maxWidth: isUndo ? 110 : .infinity)
         .disabled(label != "Undo" && session.isFinished)
         .accessibilityLabel(label)
     }
@@ -536,11 +526,11 @@ struct PhotoCard: View {
     }
 
     private var caption: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(asset.created.formatted(.dateTime.day().month(.wide).year()))
-                .font(.display(24))
-            HStack(spacing: 8) {
-                Text(kindLabel).font(.caption.weight(.semibold)).tracking(1.2)
+                .font(.footnote.weight(.semibold))
+            HStack(spacing: 6) {
+                Text(kindLabel).font(.caption2.weight(.semibold)).tracking(1)
                     .foregroundStyle(Color(hex: theme.textSecondary))
                 if let p = setPosition {
                     Text("Set \(p.set) · \(p.item) of \(p.ofItems)")
@@ -553,9 +543,9 @@ struct PhotoCard: View {
         }
         .foregroundStyle(Color(hex: theme.text))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16).padding(.vertical, 12)
-        .glass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .padding(10)
+        .padding(.horizontal, 12).padding(.vertical, 6)
+        .glass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(8)
     }
 
     private var kindLabel: String {
