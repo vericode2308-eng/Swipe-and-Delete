@@ -121,7 +121,7 @@ SwipeAndDelete/
     ReviewView.swift
     DoneView.swift
   Shared/
-    Theme.swift                  // surface, shadows, LEDs, radii
+    Theme.swift                  // slate, mist, blush, sage, fonts, radii
     Glass.swift                  // .glassPill(), .glassPanel(), BlurredBackdrop
 SwipeAndDeleteTests/
   SwipeSessionTests.swift
