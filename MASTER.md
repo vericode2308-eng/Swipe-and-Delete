@@ -440,3 +440,8 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **What:** while a drag-select is active, a finger within 80 pt of the top or bottom scrolls the grid (faster nearer the edge) and keeps selecting the tiles it passes. Back now discards the picks; only "Review N photos" writes them to the session's marks.
 - **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
 - **Not verified:** nothing seen running, so scroll speed, the drag range while scrolling and Back-cancel are untested on screen.
+
+## Change 36 — Next photo slides in from the right
+- **Why (owner, 2026-11-18):** after a swipe the new photo seemed to come from the left, where the deleted one just left, though the next photo is already visible on the right.
+- **What:** the new current card's insertion transition starts at the next-card position (right) instead of a full screen to the left; the old right-hand preview is removed without a fade so there is no double image.
+- **Verified:** SwipeFeatures 41 tests pass; builds; installed on Reftyy. **Not verified:** the animation itself was not watched (device or simulator); Reduce Motion path unchanged (fade).

@@ -225,7 +225,7 @@ public struct SwipeView: View {
                 .onTapGesture { viewing = asset }
                 .onLongPressGesture(minimumDuration: 0.3, maximumDistance: 24, perform: {},
                                     onPressingChanged: { if asset.kind == .livePhoto { holdingLive = $0 } })
-                .transition(reduceMotion ? fade : .asymmetric(insertion: .offset(x: -screenW), removal: .identity))
+                .transition(reduceMotion ? fade : .asymmetric(insertion: .offset(x: step), removal: .identity))
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(cardLabel(asset))
                 .accessibilityAction(named: "Delete") { commit(.left, screenW) }
@@ -235,7 +235,7 @@ public struct SwipeView: View {
         case (let asset?, _):
             PhotoCard(asset: asset, size: size, loader: model.images, theme: t, showsCaption: false)
                 .offset(x: step)
-                .transition(fade)
+                .transition(.asymmetric(insertion: fade, removal: .identity))
                 .accessibilityHidden(true)
         default:
             endCard(size: size, t)
