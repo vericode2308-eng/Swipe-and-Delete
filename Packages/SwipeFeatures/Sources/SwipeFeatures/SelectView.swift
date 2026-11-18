@@ -22,6 +22,11 @@ public struct SelectView: View {
     private let spacing: CGFloat = 4
     @State private var dragMode: Bool?       // true = selecting, false = deselecting
     @State private var lastIndex = 0
+    @State private var scrollPos = ScrollPosition(edge: .top)
+    @State private var offset: CGFloat = 0
+    @State private var maxOffset: CGFloat = 0
+    @State private var fingerX: CGFloat = 0
+    @State private var fingerViewportY: CGFloat?
 
     public var body: some View {
         let t = Theme.resolve(scheme)
@@ -35,8 +40,28 @@ public struct SelectView: View {
                     grid(cols: cols, cell: cell, width: w)
                         .padding(.bottom, 8)
                 }
+                .scrollPosition($scrollPos)
                 .scrollIndicators(.visible)
                 .scrollDisabled(dragMode != nil)
+                .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y } action: { _, y in offset = y }
+                .onScrollGeometryChange(for: CGFloat.self) { max(0, $0.contentSize.height - $0.containerSize.height) } action: { _, m in maxOffset = m }
+                // While a drag-select is on, a finger near the top or bottom edge scrolls the list.
+                .task(id: dragMode != nil) {
+                    guard dragMode != nil else { return }
+                    while !Task.isCancelled {
+                        try? await Task.sleep(for: .milliseconds(16))
+                        guard let vy = fingerViewportY else { continue }
+                        let zone: CGFloat = 80, h = geo.size.height
+                        var dy: CGFloat = 0
+                        if vy < zone { dy = -16 * min(1, (zone - vy) / zone) }
+                        else if vy > h - zone { dy = 16 * min(1, (vy - (h - zone)) / zone) }
+                        let next = min(maxOffset, max(0, offset + dy))
+                        guard dy != 0, next != offset else { continue }
+                        offset = next
+                        scrollPos.scrollTo(y: next)
+                        extend(to: CGPoint(x: fingerX, y: vy + next), cols: cols, cell: cell, width: w)
+                    }
+                }
             }
             footer(t)
         }
@@ -49,12 +74,7 @@ public struct SelectView: View {
     private func grid(cols: Int, cell: CGFloat, width: CGFloat) -> some View {
         let assets = session.assets
         let columns = Array(repeating: GridItem(.fixed(cell), spacing: spacing), count: cols)
-        func index(at p: CGPoint) -> Int? {
-            guard p.x >= 0, p.y >= 0, p.x < width else { return nil }
-            let c = min(cols - 1, Int(p.x / (cell + spacing)))
-            let i = Int(p.y / (cell + spacing)) * cols + c
-            return i < assets.count ? i : nil
-        }
+        func index(at p: CGPoint) -> Int? { cellIndex(p, cols: cols, cell: cell, width: width) }
         return LazyVGrid(columns: columns, spacing: spacing) {
             ForEach(Array(assets.enumerated()), id: \.element.id) { i, a in
                 SelectTile(id: a.id, on: picked.contains(a.id), cell: cell, loader: model.images,
@@ -72,15 +92,31 @@ public struct SelectView: View {
             began: { p in
                 guard let i = index(at: p) else { return }
                 dragMode = !picked.contains(assets[i].id)
+                track(p)
                 lastIndex = i
                 set(i...i, dragMode!)
             },
             moved: { p in
-                guard let mode = dragMode, let i = index(at: p) else { return }
-                set(min(i, lastIndex)...max(i, lastIndex), mode)
-                lastIndex = i
+                track(p)
+                extend(to: p, cols: cols, cell: cell, width: width)
             },
-            ended: { dragMode = nil })
+            ended: { dragMode = nil; fingerViewportY = nil })
+    }
+
+    private func cellIndex(_ p: CGPoint, cols: Int, cell: CGFloat, width: CGFloat) -> Int? {
+        guard p.x >= 0, p.y >= 0, p.x < width else { return nil }
+        let c = min(cols - 1, Int(p.x / (cell + spacing)))
+        let i = Int(p.y / (cell + spacing)) * cols + c
+        return i < session.assets.count ? i : nil
+    }
+
+    private func track(_ p: CGPoint) { fingerX = p.x; fingerViewportY = p.y - offset }
+
+    /// Applies the drag's mode to every tile between the last one reached and the one under `p`.
+    private func extend(to p: CGPoint, cols: Int, cell: CGFloat, width: CGFloat) {
+        guard let mode = dragMode, let i = cellIndex(p, cols: cols, cell: cell, width: width) else { return }
+        set(min(i, lastIndex)...max(i, lastIndex), mode)
+        lastIndex = i
     }
 
     private func toggle(_ id: String) {
@@ -96,7 +132,7 @@ public struct SelectView: View {
 
     private func header(_ t: Theme) -> some View {
         HStack(spacing: 12) {
-            Button { apply(); model.endSelect() } label: {
+            Button { model.endSelect() } label: {
                 Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(Color(hex: t.text)).frame(width: 44, height: 44).glass(in: Circle())
             }
@@ -105,7 +141,7 @@ public struct SelectView: View {
                 Text("\(picked.count.formatted()) selected").font(.display(30))
                     .foregroundStyle(Color(hex: t.text)).lineLimit(1).minimumScaleFactor(0.7)
                     .accessibilityAddTraits(.isHeader)
-                Text("Tap photos to select them for deletion.").font(.footnote)
+                Text("Tap or swipe across photos. Back cancels.").font(.footnote)
                     .foregroundStyle(Color(hex: t.textSecondary))
             }
             Spacer(minLength: 0)

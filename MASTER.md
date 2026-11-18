@@ -434,3 +434,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **Cause / fix:** (1) one big glass card behind the whole grid and every tile re-drawing on each pick → plain grid, each tile is an `Equatable` view that only sees its own state. (2) Tiles were Buttons whose scaled-to-fill image could overflow the cell, so touches landed on a neighbour → fixed-size cells and taps resolved by arithmetic on the touch position (one tile per touch point, no overlap). (3) Added a sideways swipe that selects (or deselects, depending on the first tile touched) every tile it passes, including fast moves; mostly-vertical drags still scroll.
 - **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
 - **Not verified:** nothing seen running (the simulator run did not reach the grid, the recording was not played back), so smoothness, drag-select and tap accuracy are untested; no auto-scroll while dragging near the screen edge; AX5 / SE / VoiceOver.
+
+## Change 35 — Select grid: edge auto-scroll; Back cancels
+- **Why (owner, 2026-11-18):** drag-select needed to scroll near the edge; going Back left the picks marked, so they reappeared on return.
+- **What:** while a drag-select is active, a finger within 80 pt of the top or bottom scrolls the grid (faster nearer the edge) and keeps selecting the tiles it passes. Back now discards the picks; only "Review N photos" writes them to the session's marks.
+- **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
+- **Not verified:** nothing seen running, so scroll speed, the drag range while scrolling and Back-cancel are untested on screen.
