@@ -451,3 +451,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **What:** a strip of 54×72 pt thumbnails under the Delete / Undo / Keep dock. It is centred on the current photo, snaps loosely (a flick can carry through many photos), and each thumbnail turns around the vertical axis and scales by its distance from the centre. Sliding forward calls `keep()` for every photo passed; sliding back calls `undo()` (so a deleted photo passed on the way back loses its mark). The strip follows swipes and the dock buttons. Photos marked for deletion carry a small trash badge. Hidden from VoiceOver (Delete / Keep actions remain on the card).
 - **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
 - **Not verified:** nothing seen running: the 3D direction and amount, snap feel, loops between the strip and the card, performance with thousands of photos, Reduce Motion, SE / AX5 / Dawn, filter sessions (Duplicates). No unit test for the strip.
+
+## Change 38 — Dot scrubber + 3D carousel (revises Change 37 / D-25)
+- **What:** Owner said the thumbnail strip was not what they meant. Replaced it with a row of small dots above the bottom edge (centre dot big, others shrink/fade; marked photos are red). Sliding the dots moves through photos; the main photos now sit on a 3D carousel (each card turned about the vertical axis) and rotate round as the dots move. Passing keeps photos, sliding back undoes (unchanged).
+- **Files:** `SwipeView.swift`.
+- **Verified:** SwipeFeatures tests (41) pass; device build and install on Reftyy.
+- **Not verified:** nothing seen running. Tilt direction/strength, snap feel, many-photo performance, Reduce Motion (carousel rotation off while scrubbing), AX sizes.

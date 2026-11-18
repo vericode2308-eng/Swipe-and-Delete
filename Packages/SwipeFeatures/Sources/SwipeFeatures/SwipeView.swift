@@ -20,6 +20,8 @@ public struct SwipeView: View {
     @State private var viewing: Asset?
     @State private var holdingLive = false
     @State private var stripID: String?
+    @State private var scrubPos: CGFloat = 0
+    @State private var scrubbing = false
     @State private var width: CGFloat = 393   // last measured screen width, for prefetch sizing
 
     private let spring = Animation.spring(response: 0.3, dampingFraction: 0.8)
@@ -188,7 +190,12 @@ public struct SwipeView: View {
             let step = cardW + gap
             ZStack {
                 ForEach(slots) { slot in
+                    let r = CGFloat(slot.rel) - scrubFrac
                     slotView(slot, size: size, step: step, screenW: geo.size.width, t)
+                        .rotation3DEffect(.degrees(Double(-r) * 40), axis: (x: 0, y: 1, z: 0),
+                                          anchor: .center, perspective: 0.5)
+                        .offset(x: -scrubFrac * step)
+                        .scaleEffect(1 - min(abs(r), 1.5) * 0.04)
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height)
@@ -384,35 +391,30 @@ public struct SwipeView: View {
         .accessibilityLabel(label)
     }
 
-    // MARK: Filmstrip (D-25)
+    // MARK: Dot scrubber (D-25, revised)
 
-    private let stripItem: CGFloat = 54
+    private let dotPitch: CGFloat = 16
 
-    /// Slide to browse: a row of thumbnails that turn in 3D around the centre. Sliding forward
-    /// keeps every photo it passes (D-25); sliding back undoes those decisions again.
+    /// Slide the dots to browse. The big photo rotates through a 3D carousel as you go.
+    /// Sliding forward keeps every photo it passes (D-25); sliding back undoes those decisions.
     private func strip(_ t: Theme, screenW: CGFloat) -> some View {
         let viewW = max(1, screenW - 32)
-        let item = stripItem, gap: CGFloat = 8
+        let pitch = dotPitch
         let marked = Set(session.marked)
         return ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: gap) {
+            LazyHStack(spacing: 0) {
                 ForEach(session.assets) { a in
-                    PhotoImage(id: a.id, pointSize: CGSize(width: item, height: 72), loader: model.images)
-                        .frame(width: item, height: 72)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .overlay(alignment: .topTrailing) {
-                            if marked.contains(a.id) {
-                                Image(systemName: "trash.fill").font(.system(size: 9, weight: .bold))
-                                    .foregroundStyle(Color(hex: Theme.onFill)).frame(width: 18, height: 18)
-                                    .background(Color(hex: Theme.blush), in: Circle()).padding(2)
-                            }
-                        }
+                    let isMarked = marked.contains(a.id)
+                    Circle()
+                        .fill(isMarked ? Color(hex: Theme.blush) : Color(hex: t.text))
+                        .frame(width: 8, height: 8)
+                        .frame(width: pitch, height: 44)
+                        .contentShape(Rectangle())
                         .visualEffect { c, proxy in
                             let f = proxy.frame(in: .scrollView(axis: .horizontal))
-                            let d = max(-3, min(3, (f.midX - viewW / 2) / (item + gap)))
-                            return c.rotation3DEffect(.degrees(-d * 38), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
-                                .scaleEffect(1.2 - min(abs(d), 2) * 0.12)
-                                .opacity(1 - min(abs(d), 3) * 0.14)
+                            let d = min(6, abs(f.midX - viewW / 2) / pitch)
+                            return c.scaleEffect(max(0.45, 1.9 - d * 0.3))
+                                .opacity(max(0.25, 1 - d * 0.12))
                         }
                         .id(a.id)
                 }
@@ -421,8 +423,16 @@ public struct SwipeView: View {
         }
         .scrollPosition(id: $stripID, anchor: .center)
         .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
-        .contentMargins(.horizontal, max(0, (viewW - item) / 2), for: .scrollContent)
-        .frame(height: 84)
+        .contentMargins(.horizontal, max(0, (viewW - pitch) / 2), for: .scrollContent)
+        .onScrollGeometryChange(for: CGFloat.self) { g in
+            (g.contentOffset.x + g.contentInsets.leading) / pitch
+        } action: { _, pos in
+            scrubPos = pos
+        }
+        .onScrollPhaseChange { _, phase in
+            scrubbing = phase == .tracking || phase == .interacting || phase == .decelerating
+        }
+        .frame(height: 44)
         .onAppear { stripID = session.current?.id }
         .onChange(of: stripID) { _, id in followStrip(id) }
         .onChange(of: session.index) { _, i in
@@ -430,6 +440,12 @@ public struct SwipeView: View {
             withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) { stripID = session.assets[i].id }
         }
         .accessibilityHidden(true)
+    }
+
+    /// How far the dots are between photos, -0.5...0.5, while a finger is scrubbing; else 0.
+    private var scrubFrac: CGFloat {
+        guard scrubbing, !reduceMotion else { return 0 }
+        return max(-1, min(1, scrubPos - CGFloat(session.index)))
     }
 
     /// The strip settled on or passed a photo: everything in between is kept (forward) or un-decided (back).
