@@ -13,15 +13,14 @@ struct PaywallSheet: View {
         let left = model.freeRemaining ?? 0
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Delete them all").font(.display(36)).foregroundStyle(Color(hex: t.text))
+                Text("Delete all \(marked.formatted()) photos").font(.display(36)).foregroundStyle(Color(hex: t.text))
                     .accessibilityAddTraits(.isHeader)
-                Text("Free plan deletes up to \(DeletionAllowance.dailyFree) photos a day. You've marked \(marked.formatted()).")
+                Text("The free plan stops at \(DeletionAllowance.dailyFree) a day.")
                     .foregroundStyle(Color(hex: t.textSecondary))
                 VStack(spacing: 0) {
-                    perk("infinity", "Unlimited deletions, every day", "No daily limit, ever.", t)
+                    perk("infinity", "Clear them in one go", "No daily limit, ever.", t)
                     perk("creditcard", model.proPrice.map { "One-time \($0)" } ?? "One-time purchase",
                          "Paid once. No subscription.", t)
-                    perk("sparkles", "Everything else stays the same", "Swiping, filters and Review are already free.", t)
                 }
                 .glass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
 
@@ -69,8 +68,8 @@ struct PaywallSheet: View {
             }
             .padding(20)
         }
-        .appCanvas()
-        .presentationBackground(.clear)
+        .background(Color(hex: t.base).ignoresSafeArea())  // one flat colour, no gradient
+        .presentationBackground(Color(hex: t.base))
         .presentationCornerRadius(34)
         .presentationDragIndicator(.visible)
         .presentationDetents([.large])

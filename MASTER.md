@@ -400,3 +400,7 @@ See the decision log in `APP_PLAN.md` (D-01 onwards).
 - **What:** Swipe top bar adapts at accessibility text sizes (buttons share a row, title below, no line limit); card label reads type, spoken duration, date, set position and index; "Play"/"Open" action on the card; announcements "Marked for deletion, N of total" / "Kept, N of total" (fixed an off-by-one under Reduce Motion); Review tiles say "Photo i of n, will be kept/deleted"; Albums filter chips stack at AX sizes instead of clipping; "None found" row contrast raised; `Formatting.spokenClock`.
 - **Verified (simulator):** SwipeCore 48 and SwipeFeatures 41 tests pass; Albums at AX5 shows wrapped titles, wrapped Quick clean-up rows and stacked chips with nothing cut off (screenshot 09).
 - **Not verified:** VoiceOver (not run, so the done condition "VoiceOver finishes a full album" is NOT met); Reduce Motion and Reduce Transparency on a device; iPhone SE; Dawn at AX5; AX5 on Swipe, Review, Done, Welcome and Paywall; Increase Contrast; Bold Text (custom font does not respond).
+
+**Change 27 — Paywall rules pass (user-supplied 5 rules)**
+- **What:** headline states the outcome ("Delete all N photos"); filler sparkle row removed; subline is one line ("The free plan stops at 50 a day."); one plan with the real price in the perk row and the button; flat base colour instead of the blurred-blob backdrop.
+- **Verified:** SwipeFeatures 41 tests pass. **Not verified:** not rendered on the simulator (needs more than 50 photos marked or the debug path); Dawn; AX5.
