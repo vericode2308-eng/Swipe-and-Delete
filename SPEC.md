@@ -31,6 +31,14 @@ Nothing else. There is no Later, no sessions, no history, no stats.
 - **Delete N items** calls iOS's own delete prompt.
 - If nothing is marked, return to Albums.
 
+### 4. Done
+- A short celebration (about 3 seconds, never blocks the button): the deleted
+  photos drift into a glass ring, the ring fills while the cleared size counts
+  up (e.g. "1.2 GB"), then a check pops with a soft sparkle burst and a
+  success haptic.
+- Shows reviewed / kept / deleted counts and "Room for about N more photos".
+- Honest note: space comes back once Recently Deleted empties.
+
 ## Rules
 - **No memory between visits.** Opening an album always starts from the
   beginning. Keep decisions are not saved, so kept photos show up again next time.
@@ -47,4 +55,6 @@ Nothing else. There is no Later, no sessions, no history, no stats.
 
 ## Out of scope
 Later queue, saved progress, duplicate detection, similar-photo detection,
-storage-size estimates, statistics, video compression, cloud features.
+duplicate-size scans of the whole library, saved statistics or history,
+video compression, cloud features. (The only size shown is the total of the
+items just deleted, on the Done screen.)

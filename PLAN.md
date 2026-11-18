@@ -89,8 +89,26 @@ Rules
    items** button triggers the iOS prompt.
    - Zero marked → skip this screen and go back to Albums.
    - The user cancels the iOS prompt → stay on Review.
-5. **Done**: a check mark, plus "7 deleted · 31 kept" and **Back to
-   Albums**.
+5. **Done (celebration)**: a sense of achievement in about 3 seconds.
+   **Back to Albums** works from the first frame, and tapping the screen skips
+   to the end.
+
+   | Time | What happens |
+   |---|---|
+   | 0–1.0 s | The deleted photos (small tiles, like the Review grid) drift up into the centre, shrink and fade, staggered 70 ms apart |
+   | 0.5–1.9 s | A thin ring (mist → sage → blush gradient) around a glass disc fills while the number counts up: "0 MB" … "640 MB" … "1.2 GB", with ease-out |
+   | 1.9 s | A sage check badge pops on the ring (spring overshoot), with a soft glow, 22 tiny sparkles (dots and streaks in mist, sage, blush, white) bursting outward and fading, and `.sensoryFeedback(.success)` |
+   | 2.0–3.0 s | "Beautifully done" / "Screenshots is 1.2 GB lighter." rises in, then a glass stats strip (38 reviewed · 31 kept · 7 deleted, counting up), then a glass chip "Room for about 400 more photos" |
+
+   - The footnote says "Space returns once Recently Deleted empties", because
+     iOS frees the space only after 30 days, or when the user empties
+     Recently Deleted.
+   - "Room for about N more photos" = bytes freed ÷ 3 MB, rounded.
+   - With Reduce Motion, show the final state with a 0.3 s fade, plus the
+     haptic. No tiles, sparkles or count-up.
+   - Ideas taken from cleaner apps' success screens (freed-size headline,
+     stat cards, confetti and haptics), kept quiet and classy: no rocket, no
+     medal, no rating prompt.
 
 ### Accessibility
 - All actions are reachable with buttons. VoiceOver custom actions on the card:
@@ -127,7 +145,8 @@ SwipeAndDelete/
     PhotoCard.swift
     AlbumPills.swift
     ReviewView.swift
-    DoneView.swift
+    DoneView.swift            // celebration timeline
+    CelebrationRing.swift     // ring + count-up + sparkles (Canvas/TimelineView)
   Shared/
     Theme.swift                  // slate, mist, blush, sage, fonts, radii
     Glass.swift                  // .glassPill(), .glassPanel(), BlurredBackdrop
@@ -144,6 +163,7 @@ protocol PhotoLibrary {
     func authorize() async -> AuthStatus          // .full, .limited, .denied
     func albums() async -> [Album]
     func assets(in album: Album) async -> [Asset] // oldest → newest
+    func byteSize(of ids: [String]) async -> Int64 // for the Done screen
     func delete(_ ids: [String]) async throws     // one performChanges call
 }
 
@@ -180,6 +200,18 @@ enum Decision { case keep, delete }
   card's offset and rotation, and `withAnimation(.spring(response: 0.3,
   dampingFraction: 0.8))` on commit. Change `index` after the fly-off
   completes. Reduce Motion → cross-fade.
+- **Freed size:** before deleting, sum each marked asset's
+  `PHAssetResource.assetResources(for:)` sizes via the `fileSize` value
+  (read with KVC; it is not a documented API, so treat a missing value as 0
+  and show "about"). Do this off the main thread on the Review screen, and
+  pass the total to Done as `DeleteResult(deleted:kept:reviewed:bytes:)`.
+  Format with `ByteCountFormatter` (`.file`). iCloud-only originals still
+  report their size.
+- **Celebration in SwiftUI:** use `PhaseAnimator` or `keyframeAnimator` for
+  the ring trim (`Circle().trim(from:0,to:p)` with an `AngularGradient`
+  stroke), and `.contentTransition(.numericText(value:))` for the count-up.
+  Draw the sparkles in one `Canvas` inside a `TimelineView(.animation)`, so
+  it's one view rather than 22. The tiles are plain animated offsets. Use `.sensoryFeedback(.success, trigger: popped)`.
 - Required `Info.plist` key: `NSPhotoLibraryUsageDescription`.
 
 ---
@@ -193,7 +225,7 @@ enum Decision { case keep, delete }
 | 3 | Welcome + permission flow (full / limited / denied) | All three states work on a device |
 | 4 | Albums screen with real PhotoKit data | Counts match the Photos app |
 | 5 | Swipe screen: card, buttons, drag gesture, haptics, ImageLoader | Smooth on 1,000+ item album |
-| 6 | Review + delete + Done | iOS prompt; cancel keeps you on Review |
+| 6 | Review + delete + Done celebration | iOS prompt; cancel keeps you on Review; freed size matches Settings › Storage after emptying Recently Deleted |
 | 7 | Video / Live Photo playback, zoom | Plays, audio stops on swipe |
 | 8 | Accessibility + Reduce Motion pass | VoiceOver can finish a full album |
 | 9 | TestFlight | Tested on a disposable photo set |
