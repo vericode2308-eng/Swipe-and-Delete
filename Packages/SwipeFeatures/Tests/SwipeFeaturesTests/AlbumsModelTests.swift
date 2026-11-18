@@ -49,4 +49,27 @@ struct AlbumsModelTests {
         m.manageLimitedSelection()
         #expect(calls == 1)
     }
+
+    @Test func openingAnAlbumStartsAtTheFirstItemWithNoMarks() async {
+        let lib = FakePhotoLibrary(status: .full, albums: albums)
+        lib.setAssets([Asset(id: "1"), Asset(id: "2")], in: albums[0])
+        let m = AppModel(library: lib) {}
+        await m.open(albums[0])
+        #expect(m.session?.index == 0 && m.session?.assets.count == 2 && m.session?.marked.isEmpty == true)
+    }
+    @Test func reopeningStartsFreshEvenAfterSwipes() async {
+        let lib = FakePhotoLibrary(status: .full, albums: albums)
+        lib.setAssets([Asset(id: "1"), Asset(id: "2")], in: albums[0])
+        let m = AppModel(library: lib) {}
+        await m.open(albums[0]); m.session?.delete()
+        m.closeAlbum(); await m.open(albums[0])
+        #expect(m.session?.index == 0 && m.session?.marked.isEmpty == true)
+    }
+    @Test func revokedAccessClosesTheSession() async {
+        let lib = FakePhotoLibrary(status: .full, albums: albums)
+        let m = AppModel(library: lib) {}
+        await m.open(albums[0])
+        lib.set(.denied); await m.refresh()
+        #expect(m.session == nil)
+    }
 }

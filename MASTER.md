@@ -300,6 +300,37 @@ Working branch: `claude/sweet-gauss-20esu8`
   iPhone SE; a real device; a photo added or deleted while the app is open
   (refresh runs on foreground only, not live).
 
+**Change 21 — Stage 5: Swipe carousel, dock, drag, haptics, image loader**
+- **What:** `PhotoLibrary.assets(in:)` (oldest first) with PhotoKit and fake
+  versions; `AppModel.open/closeAlbum` (a fresh `SwipeSession` every time,
+  D-02); `SwipeView` (blurred photo backdrop under a scrim, back button,
+  title with "n of N", marked count, album chips with "Discard N marks?"
+  confirm, side-by-side carousel with previous/next peeks, ✓/✕ badge on the
+  previous peek that undoes when tapped, serif date + type caption, drag with
+  tilt up to 12°, DELETE/KEEP tag and blush/sage tint, commit at 30 % of the
+  width or a fast flick, spring 0.3 s / 0.8, glass dock with Delete / Undo /
+  Keep that grows with the drag, light haptic on commit, VoiceOver actions and
+  announcement, Reduce Motion cross-fade, "That's all" end card);
+  `PhotoKitImageLoader` (one `PHCachingImageManager`, opportunistic delivery,
+  network allowed, prefetch next 3, stop caching passed ones, late images for
+  another photo ignored); new theme tokens (delete/keep tints, scrim).
+- **Left out on purpose:** the Review button is a count only and the end card
+  says "Back to Albums" until Stage 6; video and Live Photo playback and zoom
+  (Stage 8); duplicates caption chip (Stage 6b).
+- **Mistake found while testing (M-14):** the drag gesture on the card never
+  fired (no callbacks, no commit) although buttons worked. Moving the gesture
+  to the carousel container (`simultaneousGesture`) fixed it. Cause not
+  isolated (the card's accessibility modifiers are the likely suspect).
+- **Verified:** 26 + 1 + 16 package tests pass; app builds; simulator
+  (iPhone 18 Pro, 6 photos): open album at item 1, delete by button and by
+  drag, keep by drag and button, undo by tapping the left peek, end card,
+  badges, Dusk and Dawn (screenshots checked).
+- **Not verified:** smoothness on a 1,000+ album on a real device (the Stage 5
+  done condition: unverified); the mid-drag tag and tint (no way to
+  screenshot mid-gesture); haptics; Reduce Motion; VoiceOver actions; the
+  "Discard marks?" confirm; an iCloud-only or deleted-in-Photos photo;
+  Swipe at AX5 and on iPhone SE; memory with a large album.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |
@@ -317,6 +348,7 @@ Working branch: `claude/sweet-gauss-20esu8`
 | M-11 | 2026-11-18 | Dawn colour tokens were written into the brief without a contrast check; three failed (delete text, keep text, photo scrim) | Claude (Change 14) | Tokens corrected and the reason noted in the brief | Run the contrast script on new colour tokens before writing them down |
 | M-12 | 2026-11-18 | Paywall said "Delete 50 now" even when part of today's 50 was used; Dusk Review board lacked the free-plan line | Claude (Change 14) | "Delete N now" (N = left today); line added | When drawing a screen, check every rule in the brief and every number against the limits |
 | M-13 | 2026-11-18 | Wordmark first rendered in the system font: `.custom` was given the family name, but the variable font needs PostScript names | Claude (screenshot) | Use `CormorantGaramond-SemiBold` / `-MediumItalic` | Check a bundled font renders in a screenshot, and read its real names with CoreText |
+| M-14 | 2026-11-18 | Card drag gesture never fired (no commit) while buttons worked | Claude (simulator test) | Gesture moved to the carousel container | Drive every gesture in the simulator before calling it done; a button working proves nothing about the drag |
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).

@@ -7,6 +7,7 @@ public final class FakePhotoLibrary: PhotoLibrary, @unchecked Sendable {
     private var prompts = 0
     private var albumList: [Album]
     private var loads = 0
+    private var assetsByAlbum: [String: [Asset]] = [:]
 
     public init(status: AuthStatus, statusAfterPrompt: AuthStatus = .full,
                 albums: [Album] = []) {
@@ -17,6 +18,7 @@ public final class FakePhotoLibrary: PhotoLibrary, @unchecked Sendable {
 
     public var promptCount: Int { lock.withLock { prompts } }
     public var albumLoadCount: Int { lock.withLock { loads } }
+    public func setAssets(_ a: [Asset], in album: Album) { lock.withLock { assetsByAlbum[album.id] = a } }
     public func setAlbums(_ a: [Album]) { lock.withLock { albumList = a } }
     public func set(_ s: AuthStatus) { lock.withLock { status = s } }
 
@@ -31,5 +33,9 @@ public final class FakePhotoLibrary: PhotoLibrary, @unchecked Sendable {
 
     public func albums() async -> [Album] {
         lock.withLock { loads += 1; return status.isGranted ? albumList : [] }
+    }
+
+    public func assets(in album: Album) async -> [Asset] {
+        lock.withLock { assetsByAlbum[album.id] ?? [] }
     }
 }

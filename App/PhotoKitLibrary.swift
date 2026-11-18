@@ -35,6 +35,28 @@ struct PhotoKitLibrary: PhotoLibrary {
         return result + user
     }
 
+    func assets(in album: Album) async -> [Asset] {
+        guard let collection = PHAssetCollection.fetchAssetCollections(
+            withLocalIdentifiers: [album.id], options: nil).firstObject else { return [] }
+        let oldestFirst = PHFetchOptions()
+        oldestFirst.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+        let found = PHAsset.fetchAssets(in: collection, options: oldestFirst)
+        var out: [Asset] = []
+        out.reserveCapacity(found.count)
+        found.enumerateObjects { a, _, _ in
+            out.append(Asset(id: a.localIdentifier, kind: Self.kind(of: a),
+                             created: a.creationDate ?? .distantPast))
+        }
+        return out
+    }
+
+    private static func kind(of a: PHAsset) -> AssetKind {
+        if a.mediaType == .video { return .video }
+        if a.mediaSubtypes.contains(.photoScreenshot) { return .screenshot }
+        if a.mediaSubtypes.contains(.photoLive) { return .livePhoto }
+        return .photo
+    }
+
     private static func album(from c: PHAssetCollection, kind: AlbumKind) -> Album? {
         let newestFirst = PHFetchOptions()
         newestFirst.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]

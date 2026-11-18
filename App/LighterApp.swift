@@ -5,9 +5,12 @@ import SwipeFeatures
 import UIKit
 
 @main struct LighterApp: App {
-    @State private var model = AppModel(
+    @State private var model: AppModel = {
+        let loader = PhotoKitImageLoader()
+        return AppModel(
         library: PhotoKitLibrary(),
-        thumbnails: PhotoKitImageLoader(),
+        thumbnails: loader,
+        images: loader,
         appVersion: Self.version,
         presentLimitedPicker: {
             let root = UIApplication.shared.connectedScenes
@@ -20,6 +23,7 @@ import UIKit
         openSettings: {
             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
         })
+    }()
     var body: some Scene { WindowGroup { RootView(model: model) } }
 
     private static var version: String {

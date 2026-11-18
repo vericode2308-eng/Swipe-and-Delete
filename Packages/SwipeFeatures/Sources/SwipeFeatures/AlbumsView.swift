@@ -104,7 +104,12 @@ public struct AlbumsView: View {
             let columns = Array(repeating: GridItem(.flexible(), spacing: 14),
                                 count: typeSize.isAccessibilitySize ? 1 : 2)
             LazyVGrid(columns: columns, spacing: 14) {
-                ForEach(albums) { AlbumTile(album: $0, loader: model.thumbnails) }
+                ForEach(albums) { album in
+                    Button { Task { await model.open(album) } } label: {
+                        AlbumTile(album: album, loader: model.thumbnails)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
@@ -153,5 +158,6 @@ struct AlbumTile: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(album.title), \(album.count) items")
+            .accessibilityAddTraits(.isButton)
     }
 }

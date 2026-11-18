@@ -14,4 +14,6 @@ public protocol PhotoLibrary: Sendable {
     func authorize() async -> AuthStatus
     /// Smart albums first (Photos order), then the user's own albums.
     func albums() async -> [Album]
+    /// Every item in the album, oldest first.
+    func assets(in album: Album) async -> [Asset]
 }
