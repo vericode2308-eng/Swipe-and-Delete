@@ -192,10 +192,11 @@ public struct SwipeView: View {
                 ForEach(slots) { slot in
                     let r = CGFloat(slot.rel) - scrubFrac
                     slotView(slot, size: size, step: step, screenW: geo.size.width, t)
-                        .rotation3DEffect(.degrees(Double(-r) * 40), axis: (x: 0, y: 1, z: 0),
-                                          anchor: .center, perspective: 0.5)
+                        .rotation3DEffect(.degrees(Double(-r) * 32), axis: (x: 0, y: 1, z: 0),
+                                          anchor: .center, perspective: 0.2)
                         .offset(x: -scrubFrac * step)
                         .scaleEffect(1 - min(abs(r), 1.5) * 0.04)
+                        .zIndex(1 - Double(min(abs(r), 1)))
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height)

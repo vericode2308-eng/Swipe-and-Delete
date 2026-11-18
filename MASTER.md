@@ -463,3 +463,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **Files:** `SwipeView.swift`.
 - **Verified:** SwipeFeatures tests pass; device build and install.
 - **Not verified:** not seen running; AX sizes and iPhone SE layout.
+
+## Change 40 — Neighbour card no longer covers the photo's corner
+- **What:** Owner's screenshot showed the current photo's bottom-right cut off. Cause (my reading of the screenshot, not reproduced): the 3D-tilted next card's near edge grew with perspective and overlapped it. Fix: current card drawn on top (zIndex), tilt 40°→32°, perspective 0.5→0.2.
+- **Files:** `SwipeView.swift`.
+- **Verified:** tests pass; device build and install.
+- **Not verified:** not seen on screen; whether the cut-off is fully gone, and the look of the tilt.
