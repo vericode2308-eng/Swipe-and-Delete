@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Review deletions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Inter:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#DCE3EE}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; isolation: isolate; background: #262E3B; font-family: Inter, -apple-system, system-ui, sans-serif; color: #F4F6FA; display: flex; flex-direction: column; padding: 56px 20px 30px; gap: 18px">
+  <div aria-hidden="true" style="position: absolute; inset: 0; z-index: -1; overflow: hidden">
+    <div style="position: absolute; left: -90px; top: -60px; width: 320px; height: 320px; border-radius: 50%; background: #5E7AA6; filter: blur(70px); opacity: 0.75"></div>
+    <div style="position: absolute; right: -110px; top: 300px; width: 300px; height: 300px; border-radius: 50%; background: #9A6F80; filter: blur(80px); opacity: 0.6"></div>
+    <div style="position: absolute; left: -40px; bottom: -80px; width: 300px; height: 260px; border-radius: 50%; background: #3F6B66; filter: blur(80px); opacity: 0.6"></div>
+  </div>
+  
+
+  <div style="display: flex; align-items: center; gap: 14px">
+    <a href="Swipe.dc.html" aria-label="Back to swiping" style="width: 42px; height: 42px; flex-shrink: 0; border-radius: 21px; border: 1px solid rgba(255,255,255,0.34); background: rgba(255,255,255,0.12); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(10,14,22,0.28); display: flex; align-items: center; justify-content: center; color: #F4F6FA">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+    </a>
+    <div style="display: flex; flex-direction: column">
+      <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 32px; line-height: 1.1">{{title}}</h1>
+      <span style="font-size: 13px; color: #C9D2E0">Tap a photo to keep it instead.</span>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; min-height: 0; overflow: auto; padding: 10px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.30); background: rgba(255,255,255,0.12); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(10,14,22,0.28);">
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{items}}" as="it" hint-placeholder-count="9">
+        <button onClick="{{it.toggle}}" aria-label="{{it.label}}" style="position: relative; height: 128px; border: 1px solid rgba(255,255,255,0.10); padding: 0; border-radius: 16px; background: {{it.sky}}; cursor: pointer; overflow: hidden; opacity: {{it.opacity}}; transition: opacity 200ms ease">
+          <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: {{it.near}}; clip-path: polygon(0 30%, 25% 0, 45% 40%, 70% 10%, 100% 45%, 100% 100%, 0 100%)"></div>
+          <div style="position: absolute; top: 7px; right: 7px; width: 24px; height: 24px; border-radius: 12px; background: rgba(31,38,51,0.32); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.30); border: 1px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; color: {{it.iconColor}}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{it.icon}}"/></svg>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="padding: 14px 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.30); background: rgba(255,255,255,0.12); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(10,14,22,0.28); font-size: 13px; line-height: 1.5; color: #C9D2E0">Deleted photos stay in <span style="color: #F4F6FA">Recently Deleted</span> for 30 days. With iCloud Photos on, they’re removed from your other devices too.</div>
+
+  <span style="align-self: center; margin-bottom: -8px; font-size: 12px; color: #C9D2E0">Free plan: 50 deletions a day · 41 left today</span>
+  <a href="Done.dc.html" style="height: 54px; border-radius: 27px; background: #F2B8A8; color: #2A1A16; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>{{cta}}
+  </a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { kept: {} };
+    this.photos = [
+      ['#8EA3BF', '#2E3A4F'], ['#D9A88F', '#3F3442'], ['#3B4A6B', '#161D2E'],
+      ['#A9BFB6', '#2F4640'], ['#C9A3B5', '#3E3044'], ['#B8C0CC', '#3D4552'],
+      ['#9FB2C9', '#34405A'], ['#C7B19E', '#4A3C3A'], ['#7E93AE', '#232C3D']
+    ];
+  }
+  renderVals() {
+    const kept = this.state.kept;
+    const n = this.photos.filter((_, i) => !kept[i]).length;
+    return {
+      title: n + (n === 1 ? ' to delete' : ' to delete'),
+      cta: 'Delete ' + n + (n === 1 ? ' photo' : ' photos'),
+      items: this.photos.map((p, i) => ({
+        sky: p[0], near: p[1],
+        opacity: kept[i] ? 0.4 : 1,
+        iconColor: kept[i] ? '#A9DCCD' : '#F2B8A8',
+        icon: kept[i] ? 'M5 12.5l4.5 4.5L19 7.5' : 'M6 6l12 12M18 6L6 18',
+        label: kept[i] ? 'Photo ' + (i + 1) + ', kept. Tap to delete' : 'Photo ' + (i + 1) + ', will be deleted. Tap to keep',
+        toggle: () => this.setState({ kept: Object.assign({}, kept, { [i]: !kept[i] }) })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

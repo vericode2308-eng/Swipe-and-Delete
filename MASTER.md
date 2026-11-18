@@ -196,6 +196,21 @@ Working branch: `claude/sweet-gauss-20esu8`
   inside the real canvas viewer; Dawn on a real iPhone; final fonts (the
   app uses SF Pro, the mock-ups Inter).
 
+**Change 15 — Owner answers; design files added to the repository**
+- **What:** owner answered the open questions: leftover marks after
+  "Delete N now" are dropped (D-22); bundle ID `com.vericodestudio.lighter`
+  confirmed (D-17); About sheet confirmed (D-16); "Discard 9 marks?" when
+  switching album confirmed (D-23). Owner asked for a folder on the Mac with
+  all project data. This cloud session cannot reach the Mac (its folders
+  are listed as not available to cloud sessions), so the design canvas
+  sources were added to the repository (`design/canvas/`) so one `git clone`
+  on the Mac brings everything: plans, history, store drafts, screenshots
+  folder and designs.
+- **Files:** `APP_PLAN.md`, `BUILD_PLAN.md`, `DESIGN_BRIEF.md`,
+  `design/canvas/` (15 files), this file.
+- **Verified:** files copied and committed. **Not verified:** the folder on
+  the Mac (owner runs the clone).
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |

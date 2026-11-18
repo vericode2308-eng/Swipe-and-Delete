@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Architecture</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#4338CA}a:hover{color:#3730A3}
+</style>
+</helmet>
+<div style="width: 1600px; height: 900px; box-sizing: border-box; background: #FFFFFF; font-family: Inter, -apple-system, system-ui, sans-serif; color: #1C1C1E; padding: 48px 56px; display: flex; flex-direction: column; gap: 32px">
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.6px">One app target · four layers · no database</h1>
+    <span style="font-size: 15px; color: #636366">SwiftUI · Observation · PhotoKit · iOS 17+</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 48px 1fr 48px 1fr 48px 1fr; align-items: stretch; flex-grow: 1">
+    <sc-for list="{{cols}}" as="c" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 12px; background: {{c.bg}}; border-radius: 20px; padding: 20px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: {{c.ink}}">{{c.layer}}</span>
+          <span style="font-size: 20px; font-weight: 700">{{c.title}}</span>
+        </div>
+        <sc-for list="{{c.items}}" as="it" hint-placeholder-count="3">
+          <div style="background: #FFFFFF; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.06)">
+            <span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px; font-weight: 500">{{it.name}}</span>
+            <span style="font-size: 13px; line-height: 1.4; color: #48484A">{{it.desc}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{c.arrow}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #8E8E93">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h14l-4-4M20 15H6l4 4"/></svg>
+        </div>
+      </sc-if>
+    </sc-for>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px">
+    <sc-for list="{{flow}}" as="f" hint-placeholder-count="5">
+      <div style="display: flex; gap: 10px; align-items: flex-start; background: #F2F2F7; border-radius: 14px; padding: 14px">
+        <span style="flex-shrink: 0; width: 26px; height: 26px; border-radius: 13px; background: #4338CA; color: #FFFFFF; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{f.n}}</span>
+        <span style="font-size: 13px; line-height: 1.45; color: #1C1C1E">{{f.text}}</span>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      cols: [
+        { layer: 'Layer 1', title: 'Views (SwiftUI)', bg: '#EEF2FF', ink: '#3730A3', arrow: true, items: [
+          { name: 'WelcomeView', desc: 'Explains access, asks for permission' },
+          { name: 'AlbumListView', desc: 'Smart albums + user albums, counts' },
+          { name: 'SwipeView', desc: 'Card stack, drag gesture, 3 buttons' },
+          { name: 'PhotoCard', desc: 'Aspect-fit image, video / Live Photo' },
+          { name: 'ReviewView · DoneView', desc: 'Marked grid, delete button, totals' }
+        ]},
+        { layer: 'Layer 2', title: 'State (@Observable)', bg: '#F0FDFA', ink: '#115E59', arrow: true, items: [
+          { name: 'AppModel', desc: 'Auth status + NavigationStack path' },
+          { name: 'SwipeSession', desc: 'assets, index, marked: [String], undo stack. In memory only, created fresh per album' },
+          { name: 'Decision', desc: 'enum { keep, delete }' }
+        ]},
+        { layer: 'Layer 3', title: 'Services', bg: '#FFF7ED', ink: '#9A3412', arrow: true, items: [
+          { name: 'PhotoLibrary (protocol)', desc: 'authorize · albums() · assets(in:) · delete(ids:)' },
+          { name: 'PhotoKitLibrary', desc: 'Real implementation. The only code that deletes' },
+          { name: 'ImageLoader', desc: 'Screen-sized images, prefetch next 3, cancels stale requests' },
+          { name: 'FakePhotoLibrary', desc: 'For previews and unit tests' }
+        ]},
+        { layer: 'Layer 4', title: 'Apple', bg: '#F2F2F7', ink: '#3A3A3C', arrow: false, items: [
+          { name: 'PHPhotoLibrary', desc: 'Authorization, change observer, performChanges' },
+          { name: 'PHAsset / PHAssetCollection', desc: 'Fetching albums and items' },
+          { name: 'PHCachingImageManager', desc: 'Thumbnails + iCloud download' },
+          { name: 'iOS delete prompt', desc: 'System confirmation → Recently Deleted' }
+        ]}
+      ],
+      flow: [
+        { n: '1', text: 'Tap an album → AlbumListView creates a new SwipeSession with its assets (oldest → newest).' },
+        { n: '2', text: 'SwipeView shows assets[index]. ImageLoader prefetches the next 3.' },
+        { n: '3', text: 'Swipe right → index += 1. Swipe left → also add the id to marked. Undo pops the last one.' },
+        { n: '4', text: 'Done or end of album → ReviewView. Tap photos to unmark.' },
+        { n: '5', text: 'Delete N → PhotoKitLibrary.delete(ids). iOS asks; on success show DoneView.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

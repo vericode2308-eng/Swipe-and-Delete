@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Albums</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Inter:wght@300;400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#DCE3EE}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; isolation: isolate; background: #262E3B; font-family: Inter, -apple-system, system-ui, sans-serif; color: #F4F6FA; display: flex; flex-direction: column; padding: 62px 20px 20px; gap: 14px; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 0; z-index: -1; overflow: hidden">
+    <div style="position: absolute; left: -90px; top: -60px; width: 320px; height: 320px; border-radius: 50%; background: #5E7AA6; filter: blur(70px); opacity: 0.75"></div>
+    <div style="position: absolute; right: -110px; top: 300px; width: 300px; height: 300px; border-radius: 50%; background: #9A6F80; filter: blur(80px); opacity: 0.6"></div>
+    <div style="position: absolute; left: -40px; bottom: -80px; width: 300px; height: 260px; border-radius: 50%; background: #3F6B66; filter: blur(80px); opacity: 0.6"></div>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 38px; letter-spacing: 0.2px">Albums</h1>
+    <a href="#" aria-label="About Lighter" style="width: 40px; height: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.34); background: rgba(255,255,255,0.12); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(10,14,22,0.28); display: flex; align-items: center; justify-content: center; color: #E7ECF3; text-decoration: none">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/></svg>
+    </a>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 22px">Quick clean-up</h2>
+      <span style="font-size: 11px; color: #AEB8C8">Found on this iPhone</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 8px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.30); background: rgba(255,255,255,0.10); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(10,14,22,0.28)">
+      <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+        <a href="Swipe.dc.html" style="height: 58px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.26); background: rgba(255,255,255,0.10); display: flex; align-items: center; gap: 12px; padding: 0 14px; text-decoration: none; color: #F4F6FA">
+          <span style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 17px; border: 1px solid rgba(255,255,255,0.35); background: {{f.tint}}; display: flex; align-items: center; justify-content: center; color: #F4F6FA">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{f.icon}}"/></svg>
+          </span>
+          <span style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0">
+            <span style="font-size: 15px; font-weight: 600">{{f.name}}</span>
+            <span style="font-size: 12px; color: #C9D2E0">{{f.detail}}</span>
+          </span>
+          <span style="font-size: 13px; font-weight: 600; color: #E7ECF3; white-space: nowrap">{{f.count}}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#AEB8C8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 8px; margin-top: 2px">
+    <span style="height: 32px; padding: 0 16px; border-radius: 16px; background: #E6ECF5; color: #1F2633; font-size: 13px; font-weight: 600; display: flex; align-items: center">All</span>
+    <span style="height: 32px; padding: 0 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.34); background: rgba(255,255,255,0.12); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(10,14,22,0.28); color: #DCE3EE; font-size: 13px; font-weight: 500; display: flex; align-items: center">Smart Albums</span>
+    <span style="height: 32px; padding: 0 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.34); background: rgba(255,255,255,0.12); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(10,14,22,0.28); color: #DCE3EE; font-size: 13px; font-weight: 500; display: flex; align-items: center">My Albums</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+    <sc-for list="{{albums}}" as="a" hint-placeholder-count="4">
+      <a href="Swipe.dc.html" style="position: relative; height: 138px; border-radius: 22px; overflow: hidden; text-decoration: none; color: #FFFFFF; background: {{a.sky}}; border: 1px solid rgba(255,255,255,0.30); box-shadow: 0 12px 30px rgba(10,14,22,0.35)">
+        <div aria-hidden="true" style="position: absolute; left: -10%; right: -10%; bottom: 30%; height: 40%; background: {{a.far}}; clip-path: polygon(0 100%, 18% 35%, 34% 70%, 52% 10%, 70% 60%, 86% 30%, 100% 100%)"></div>
+        <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: {{a.near}}; clip-path: polygon(0 30%, 25% 0, 45% 40%, 70% 10%, 100% 45%, 100% 100%, 0 100%)"></div>
+        <div style="position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 8px 12px; border-radius: 14px; background: rgba(31,38,51,0.32); backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.30); border: 1px solid rgba(255,255,255,0.30); display: flex; flex-direction: column; gap: 1px">
+          <span style="font-size: 14px; font-weight: 600">{{a.name}}</span>
+          <span style="font-size: 12px; color: #D5DCE7">{{a.count}}</span>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+
+  <a href="#" style="align-self: center; margin-top: auto; font-size: 13px; text-decoration: none; padding: 8px; color: #C9D2E0">Limited access · <span style="text-decoration: underline">Manage selection</span></a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      filters: [
+        { name: 'Duplicates', detail: 'Same or near-identical shots', count: '86 in 31 sets', tint: 'rgba(142,163,191,0.45)',
+          icon: 'M8 8h11v11H8z M5 16V5h11' },
+        { name: 'Pages & Things', detail: 'Notes, documents, no people', count: '212', tint: 'rgba(242,184,168,0.40)',
+          icon: 'M7 3h7l4 4v14H7z M14 3v4h4 M10 12h5 M10 16h5' },
+        { name: 'From WhatsApp', detail: 'Saved from your chats', count: '1,480', tint: 'rgba(169,220,205,0.40)',
+          icon: 'M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z' }
+      ],
+      albums: [
+        { name: 'All Photos', count: '4,812 items', sky: '#8EA3BF', far: '#5E6F8A', near: '#2E3A4F' },
+        { name: 'Screenshots', count: '1,206 items', sky: '#D9A88F', far: '#8B6B73', near: '#3F3442' },
+        { name: 'Videos', count: '318 items', sky: '#3B4A6B', far: '#2A3550', near: '#161D2E' },
+        { name: 'Selfies', count: '402 items', sky: '#A9BFB6', far: '#6E8A80', near: '#2F4640' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

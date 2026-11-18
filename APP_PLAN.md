@@ -25,14 +25,14 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 | R-03 | Opening an album always starts at its first item (oldest first). Nothing from an earlier visit is remembered. |
 | R-04 | Swipe left = mark for deletion. Swipe right = keep. Buttons do the same. |
 | R-05 | One Undo reverses the last decision, repeatedly back to the first item. |
-| R-06 | Album chips on the Swipe screen switch album and start from item 1. Switching discards current marks after a confirm if any exist. |
+| R-06 | Album chips on the Swipe screen switch album and start from item 1. Switching discards current marks after a confirm ("Discard 9 marks?") if any exist (owner confirmed, D-23). |
 | R-07 | Review shows every marked item. Tapping one unmarks it. |
 | R-08 | Delete runs one iOS delete prompt for all marked items. Cancel stays on Review with marks intact. |
 | R-09 | Deleted items go to Recently Deleted (30 days); the app says so before and after deleting. |
 | R-10 | Done screen: a short celebration with the total size cleared, counts (reviewed, kept, deleted) and "Room for about N more photos". |
 | R-11 | Free plan: up to **50 deletions per calendar day** (device's local time). Swiping, keeping and reviewing are always unlimited. |
 | R-12 | Pro: one-time purchase (**$4.99**, StoreKit 2, non-consumable) removes the daily limit. Restore Purchases is always available. |
-| R-13 | Paywall appears only when the user taps Delete with more marked than today's allowance left. It offers **Unlock Pro** and **Delete N now**, where N = deletions left today (50 on a fresh day; the first N marked, in order). Never on launch. |
+| R-13 | Paywall appears only when the user taps Delete with more marked than today's allowance left. It offers **Unlock Pro** and **Delete N now**, where N = deletions left today (50 on a fresh day; the first N marked, in order). The marks left over are dropped, not kept for tomorrow (D-22). Never on launch. |
 | R-14 | About sheet (from an ⓘ button on Albums): Pro status, Restore Purchases, Rate on the App Store, Privacy Policy, Acknowledgements. |
 | R-15 | Light and dark looks that follow the iPhone's appearance setting. |
 | R-16 | Full VoiceOver, Dynamic Type up to AX5, Reduce Motion and Reduce Transparency support. |
@@ -81,7 +81,6 @@ Adding any of these needs a new dated row in the decision log first.
 | No duplicates / no matches found | Row says "None found" and is not a button. |
 
 ## Owner questions still open
-- Bundle ID: confirm `com.vericodestudio.lighter` (permanent once registered).
 - Support email address and the URL for privacy, terms and support pages.
 - Apple team ID for `project.yml`.
 
@@ -104,9 +103,11 @@ Adding any of these needs a new dated row in the decision log first.
 | D-13 | 2026-11-18 | Name "Swipe & Delete"; bundle ID `com.vericodestudio.swipeanddelete` (widget `.widgets`, tests `.tests`, IAP `.pro`). | Superseded by D-17 |
 | D-14 | 2026-11-18 | Keep pill-shaped (capsule) main buttons. Exception to the standing rule "buttons are rounded rectangles". | Active |
 | D-15 | 2026-11-18 | Add a light look alongside Dusk, following the system appearance. | Active |
-| D-16 | 2026-11-18 | Add an About sheet for Restore, Rate, Privacy and Acknowledgements (required by the standing rules once Pro exists). Not a Settings screen. | Active (proposed by Claude, confirm) |
-| D-17 | 2026-11-18 | App name **Lighter**; App Store title "Lighter: Swipe Photo Cleaner". Reason: at least 6 App Store apps already use "Swipe & Delete", one exactly "Swipe & Delete - Photo Cleaner". Bundle ID proposed `com.vericodestudio.lighter` (not yet registered). | Active (bundle ID: confirm) |
+| D-16 | 2026-11-18 | Add an About sheet for Restore, Rate, Privacy and Acknowledgements (required by the standing rules once Pro exists). Not a Settings screen. Owner confirmed. | Active |
+| D-17 | 2026-11-18 | App name **Lighter**; App Store title "Lighter: Swipe Photo Cleaner". Reason: at least 6 App Store apps already use "Swipe & Delete", one exactly "Swipe & Delete - Photo Cleaner". Bundle ID `com.vericodestudio.lighter` confirmed by the owner (not yet registered). | Active |
 | D-18 | 2026-11-18 | Add **Quick clean-up** filters: Duplicates, Pages & Things (no people: pages, notes, documents, accidental shots), From WhatsApp. They open the same swipe flow. Reverses the non-goal "duplicate or similar-photo detection". | Active |
 | D-19 | 2026-11-18 | The filters are free for everyone on the whole library. Pro still only removes the 50-a-day deletion limit. | Active |
 | D-20 | 2026-11-18 | Minimum **iOS 18** (was 17): needed for Apple Vision's photo-quality check (`isUtility`, aesthetics score) behind Pages & Things. | Active |
 | D-21 | 2026-11-18 | The scan's results (per-photo labels and image fingerprints, not swipe progress) are kept on the iPhone so the scan does not repeat on every launch. D-02 still holds: swiping always starts from item 1. Owner confirmed ("Keep d21"). | Active |
+| D-22 | 2026-11-18 | After **Delete N now** on the paywall, the marks beyond N are dropped, not kept for the next day (keeps D-02: nothing is remembered). | Active |
+| D-23 | 2026-11-18 | Confirmed: switching album with marks asks "Discard 9 marks?" first (R-06). | Active |

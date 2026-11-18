@@ -148,7 +148,7 @@ Dawn values were corrected on 2026-11-18 after a contrast check (see
   Review are already free."
 - Primary pill **Unlock Pro – $4.99**. Glass button **Delete N now** with
   the small line "the first N you marked", where N = deletions left today
-  (50 on a fresh day). Text buttons **Restore Purchases** and **Not now**
+  (50 on a fresh day); the other marks are then dropped (D-22). Text buttons **Restore Purchases** and **Not now**
   (back to Review, marks kept).
 - Sheet over the dimmed Review screen, top corners radius 34, grabber.
 - Price comes from StoreKit; if it cannot load, show "Price unavailable" and
