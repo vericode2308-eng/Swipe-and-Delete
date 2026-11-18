@@ -1,4 +1,4 @@
-# Swipe & Delete — App Plan
+# Lighter — App Plan
 
 This document wins on scope. If another document disagrees with it, this one is
 right and the other must be fixed.
@@ -64,6 +64,7 @@ Adding any of these needs a new dated row in the decision log first.
 | Daily count | Increases only after iOS confirms the deletion. Resets at local midnight. |
 
 ## Owner questions still open
+- Bundle ID: confirm `com.vericodestudio.lighter` (permanent once registered).
 - Support email address and the URL for privacy, terms and support pages.
 - Apple team ID for `project.yml`.
 - Minimum iOS: 17 assumed (needed for `@Observable`, `PhaseAnimator`, `sensoryFeedback`).
@@ -84,7 +85,8 @@ Adding any of these needs a new dated row in the decision log first.
 | D-10 | 2026-11-18 | Money: free download + one-time Pro. | Active |
 | D-11 | 2026-11-18 | Free limit: 50 deletions per day. Pro: unlimited. | Active |
 | D-12 | 2026-11-18 | Pro price: $4.99 one-time. | Active |
-| D-13 | 2026-11-18 | Name "Swipe & Delete"; bundle ID `com.vericodestudio.swipeanddelete` (widget `.widgets`, tests `.tests`, IAP `.pro`). | Active |
+| D-13 | 2026-11-18 | Name "Swipe & Delete"; bundle ID `com.vericodestudio.swipeanddelete` (widget `.widgets`, tests `.tests`, IAP `.pro`). | Superseded by D-17 |
 | D-14 | 2026-11-18 | Keep pill-shaped (capsule) main buttons. Exception to the standing rule "buttons are rounded rectangles". | Active |
 | D-15 | 2026-11-18 | Add a light look alongside Dusk, following the system appearance. | Active |
 | D-16 | 2026-11-18 | Add an About sheet for Restore, Rate, Privacy and Acknowledgements (required by the standing rules once Pro exists). Not a Settings screen. | Active (proposed by Claude, confirm) |
+| D-17 | 2026-11-18 | App name **Lighter**; App Store title "Lighter: Swipe Photo Cleaner". Reason: at least 6 App Store apps already use "Swipe & Delete", one exactly "Swipe & Delete - Photo Cleaner". Bundle ID proposed `com.vericodestudio.lighter` (not yet registered). | Active (bundle ID: confirm) |

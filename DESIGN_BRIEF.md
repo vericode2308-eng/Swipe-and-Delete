@@ -1,4 +1,4 @@
-# Swipe & Delete — Design Brief
+# Lighter — Design Brief
 
 Read this before any UI work. Scope comes from `APP_PLAN.md`.
 Mock-ups: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
@@ -62,7 +62,7 @@ icons) in both looks, checked over the lightest and darkest photo scrim.
 
 ### 1. Welcome
 - Full-bleed landscape illustration (drawn in code), fading into the base.
-- Italic wordmark "Swipe & Delete", line "A calmer camera roll, one photo at a
+- Italic wordmark "Lighter", line "A calmer camera roll, one photo at a
   time."
 - A glass panel with two glass rows: "← Swipe left to delete" (blush icon),
   "→ Swipe right to keep" (sage icon).

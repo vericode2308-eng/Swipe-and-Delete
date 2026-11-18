@@ -31,7 +31,7 @@ Paste this into the new app's plan or its CLAUDE.md. Fill in the `<…>` placeho
 3. Architecture: one app target + local Swift packages (`<App>Core` pure logic with host tests, `<App>UI` design system, `<App>Features` screens). Core stays free of UI so `swift test` runs fast without a simulator.
 4. **Bundle ID is permanent once registered.** Confirm it with me first. My prefix: `com.vericodestudio.<app>`; widget `.widgets`, tests `.tests`, IAP `.pro`. (COLREGs Trainer was first set up under the wrong prefix and had to be changed.)
 5. Use my Apple team ID with automatic signing. Put `DEVELOPMENT_TEAM` in `project.yml`; do not rely on a command-line override.
-6. App name: decide the **user-searched term** first (for COLREGs it was the acronym people search, not the web brand). Never revert a name I approved.
+6. App name: **search the App Store for the same or similar names before proposing one** (Swipe & Delete was approved, then found on six existing apps). Decide the **user-searched term** first (for COLREGs it was the acronym people search, not the web brand). Never revert a name I approved.
 7. Privacy manifest, `ITSAppUsesNonExemptEncryption=NO`, correct `UIRequiresFullScreen` setting (see section 7), placeholder icon from day one.
 8. **Secrets:** only a publishable/anon key may ship in the app, via a git-ignored xcconfig with a committed `.example` template. The app must still build and run without it. Service/secret keys live only in server-side functions, never in the repo, never in git history.
 
@@ -139,6 +139,7 @@ Paste this into the new app's plan or its CLAUDE.md. Fill in the `<…>` placeho
 - Simulator dark mode "didn't work" because the app had its own appearance setting.
 - Paywall screenshot showed "price couldn't be loaded" because StoreKit config only applies from Xcode runs.
 - Reporting items as done when only built, not run. Always split Verified / Not verified.
+- Recommending an app name before searching the App Store for it.
 - Relying on the owner to say "push". Push automatically after every major change.
 - Docs kept old colour names and comments after a redesign ("LEDs", coral/teal/indigo). Search the docs for the old terms after every redesign.
 - A small extra (a photo-size label) slipped into a mock-up against a written non-goal. Check the non-goals before adding any detail.

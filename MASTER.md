@@ -1,4 +1,4 @@
-# Swipe & Delete — Master Record
+# Lighter (formerly Swipe & Delete) — Master Record
 
 The project's memory. Every change, decision, mistake and correction since day
 one. Never delete history; add to it. Rules: `CLAUDE.md` §0.7.
@@ -118,6 +118,21 @@ Working branch: `claude/sweet-gauss-20esu8`
   rebuilt with the full history; `media/screenshots/INDEX.md` created.
 - **Verified:** rules re-read after editing. **Not verified:** n/a.
 
+**Change 11 — App Store name researched; app renamed "Lighter"**
+- **What:** owner asked for a draft App Store name with good ASO. Research
+  found at least six App Store apps already called "Swipe & Delete", one
+  exactly "Swipe & Delete - Photo Cleaner" (the earlier draft title). Also
+  ruled out Dusk, Afterglow, Pare, Sift and Keepsake. Owner chose
+  **"Lighter: Swipe Photo Cleaner"** (D-17, superseding D-13). Drafted
+  subtitle, keyword field and promotional text with character counts.
+- **Files:** `ASO_PLAN.md`, `APP_PLAN.md`, `BUILD_PLAN.md`,
+  `DESIGN_BRIEF.md`, `store_drafts/`, `CLAUDE.md`, design canvas (Welcome
+  wordmark).
+- **Verified:** web search of App Store listings; character counts by
+  script. **Not verified:** name availability in App Store Connect,
+  keyword popularity (Apple Search Ads), trademark search; bundle ID
+  `com.vericodestudio.lighter` awaits owner confirmation.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |
@@ -130,6 +145,7 @@ Working branch: `claude/sweet-gauss-20esu8`
 | M-06 | 2026-11-18 | Publish refused after context compaction (files not re-read) | Tool | Read, confirmed, then published | Re-read published files after a context reset |
 | M-07 | 2026-11-18 | Old coral / teal / indigo wording left in the Swipe screen spec | Claude | Rewritten in `DESIGN_BRIEF.md` | Same as M-04 |
 | M-08 | 2026-11-18 | Rules said "commit" but not "push"; owner had to raise it | Owner | Rule 1.1 now says commit and push automatically | Write the habit into the rules, not just do it |
+| M-09 | 2026-11-18 | Name "Swipe & Delete" was recommended and approved (D-13) before checking the App Store; six apps already use it | Claude (during ASO research) | Renamed to Lighter (D-17) before any bundle ID was registered | Search the App Store for the name before recommending it |
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).

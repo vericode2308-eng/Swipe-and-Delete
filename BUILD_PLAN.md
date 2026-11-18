@@ -1,4 +1,4 @@
-# Swipe & Delete — Build Plan
+# Lighter — Build Plan
 
 Scope: `APP_PLAN.md`. Look: `DESIGN_BRIEF.md`.
 
@@ -7,8 +7,9 @@ Scope: `APP_PLAN.md`. Look: `DESIGN_BRIEF.md`.
 - **XcodeGen:** `project.yml` is the source of truth. `*.xcodeproj` is
   git-ignored; run `xcodegen generate` after a checkout or a `project.yml`
   change. `DEVELOPMENT_TEAM` lives in `project.yml` (owner to supply).
-- Bundle ID `com.vericodestudio.swipeanddelete`; tests `.tests`; Pro product
-  ID `com.vericodestudio.swipeanddelete.pro` (non-consumable).
+- Bundle ID `com.vericodestudio.lighter` (proposed, D-17; confirm before
+  registering); tests `.tests`; Pro product ID `com.vericodestudio.lighter.pro`
+  (non-consumable). Home-screen name: "Lighter".
 - `Info.plist`: `NSPhotoLibraryUsageDescription`,
   `ITSAppUsesNonExemptEncryption = NO`, portrait only, `UIRequiresFullScreen`
   removed. Privacy manifest (`PrivacyInfo.xcprivacy`) declaring the
@@ -30,7 +31,7 @@ App target ──▶ SwipeFeatures (screens) ──▶ SwipeUI (design system)
 
 ```
 App/
-  SwipeAndDeleteApp.swift        // @main; builds live services, injects AppModel
+  LighterApp.swift               // @main; builds live services, injects AppModel
   PhotoKitLibrary.swift          // the ONLY code that deletes
   PhotoKitImageLoader.swift      // PHCachingImageManager, prefetch next 3
   StoreKitPurchases.swift        // StoreKit 2: product, purchase, restore, entitlements
