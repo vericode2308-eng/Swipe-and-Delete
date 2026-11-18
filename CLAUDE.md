@@ -143,3 +143,4 @@ Paste this into the new app's plan or its CLAUDE.md. Fill in the `<…>` placeho
 - Relying on the owner to say "push". Push automatically after every major change.
 - Docs kept old colour names and comments after a redesign ("LEDs", coral/teal/indigo). Search the docs for the old terms after every redesign.
 - A small extra (a photo-size label) slipped into a mock-up against a written non-goal. Check the non-goals before adding any detail.
+- Light-look colours were specified without a contrast check and three failed. Compute contrast for every new colour token before it goes in the brief.

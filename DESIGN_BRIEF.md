@@ -14,14 +14,14 @@ appearance setting (D-15): **Dusk** (dark) and **Dawn** (light).
 | Token | Dusk (dark) | Dawn (light) | Use |
 |---|---|---|---|
 | Base | Slate `#262E3B` | Mist `#EEF1F6` | Under every blur |
-| Photo backdrop | Current photo, blur 50, slate scrim 55 % | Current photo, blur 50, mist scrim 60 % | Swipe, Welcome, Done |
+| Photo backdrop | Current photo, blur 50, slate scrim 55 % | Current photo, blur 50, mist scrim 75 % (78 % on Done) | Swipe, Welcome, Done |
 | Colour field | Blobs `#5E7AA6`, `#9A6F80`, `#3F6B66`, blur 70–80 | Blobs `#A9BCDA`, `#E3C3CD`, `#B7D6CF`, blur 70–80 | Behind glass with no photo |
 | Glass | White 12 %, blur 24, saturation 170 %, edge white 34 %, top highlight white 45 %, shadow black 28 % r15 y10 | White 55 %, blur 24, saturation 170 %, edge white 80 %, top highlight white 100 %, shadow `#28374F` 12 % r15 y10 | Buttons, chips, dock, panels |
-| Glass (caption) | Slate 32 %, same blur | White 70 %, same blur | Captions and tags over photos |
-| Text | `#F4F6FA`, secondary `#C9D2E0` | `#1F2633`, secondary `#566072` | |
+| Glass (caption) | Slate 32 %, same blur | White 78 %, same blur, edge white 85 % | Captions and tags over photos |
+| Text | `#F4F6FA`, secondary `#C9D2E0` | `#1F2633`, secondary `#566072` on glass or the plain base; `#3E4757` directly on a photo scrim or caption glass | |
 | Primary pill | Mist `#E6ECF5`, text `#1F2633` | Slate `#262E3B`, text `#F4F6FA` | One per screen |
-| Delete | Blush `#F2B8A8` (icon), button text `#2A1A16` | Fill `#F2B8A8`, icon/text `#A4472F` | ✕, DELETE tag, Delete N button |
-| Keep | Sage `#A9DCCD` | Icon/text `#2F7A66` | ✓, KEEP tag |
+| Delete | Blush `#F2B8A8` (icon), button text `#2A1A16` | Icon/text `#A4472F` on white or glass; Delete button fill `#F2B8A8` with text `#2A1A16` | ✕, DELETE tag, Delete N button |
+| Keep | Sage `#A9DCCD` | Icon/text `#286B59`; Keep button fill sage 75 % | ✓, KEEP tag |
 | Display font | Cormorant Garamond 600 (wordmark 500 italic) | same | Titles, dates, big numbers |
 | Body font | SF Pro (system) 300–600 | same | Everything else; caps labels tracked +1.5 |
 | Radius | Card 30, tiles 22, panels 24–34, pills fully round | same | |
@@ -29,6 +29,9 @@ appearance setting (D-15): **Dusk** (dark) and **Dawn** (light).
 
 Contrast: every text/background pair ≥ 4.5:1 (body) and ≥ 3:1 (large text,
 icons) in both looks, checked over the lightest and darkest photo scrim.
+Dawn values were corrected on 2026-11-18 after a contrast check (see
+`MASTER.md` Change 14): `#A4472F` on blush is 3.5:1, `#2F7A66` on glass
+4.3:1, and `#566072` on a 60 % scrim over a dark photo 2.3:1, all too low.
 
 ### Rules
 - **The photo is the decoration.** The Swipe background is the current photo,
@@ -139,8 +142,15 @@ icons) in both looks, checked over the lightest and darkest photo scrim.
 - Glass panel listing what Pro adds, with real numbers: "Unlimited deletions,
   every day", "One-time purchase: $4.99 (shown in local currency), no
   subscription", "Everything else stays the same".
-- Primary pill **Unlock Pro – $4.99**. Glass button **Delete 50 now** (the
-  first 50 marked). Text buttons **Restore Purchases** and **Not now**.
+- Glass panel rows (icon · title · one line): "Unlimited deletions, every
+  day" / "No daily limit, ever."; "One-time $4.99" / "Paid once. No
+  subscription."; "Everything else stays the same" / "Swiping, filters and
+  Review are already free."
+- Primary pill **Unlock Pro – $4.99**. Glass button **Delete N now** with
+  the small line "the first N you marked", where N = deletions left today
+  (50 on a fresh day). Text buttons **Restore Purchases** and **Not now**
+  (back to Review, marks kept).
+- Sheet over the dimmed Review screen, top corners radius 34, grabber.
 - Price comes from StoreKit; if it cannot load, show "Price unavailable" and
   disable the pill, never a fake price.
 

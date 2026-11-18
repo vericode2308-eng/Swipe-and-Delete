@@ -168,6 +168,34 @@ Working branch: `claude/sweet-gauss-20esu8`
 - **Files:** `APP_PLAN.md` (D-21 status), this file.
 - **Verified:** n/a (decision). **Not verified:** n/a.
 
+**Change 14 — Light look (Dawn) and Paywall drawn**
+- **What:** owner chose to see the light look and the paywall before any
+  code. Added a Dusk Paywall board and a full Dawn row: Welcome, Albums,
+  Swiping right = keep, Review (interactive), Paywall, Done (final frame).
+  Canvas re-laid out: Dusk row, Dawn row, then Architecture.
+- **Stage 1 attempt first:** before the owner switched to designs, Claude
+  looked for a way to build here. This container has no Swift toolchain and
+  no Xcode; swift.org is blocked; a Swift 6.0.3 package from the Ubuntu
+  archive was downloaded and extracted, but running it was refused by the
+  session's permission check, so it was deleted. The owner's Mac folders
+  cannot be attached to cloud sessions. Stage 1 still needs the Mac.
+- **Contrast check (script, WCAG formula) found failing Dawn tokens in the
+  brief:** Delete button text `#A4472F` on blush 3.5:1 → now `#2A1A16`
+  (9.7:1); keep `#2F7A66` on glass 4.3:1 → `#286B59` (5.2:1); photo scrim
+  60 % made secondary text 2.3:1 over a dark photo → scrim 75 %, and text
+  directly on the scrim uses `#3E4757`.
+- **Gaps fixed:** the Dusk Review board lacked the "Free plan: 50 deletions
+  a day · N left today" line the brief requires (added). "Delete 50 now" on
+  the paywall was wrong once some deletions were already used today; it is
+  now "Delete N now", N = deletions left today (R-13 and the brief updated).
+- **Files:** `DESIGN_BRIEF.md` (Dawn tokens, paywall), `APP_PLAN.md` (R-13),
+  this file; canvas version 31.
+- **Verified:** boards rendered locally in Chromium with a stand-in for the
+  canvas runtime and screenshots checked by Claude (layout, clipping,
+  readability); contrast ratios computed. **Not verified:** the boards
+  inside the real canvas viewer; Dawn on a real iPhone; final fonts (the
+  app uses SF Pro, the mock-ups Inter).
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |
@@ -182,6 +210,8 @@ Working branch: `claude/sweet-gauss-20esu8`
 | M-08 | 2026-11-18 | Rules said "commit" but not "push"; owner had to raise it | Owner | Rule 1.1 now says commit and push automatically | Write the habit into the rules, not just do it |
 | M-09 | 2026-11-18 | Name "Swipe & Delete" was recommended and approved (D-13) before checking the App Store; six apps already use it | Claude (during ASO research) | Renamed to Lighter (D-17) before any bundle ID was registered | Search the App Store for the name before recommending it |
 | M-10 | 2026-11-18 | After the rename to Lighter, the Albums design board still said "Swipe & Delete" | Claude (Change 12) | Replaced with the ⓘ About button | After a rename, search every design file too, not only the docs |
+| M-11 | 2026-11-18 | Dawn colour tokens were written into the brief without a contrast check; three failed (delete text, keep text, photo scrim) | Claude (Change 14) | Tokens corrected and the reason noted in the brief | Run the contrast script on new colour tokens before writing them down |
+| M-12 | 2026-11-18 | Paywall said "Delete 50 now" even when part of today's 50 was used; Dusk Review board lacked the free-plan line | Claude (Change 14) | "Delete N now" (N = left today); line added | When drawing a screen, check every rule in the brief and every number against the limits |
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).

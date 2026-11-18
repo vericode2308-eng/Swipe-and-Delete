@@ -32,7 +32,7 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 | R-10 | Done screen: a short celebration with the total size cleared, counts (reviewed, kept, deleted) and "Room for about N more photos". |
 | R-11 | Free plan: up to **50 deletions per calendar day** (device's local time). Swiping, keeping and reviewing are always unlimited. |
 | R-12 | Pro: one-time purchase (**$4.99**, StoreKit 2, non-consumable) removes the daily limit. Restore Purchases is always available. |
-| R-13 | Paywall appears only when the user taps Delete with more marked than today's allowance left. It offers **Unlock Pro** and **Delete 50 now** (the first 50 marked, in order). Never on launch. |
+| R-13 | Paywall appears only when the user taps Delete with more marked than today's allowance left. It offers **Unlock Pro** and **Delete N now**, where N = deletions left today (50 on a fresh day; the first N marked, in order). Never on launch. |
 | R-14 | About sheet (from an ⓘ button on Albums): Pro status, Restore Purchases, Rate on the App Store, Privacy Policy, Acknowledgements. |
 | R-15 | Light and dark looks that follow the iPhone's appearance setting. |
 | R-16 | Full VoiceOver, Dynamic Type up to AX5, Reduce Motion and Reduce Transparency support. |
