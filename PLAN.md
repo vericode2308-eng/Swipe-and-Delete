@@ -11,7 +11,7 @@ design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 | Token | Value | Use |
 |---|---|---|
 | Background (light) | `#F2F2F7` | Welcome, Albums, Review, Done |
-| Photo canvas | `#0B0B0D` | Swipe screen |
+| Swipe background | `#F4F6FB` | Swipe screen (light, carousel) |
 | Primary | Indigo `#4338CA` | Main buttons, progress |
 | Keep | Teal `#0F766E` | Keep button, "kept" badges |
 | Delete | Coral `#C2410C` | Delete button, "DELETE" stamp, Delete N |
@@ -31,18 +31,30 @@ never depends on colour alone.
    Screenshots, Videos, Selfies) and a list of the user's own albums, each with
    a cover and a count. Limited access adds a **Manage selection** link.
    Empty albums are hidden.
-3. **Swipe**: a dark canvas. The top bar has Back, the album name, "38 of
-   1,206 · 9 marked", and **Done**. A thin progress bar sits under it. The
-   photo is aspect-fit, with its date in a chip. At the bottom, inside thumb
-   reach, are three buttons: **Delete**, **Undo**, **Keep**.
-   - Dragging tilts the card. A coral **DELETE** stamp (left) or a teal
-     **KEEP** stamp (right) fades in with distance, and the matching button
-     grows.
-   - The threshold is 30% of the screen width or a fast flick. Below the
-     threshold the card springs back.
-   - One light haptic per decision.
-   - Videos show a play button. Live Photos play on long-press. Tap to open a
-     zoomable full-screen view.
+3. **Swipe (side-by-side carousel)**: a light screen (`#F4F6FB`) based on the
+   reference design. The top shows the album name as a large title, "38 of
+   1,206", and a **Review** pill with a coral badge for the marked count.
+   - **Album pills** sit under the title (All Photos, Screenshots, Videos,
+     Selfies, your albums). The selected pill is indigo. Tapping a pill
+     switches album and starts from item 1.
+   - **Carousel:** one large rounded card (radius 30) sits in the centre. The
+     **next** photo peeks in from the right edge and the **previous** photo
+     peeks from the left edge with a small ✓/✕ badge. Tapping the left peek =
+     Undo.
+   - A soft blurred **glow** sits under the card. It is indigo at rest, turns
+     coral while dragging left and teal while dragging right.
+   - **Drag:** the card follows your finger with a slight tilt (max 12°). A
+     DELETE or KEEP label fades in, the card tints coral or teal, and the
+     matching round button grows.
+   - **Commit** at 30% of the width or on a fast flick. The card flies off in
+     that direction (spring, ~0.3 s), the right peek slides into the centre,
+     and the decided card becomes the new left peek. Below the threshold the
+     card springs back.
+   - **Buttons:** round white buttons with ✕ Delete (coral) · Undo (small) ·
+     ✓ Keep (teal). Each button plays the same fly-off animation.
+   - Below the card: the date and type (Photo / Screenshot / Live Photo /
+     Video 0:14). Videos show play; Live Photos play on long-press; tap opens
+     a zoomable full-screen view.
    - End of album → an "End of album" card with **Review deletions**.
 4. **Review**: "9 items to delete". A 3-column grid with a coral ✕ badge on
    each photo. Tap a photo to keep it instead: it dims and gets a teal ✓
@@ -84,8 +96,9 @@ SwipeAndDelete/
   Views/
     WelcomeView.swift
     AlbumListView.swift
-    SwipeView.swift
+    SwipeView.swift              // carousel: prev peek · card · next peek
     PhotoCard.swift
+    AlbumPills.swift
     ReviewView.swift
     DoneView.swift
   Shared/
@@ -134,6 +147,11 @@ enum Decision { case keep, delete }
   asset id).
 - Observe `PHPhotoLibraryChangeObserver`. If the open album changes, keep the
   session going and skip missing assets.
+- Carousel animation in SwiftUI: a `ZStack` of three `PhotoCard`s (prev,
+  current, next) positioned with `offset`. Use a `DragGesture` for the current
+  card's offset and rotation, and `withAnimation(.spring(response: 0.3,
+  dampingFraction: 0.8))` on commit. Change `index` after the fly-off
+  completes. Reduce Motion → cross-fade.
 - Required `Info.plist` key: `NSPhotoLibraryUsageDescription`.
 
 ---
