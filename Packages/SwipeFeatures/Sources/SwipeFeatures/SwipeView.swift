@@ -19,6 +19,7 @@ public struct SwipeView: View {
     @State private var pendingAlbum: Album?
     @State private var viewing: Asset?
     @State private var holdingLive = false
+    @State private var stripID: String?
     @State private var width: CGFloat = 393   // last measured screen width, for prefetch sizing
 
     private let spring = Animation.spring(response: 0.3, dampingFraction: 0.8)
@@ -56,6 +57,7 @@ public struct SwipeView: View {
             chips(t)
             carousel(t)
             dock(t, screenW)
+            strip(t, screenW: screenW)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
@@ -380,6 +382,61 @@ public struct SwipeView: View {
         .frame(maxWidth: isUndo ? 96 : .infinity)
         .disabled(label != "Undo" && session.isFinished)
         .accessibilityLabel(label)
+    }
+
+    // MARK: Filmstrip (D-25)
+
+    private let stripItem: CGFloat = 54
+
+    /// Slide to browse: a row of thumbnails that turn in 3D around the centre. Sliding forward
+    /// keeps every photo it passes (D-25); sliding back undoes those decisions again.
+    private func strip(_ t: Theme, screenW: CGFloat) -> some View {
+        let viewW = max(1, screenW - 32)
+        let item = stripItem, gap: CGFloat = 8
+        let marked = Set(session.marked)
+        return ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: gap) {
+                ForEach(session.assets) { a in
+                    PhotoImage(id: a.id, pointSize: CGSize(width: item, height: 72), loader: model.images)
+                        .frame(width: item, height: 72)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .overlay(alignment: .topTrailing) {
+                            if marked.contains(a.id) {
+                                Image(systemName: "trash.fill").font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(Color(hex: Theme.onFill)).frame(width: 18, height: 18)
+                                    .background(Color(hex: Theme.blush), in: Circle()).padding(2)
+                            }
+                        }
+                        .visualEffect { c, proxy in
+                            let f = proxy.frame(in: .scrollView(axis: .horizontal))
+                            let d = max(-3, min(3, (f.midX - viewW / 2) / (item + gap)))
+                            return c.rotation3DEffect(.degrees(-d * 38), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
+                                .scaleEffect(1.2 - min(abs(d), 2) * 0.12)
+                                .opacity(1 - min(abs(d), 3) * 0.14)
+                        }
+                        .id(a.id)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollPosition(id: $stripID, anchor: .center)
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+        .contentMargins(.horizontal, max(0, (viewW - item) / 2), for: .scrollContent)
+        .frame(height: 84)
+        .onAppear { stripID = session.current?.id }
+        .onChange(of: stripID) { _, id in followStrip(id) }
+        .onChange(of: session.index) { _, i in
+            guard i < session.assets.count, stripID != session.assets[i].id else { return }
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) { stripID = session.assets[i].id }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// The strip settled on or passed a photo: everything in between is kept (forward) or un-decided (back).
+    private func followStrip(_ id: String?) {
+        guard let id, !busy, let target = session.assets.firstIndex(where: { $0.id == id }) else { return }
+        while session.index < target { session.keep() }
+        while session.index > target, session.canUndo { session.undo() }
     }
 
     // MARK: Gestures and decisions

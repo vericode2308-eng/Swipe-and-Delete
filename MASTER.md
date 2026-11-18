@@ -445,3 +445,9 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **Why (owner, 2026-11-18):** after a swipe the new photo seemed to come from the left, where the deleted one just left, though the next photo is already visible on the right.
 - **What:** the new current card's insertion transition starts at the next-card position (right) instead of a full screen to the left; the old right-hand preview is removed without a fade so there is no double image.
 - **Verified:** SwipeFeatures 41 tests pass; builds; installed on Reftyy. **Not verified:** the animation itself was not watched (device or simulator); Reduce Motion path unchanged (fade).
+
+## Change 37 — Filmstrip: slide to browse with a 3D turn (D-25)
+- **Why (owner, 2026-11-18):** wants to slide through the next photos quickly, not swipe one by one; answered: slid-past photos are kept, continue from where it stops, 3D rotation feel.
+- **What:** a strip of 54×72 pt thumbnails under the Delete / Undo / Keep dock. It is centred on the current photo, snaps loosely (a flick can carry through many photos), and each thumbnail turns around the vertical axis and scales by its distance from the centre. Sliding forward calls `keep()` for every photo passed; sliding back calls `undo()` (so a deleted photo passed on the way back loses its mark). The strip follows swipes and the dock buttons. Photos marked for deletion carry a small trash badge. Hidden from VoiceOver (Delete / Keep actions remain on the card).
+- **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
+- **Not verified:** nothing seen running: the 3D direction and amount, snap feel, loops between the strip and the card, performance with thousands of photos, Reduce Motion, SE / AX5 / Dawn, filter sessions (Duplicates). No unit test for the strip.
