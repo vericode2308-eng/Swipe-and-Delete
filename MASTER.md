@@ -160,6 +160,14 @@ Working branch: `claude/sweet-gauss-20esu8`
   rename in Change 11. **Fix:** removed. Lesson: after a rename, check every
   design board, not only the Welcome screen.
 
+**Change 13 — D-21 confirmed**
+- **What:** owner confirmed D-21 ("Keep d21"): the clean-up scan's results
+  (per-photo labels and image fingerprints) stay on the iPhone so the scan
+  does not restart on every launch. Swiping still always starts from item 1
+  (D-02).
+- **Files:** `APP_PLAN.md` (D-21 status), this file.
+- **Verified:** n/a (decision). **Not verified:** n/a.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |

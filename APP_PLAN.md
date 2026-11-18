@@ -109,4 +109,4 @@ Adding any of these needs a new dated row in the decision log first.
 | D-18 | 2026-11-18 | Add **Quick clean-up** filters: Duplicates, Pages & Things (no people: pages, notes, documents, accidental shots), From WhatsApp. They open the same swipe flow. Reverses the non-goal "duplicate or similar-photo detection". | Active |
 | D-19 | 2026-11-18 | The filters are free for everyone on the whole library. Pro still only removes the 50-a-day deletion limit. | Active |
 | D-20 | 2026-11-18 | Minimum **iOS 18** (was 17): needed for Apple Vision's photo-quality check (`isUtility`, aesthetics score) behind Pages & Things. | Active |
-| D-21 | 2026-11-18 | The scan's results (per-photo labels and image fingerprints, not swipe progress) are kept on the iPhone so the scan does not repeat on every launch. D-02 still holds: swiping always starts from item 1. | Active (proposed by Claude, confirm) |
+| D-21 | 2026-11-18 | The scan's results (per-photo labels and image fingerprints, not swipe progress) are kept on the iPhone so the scan does not repeat on every launch. D-02 still holds: swiping always starts from item 1. Owner confirmed ("Keep d21"). | Active |
