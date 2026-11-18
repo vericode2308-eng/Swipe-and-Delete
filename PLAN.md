@@ -1,0 +1,162 @@
+# Swipe and Delete — Detailed Plan
+
+Companion to `SPEC.md`. UI mockups and the architecture diagram are on the
+design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
+
+---
+
+## 1. UI
+
+### Visual language
+| Token | Value | Use |
+|---|---|---|
+| Background (light) | `#F2F2F7` | Welcome, Albums, Review, Done |
+| Photo canvas | `#0B0B0D` | Swipe screen |
+| Primary | Indigo `#4338CA` | Main buttons, progress |
+| Keep | Teal `#0F766E` | Keep button, "kept" badges |
+| Delete | Coral `#C2410C` | Delete button, "DELETE" stamp, Delete N |
+| Text | `#1C1C1E` / secondary `#636366` | |
+| Font | SF Pro (system) | Large Title 34, Title 28, Body 17, Footnote 13 |
+| Radius | Cards 18–24, buttons 16–20 | |
+
+Every colour also carries an icon and a word (✕ Delete, ✓ Keep), so the app
+never depends on colour alone.
+
+### Screens
+1. **Welcome**: illustration, the line "Swipe left to delete, right to keep",
+   and an **Allow Photo Access** button. Below it: "Your photos never leave
+   this iPhone."
+   - Denied or restricted → the same screen with **Open Settings**.
+2. **Albums**: a large title. A 2-column grid of smart albums (All Photos,
+   Screenshots, Videos, Selfies) and a list of the user's own albums, each with
+   a cover and a count. Limited access adds a **Manage selection** link.
+   Empty albums are hidden.
+3. **Swipe**: a dark canvas. The top bar has Back, the album name, "38 of
+   1,206 · 9 marked", and **Done**. A thin progress bar sits under it. The
+   photo is aspect-fit, with its date in a chip. At the bottom, inside thumb
+   reach, are three buttons: **Delete**, **Undo**, **Keep**.
+   - Dragging tilts the card. A coral **DELETE** stamp (left) or a teal
+     **KEEP** stamp (right) fades in with distance, and the matching button
+     grows.
+   - The threshold is 30% of the screen width or a fast flick. Below the
+     threshold the card springs back.
+   - One light haptic per decision.
+   - Videos show a play button. Live Photos play on long-press. Tap to open a
+     zoomable full-screen view.
+   - End of album → an "End of album" card with **Review deletions**.
+4. **Review**: "9 items to delete". A 3-column grid with a coral ✕ badge on
+   each photo. Tap a photo to keep it instead: it dims and gets a teal ✓
+   badge. A footnote explains Recently Deleted and iCloud. A coral **Delete 9
+   items** button triggers the iOS prompt.
+   - Zero marked → skip this screen and go back to Albums.
+   - The user cancels the iOS prompt → stay on Review.
+5. **Done**: a check mark, plus "7 deleted · 31 kept" and **Back to
+   Albums**.
+
+### Accessibility
+- All actions are reachable with buttons. VoiceOver custom actions on the card:
+  "Delete", "Keep", "Undo".
+- Announce after each decision ("Marked for deletion, 39 of 1,206").
+- Dynamic Type: controls wrap. Reduce Motion: cross-fade instead of fly-off.
+- Touch targets ≥ 44 pt.
+
+---
+
+## 2. Architecture
+
+```
+SwiftUI Views ──▶ @Observable state ──▶ Services ──▶ PhotoKit
+```
+
+### Project layout
+```
+SwipeAndDelete/
+  App/
+    SwipeAndDeleteApp.swift      // @main, injects AppModel
+    AppModel.swift               // auth status, navigation path
+  Photos/
+    PhotoLibrary.swift           // protocol + Album/Asset value types
+    PhotoKitLibrary.swift        // real PhotoKit implementation
+    FakePhotoLibrary.swift       // previews + tests
+    ImageLoader.swift            // PHCachingImageManager wrapper
+  Swipe/
+    SwipeSession.swift           // the only real logic
+  Views/
+    WelcomeView.swift
+    AlbumListView.swift
+    SwipeView.swift
+    PhotoCard.swift
+    ReviewView.swift
+    DoneView.swift
+  Shared/
+    Theme.swift                  // colours, radii
+SwipeAndDeleteTests/
+  SwipeSessionTests.swift
+```
+
+### Key types
+```swift
+struct Album: Identifiable { let id: String; let title: String; let count: Int; let kind: Kind }
+struct Asset: Identifiable { let id: String; let date: Date?; let mediaType: MediaType }
+
+protocol PhotoLibrary {
+    func authorize() async -> AuthStatus          // .full, .limited, .denied
+    func albums() async -> [Album]
+    func assets(in album: Album) async -> [Asset] // oldest → newest
+    func delete(_ ids: [String]) async throws     // one performChanges call
+}
+
+@Observable final class SwipeSession {
+    let album: Album
+    let assets: [Asset]
+    private(set) var index = 0
+    private(set) var marked: [String] = []        // ordered, unique
+    private var history: [Decision] = []          // undo stack
+
+    func keep()   { record(.keep) }
+    func delete() { marked.append(current.id); record(.delete) }
+    func undo()   { /* pop history, index -= 1, unmark if needed */ }
+    func unmark(_ id: String)                      // from Review
+    var isFinished: Bool { index >= assets.count }
+}
+enum Decision { case keep, delete }
+```
+
+### Rules
+- A new `SwipeSession` is created every time an album is opened. Nothing is
+  saved. Closing the app forgets everything.
+- `PhotoKitLibrary.delete` is the **only** code that changes the library. It
+  runs `PHPhotoLibrary.shared().performChanges { PHAssetChangeRequest.deleteAssets(...) }`.
+- Before deleting, re-fetch the ids and drop any that no longer exist.
+- `ImageLoader` requests screen-sized images (`.opportunistic`,
+  `isNetworkAccessAllowed = true`), prefetches the next 3 assets, and stops
+  caching passed ones. A late image for a previous card is ignored (check the
+  asset id).
+- Observe `PHPhotoLibraryChangeObserver`. If the open album changes, keep the
+  session going and skip missing assets.
+- Required `Info.plist` key: `NSPhotoLibraryUsageDescription`.
+
+---
+
+## 3. Build plan
+
+| Step | What | Done when |
+|---|---|---|
+| 1 | Xcode project, Theme, `PhotoLibrary` protocol, Fake library | Previews show fake albums |
+| 2 | `SwipeSession` + unit tests | keep/delete/undo/unmark tests pass |
+| 3 | Welcome + permission flow (full / limited / denied) | All three states work on a device |
+| 4 | Albums screen with real PhotoKit data | Counts match the Photos app |
+| 5 | Swipe screen: card, buttons, drag gesture, haptics, ImageLoader | Smooth on 1,000+ item album |
+| 6 | Review + delete + Done | iOS prompt; cancel keeps you on Review |
+| 7 | Video / Live Photo playback, zoom | Plays, audio stops on swipe |
+| 8 | Accessibility + Reduce Motion pass | VoiceOver can finish a full album |
+| 9 | TestFlight | Tested on a disposable photo set |
+
+### Test checklist
+- Undo after a delete-swipe removes it from the marked list.
+- Re-opening an album starts at item 1 with nothing marked.
+- Cancelling the iOS prompt deletes nothing and keeps the marks.
+- A photo deleted in the Photos app mid-swipe is skipped without a crash.
+- Limited access shows only the selected photos.
+- An iCloud-only photo shows a spinner and then loads. Offline shows "Not
+  downloaded" and still allows Keep.
