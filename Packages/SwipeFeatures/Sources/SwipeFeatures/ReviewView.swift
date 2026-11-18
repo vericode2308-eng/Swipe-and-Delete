@@ -30,6 +30,7 @@ public struct ReviewView: View {
                 .padding(.bottom, 8)
             }
             .scrollIndicators(.hidden)
+            .scrollClipDisabled()          // let the glass card's shadow draw instead of cutting a seam
             footer(t)
         }
         .padding(.horizontal, 16).padding(.bottom, 8)
@@ -63,7 +64,7 @@ public struct ReviewView: View {
     }
 
     private func grid(_ t: Theme) -> some View {
-        let cols = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
+        let cols = [GridItem(.adaptive(minimum: 96), spacing: 8)]
         return LazyVGrid(columns: cols, spacing: 8) {
             ForEach(shown, id: \.self) { id in tile(id, t) }
         }

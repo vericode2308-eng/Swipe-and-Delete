@@ -107,8 +107,10 @@ public struct AlbumsView: View {
             Text("No photos to show here yet.").foregroundStyle(Color(hex: t.textSecondary))
                 .frame(maxWidth: .infinity).padding(.top, 40)
         } else {
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 14),
-                                count: typeSize.isAccessibilitySize ? 1 : 2)
+            // 2 columns on a phone, more as the window widens (iPhone Duo open).
+            let columns = typeSize.isAccessibilitySize
+                ? [GridItem(.flexible(), spacing: 14)]
+                : [GridItem(.adaptive(minimum: 150), spacing: 14)]
             LazyVGrid(columns: columns, spacing: 14) {
                 ForEach(albums) { album in
                     Button { Task { await model.open(album) } } label: {

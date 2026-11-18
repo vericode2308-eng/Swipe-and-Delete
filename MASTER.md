@@ -410,3 +410,6 @@ Audited source and an unsigned Release build: no network, logging, or tracking; 
 
 ## Change 29 — Legal documents
 Added `legal/PRIVACY_POLICY.md` and `legal/TERMS_OF_USE.md`, checked against the code (no network, UserDefaults keys, `cleanup-v1.bin` cache, iCloud on-demand download, 50/day, one-time Pro, Recently Deleted 30 days). Terms use Apple's Standard EULA. Placeholders for the owner: developer name, support email, governing law (5 in total). Both documents must be hosted at public URLs for App Store Connect.
+
+## Change 30 — iPhone Duo layout pass
+Checked closed / half-open / open poses on the iPhone Duo simulator. Fixed: (1) Welcome content capped at 520 pt and the hero art moved behind the scroll view so it bleeds under side status strips (hill path now closes at the right edge); (2) Albums grid is adaptive (min 150 pt) except at accessibility sizes; (3) Review: scroll clipping disabled so the card shadow no longer shows a seam, tile grid adaptive (min 96 pt); (4) Swipe: carousel masked to the safe-area edge so the peeking card no longer runs under the status strip. Not verified: iPhone 18 Pro / SE regressions, Dawn, AX5 after the change, real Duo hardware. Quick clean-up panel still spans the full width when open.

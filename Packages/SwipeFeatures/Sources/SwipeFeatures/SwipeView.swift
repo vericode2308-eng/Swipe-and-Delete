@@ -181,6 +181,8 @@ public struct SwipeView: View {
             .contentShape(Rectangle())
             .simultaneousGesture(drag(screenW: geo.size.width))
         }
+        // Cards may bleed into the 16 pt page margin but not under a side status strip (iPhone Duo).
+        .mask { Rectangle().padding(.horizontal, -16) }
     }
 
     @ViewBuilder

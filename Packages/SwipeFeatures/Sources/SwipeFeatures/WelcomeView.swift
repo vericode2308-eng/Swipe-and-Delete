@@ -12,13 +12,16 @@ public struct WelcomeView: View {
     public var body: some View {
         let t = Theme.resolve(scheme)
         GeometryReader { geo in
+        ZStack(alignment: .top) {
+        // Full-bleed on every side (under the status bar and any side status strip).
+        WelcomeIllustration()
+            .frame(height: 260 + geo.safeAreaInsets.top)
+            .mask(LinearGradient(colors: [.black, .black, .clear],
+                                 startPoint: .top, endPoint: .bottom))
+            .ignoresSafeArea()
         ScrollView {
             VStack(spacing: 0) {
-                // Full-bleed: extend the drawing up under the status bar.
-                WelcomeIllustration()
-                    .frame(height: 260 + geo.safeAreaInsets.top)
-                    .mask(LinearGradient(colors: [.black, .black, .clear],
-                                         startPoint: .top, endPoint: .bottom))
+                Color.clear.frame(height: 260 + geo.safeAreaInsets.top)
                 VStack(spacing: 24) {
                     VStack(spacing: 8) {
                         Text(Self.title).font(.display(64, italic: true))
@@ -49,13 +52,16 @@ public struct WelcomeView: View {
                             .foregroundStyle(Color(hex: t.textSecondary))
                     }
                 }
+                .frame(maxWidth: 520)          // keep the card and button phone-width on wide screens
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
             }
+            .frame(maxWidth: .infinity)
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollClipDisabled()
         .ignoresSafeArea(edges: .top)
+        }
         }
         .background { AppCanvas() }
     }
@@ -105,6 +111,8 @@ private struct WelcomeIllustration: View {
                     let y = base + amp * sin(x / size.width * 2 * .pi + phase)
                     p.addLine(to: CGPoint(x: x, y: y))
                 }
+                // Close the curve exactly at the right edge (the 8 pt stride can stop short of it).
+                p.addLine(to: CGPoint(x: size.width, y: base + amp * sin(2 * .pi + phase)))
                 p.addLine(to: CGPoint(x: size.width, y: size.height))
                 ctx.fill(p, with: .color(color))
             }
