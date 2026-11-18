@@ -407,3 +407,6 @@ See the decision log in `APP_PLAN.md` (D-01 onwards).
 
 ## Change 28 — Stage 10: security audit and release checklist
 Audited source and an unsigned Release build: no network, logging, or tracking; debug unlock compiled out; privacy manifest accurate. Wrote RELEASE_CHECKLIST.md with findings and owner steps. No code changed. TestFlight upload not done: needs an Apple Distribution certificate and the App Store Connect app, which only the owner can set up.
+
+## Change 29 — Legal documents
+Added `legal/PRIVACY_POLICY.md` and `legal/TERMS_OF_USE.md`, checked against the code (no network, UserDefaults keys, `cleanup-v1.bin` cache, iCloud on-demand download, 50/day, one-time Pro, Recently Deleted 30 days). Terms use Apple's Standard EULA. Placeholders for the owner: developer name, support email, governing law (5 in total). Both documents must be hosted at public URLs for App Store Connect.
