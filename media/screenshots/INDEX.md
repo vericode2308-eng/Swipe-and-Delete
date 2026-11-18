@@ -33,3 +33,4 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 - 06-about-pro-rows-dark.png — Stage 7: About sheet with Pro rows, simulator without a store file ("Price unavailable", Unlock disabled)
 - 07-swipe-video-card.png — Stage 8: video card with play button and "VIDEO · 0:10" (simulator)
 - 08-video-fullscreen-playing.png — Stage 8: full-screen video playing (two screenshots 2 s apart differed)
+- 09-albums-ax5.png — Stage 9: Albums at accessibility-extra-extra-extra-large Dynamic Type; titles wrap, filter chips stack (simulator)

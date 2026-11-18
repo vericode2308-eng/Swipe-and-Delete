@@ -70,7 +70,7 @@ struct QuickCleanupPanel: View {
             }
             .padding(.horizontal, 14).frame(minHeight: 58)
             .overlay(alignment: .bottom) { hairline(f, t) }
-            .opacity(none ? 0.55 : 1)
+            .opacity(none ? 0.75 : 1)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

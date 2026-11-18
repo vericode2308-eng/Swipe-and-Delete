@@ -90,7 +90,7 @@ public struct ReviewView: View {
                 }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(off ? "Photo, will be kept" : "Photo, will be deleted")
+        .accessibilityLabel("Photo \((shown.firstIndex(of: id) ?? 0) + 1) of \(shown.count), \(off ? "will be kept" : "will be deleted")")
         .accessibilityHint(off ? "Double tap to delete it again" : "Double tap to keep it instead")
     }
 

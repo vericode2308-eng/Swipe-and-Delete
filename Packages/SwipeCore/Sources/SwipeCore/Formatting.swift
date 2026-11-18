@@ -14,6 +14,18 @@ public enum Formatting {
         return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
     }
 
+    /// For VoiceOver: "10 seconds", "1 minute 5 seconds", "1 hour 2 minutes".
+    public static func spokenClock(_ seconds: TimeInterval) -> String {
+        let total = max(0, Int(seconds.rounded()))
+        let h = total / 3600, m = (total % 3600) / 60, s = total % 60
+        func unit(_ n: Int, _ w: String) -> String { "\(n) \(w)\(n == 1 ? "" : "s")" }
+        var parts: [String] = []
+        if h > 0 { parts.append(unit(h, "hour")) }
+        if m > 0 { parts.append(unit(m, "minute")) }
+        if s > 0 || parts.isEmpty { if h == 0 { parts.append(unit(s, "second")) } }
+        return parts.joined(separator: " ")
+    }
+
     public static func size(_ bytes: Int64) -> String {
         let units = ["KB", "MB", "GB", "TB"]
         var value = Double(max(0, bytes)) / 1000

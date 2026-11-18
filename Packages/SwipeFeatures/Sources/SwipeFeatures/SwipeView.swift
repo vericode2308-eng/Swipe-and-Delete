@@ -12,6 +12,7 @@ public struct SwipeView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var dragX: CGFloat = 0
     @State private var busy = false
     @State private var commitTick = 0
@@ -81,33 +82,41 @@ public struct SwipeView: View {
     // MARK: Top bar and chips
 
     private func topBar(_ t: Theme) -> some View {
-        HStack(spacing: 12) {
-            Button { model.closeAlbum() } label: {
-                Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color(hex: t.text)).frame(width: 44, height: 44)
-                    .glass(in: Circle())
+        let back = Button { model.closeAlbum() } label: {
+            Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color(hex: t.text)).frame(width: 44, height: 44)
+                .glass(in: Circle())
+        }
+        .accessibilityLabel("Back to Albums")
+        let title = VStack(alignment: .leading, spacing: 0) {
+            Text(session.album.title).font(.display(28)).foregroundStyle(Color(hex: t.text))
+                .lineLimit(typeSize.isAccessibilitySize ? nil : 1).minimumScaleFactor(typeSize.isAccessibilitySize ? 1 : 0.7)
+                .accessibilityAddTraits(.isHeader)
+            Text("\(min(session.index + 1, session.assets.count).formatted()) of \(session.assets.count.formatted())")
+                .font(.footnote).foregroundStyle(Color(hex: t.textSecondary))
+        }
+        let review = Button { model.beginReview() } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "trash")
+                Text(session.marked.count, format: .number).monospacedDigit()
             }
-            .accessibilityLabel("Back to Albums")
-            VStack(alignment: .leading, spacing: 0) {
-                Text(session.album.title).font(.display(28)).foregroundStyle(Color(hex: t.text))
-                    .lineLimit(1).minimumScaleFactor(0.7)
-                    .accessibilityAddTraits(.isHeader)
-                Text("\(min(session.index + 1, session.assets.count).formatted()) of \(session.assets.count.formatted())")
-                    .font(.footnote).foregroundStyle(Color(hex: t.textSecondary))
-            }
-            Spacer(minLength: 8)
-            Button { model.beginReview() } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "trash")
-                    Text(session.marked.count, format: .number).monospacedDigit()
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color(hex: t.text))
+            .padding(.horizontal, 14).frame(minHeight: 44)
+            .glass(in: Capsule())
+        }
+        .disabled(session.marked.isEmpty)
+        .accessibilityLabel("Review \(session.marked.count) marked for deletion")
+        return Group {
+            if typeSize.isAccessibilitySize {
+                // Big text: buttons share a row, the title gets the full width below.
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack { back; Spacer(minLength: 8); review }
+                    title
                 }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Color(hex: t.text))
-                .padding(.horizontal, 14).frame(minHeight: 44)
-                .glass(in: Capsule())
+            } else {
+                HStack(spacing: 12) { back; title; Spacer(minLength: 8); review }
             }
-            .disabled(session.marked.isEmpty)
-            .accessibilityLabel("Review \(session.marked.count) marked for deletion")
         }
         .padding(.top, 4)
     }
@@ -204,7 +213,7 @@ public struct SwipeView: View {
                                     onPressingChanged: { if asset.kind == .livePhoto { holdingLive = $0 } })
                 .transition(reduceMotion ? fade : .asymmetric(insertion: .offset(x: -screenW), removal: .identity))
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("\(asset.kind == .video ? "Video" : "Photo"), \(asset.created.formatted(.dateTime.day().month(.wide).year()))")
+                .accessibilityLabel(cardLabel(asset))
                 .accessibilityAction(named: "Delete") { commit(.left, screenW) }
                 .accessibilityAction(named: "Keep") { commit(.right, screenW) }
                 .accessibilityAction(named: "Undo") { undo(screenW) }
@@ -218,6 +227,20 @@ public struct SwipeView: View {
             endCard(size: size, t)
                 .transition(fade)
         }
+    }
+
+    private func cardLabel(_ a: Asset) -> String {
+        var parts: [String]
+        switch a.kind {
+        case .photo: parts = ["Photo"]
+        case .screenshot: parts = ["Screenshot"]
+        case .livePhoto: parts = ["Live Photo"]
+        case .video: parts = ["Video" + (a.duration.map { ", \(Formatting.spokenClock($0)) long" } ?? "")]
+        }
+        parts.append(a.created.formatted(.dateTime.day().month(.wide).year()))
+        if let p = session.setPosition(of: a.id) { parts.append("Set \(p.set) of \(p.ofSets), copy \(p.item) of \(p.ofItems)") }
+        parts.append("\(min(session.index + 1, session.assets.count)) of \(session.assets.count)")
+        return parts.joined(separator: ", ")
     }
 
     /// Video: a play button in the middle; tapping the card opens the player.
@@ -344,6 +367,7 @@ public struct SwipeView: View {
         guard !busy, !session.isFinished else { return }
         busy = true
         commitTick += 1
+        let next = session.index + 2   // read before the decision is applied
         let apply = { side == .left ? session.delete() : session.keep() }
         if reduceMotion {
             withAnimation(.easeInOut(duration: 0.2)) { apply(); dragX = 0 }
@@ -354,8 +378,10 @@ public struct SwipeView: View {
                 busy = false
             }
         }
-        if side == .left {
-            announce("Marked for deletion, \(min(session.index + 2, session.assets.count)) of \(session.assets.count)")
+        if next > session.assets.count {
+            announce(side == .left ? "Marked for deletion. That's all." : "Kept. That's all.")
+        } else {
+            announce("\(side == .left ? "Marked for deletion" : "Kept"), \(next) of \(session.assets.count)")
         }
     }
 

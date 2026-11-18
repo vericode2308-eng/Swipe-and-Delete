@@ -395,3 +395,8 @@ See the decision log in `APP_PLAN.md` (D-01 onwards).
 - **Verified (simulator):** SwipeCore 47 and SwipeFeatures 41 tests pass; a 10 s test video shows the play button and "VIDEO · 0:10"; tapping opens a full-screen player and the picture advances; Close returns to the card.
 - **Not verified:** sound (the simulator tool can't hear it), Live Photo playback (no Live Photo in the simulator), pinch and double-tap zoom by touch, iCloud-only video, Dawn, VoiceOver, AX5, rotating.
 - **Test data:** a 2 MB mp4 was added to the iPhone 18 Pro simulator's library only.
+
+**Change 26 — Stage 9: accessibility and Dynamic Type**
+- **What:** Swipe top bar adapts at accessibility text sizes (buttons share a row, title below, no line limit); card label reads type, spoken duration, date, set position and index; "Play"/"Open" action on the card; announcements "Marked for deletion, N of total" / "Kept, N of total" (fixed an off-by-one under Reduce Motion); Review tiles say "Photo i of n, will be kept/deleted"; Albums filter chips stack at AX sizes instead of clipping; "None found" row contrast raised; `Formatting.spokenClock`.
+- **Verified (simulator):** SwipeCore 48 and SwipeFeatures 41 tests pass; Albums at AX5 shows wrapped titles, wrapped Quick clean-up rows and stacked chips with nothing cut off (screenshot 09).
+- **Not verified:** VoiceOver (not run, so the done condition "VoiceOver finishes a full album" is NOT met); Reduce Motion and Reduce Transparency on a device; iPhone SE; Dawn at AX5; AX5 on Swipe, Review, Done, Welcome and Paywall; Increase Contrast; Bold Text (custom font does not respond).

@@ -81,3 +81,13 @@ struct SpokenSizeTests {
         #expect(Formatting.clock(-3) == "0:00")
     }
 }
+
+@Suite struct SpokenClockTests {
+    @Test func speaks() {
+        #expect(Formatting.spokenClock(10) == "10 seconds")
+        #expect(Formatting.spokenClock(1) == "1 second")
+        #expect(Formatting.spokenClock(65) == "1 minute 5 seconds")
+        #expect(Formatting.spokenClock(3720) == "1 hour 2 minutes")
+        #expect(Formatting.spokenClock(0) == "0 seconds")
+    }
+}

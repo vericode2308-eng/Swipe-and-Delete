@@ -72,25 +72,30 @@ public struct AlbumsView: View {
     }
 
     private func chips(_ t: Theme) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(AlbumFilter.allCases, id: \.self) { f in
-                    let on = model.filter == f
-                    Button { model.filter = f } label: {
-                        Text(f.title)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Color(hex: on ? t.pillText : t.text))
-                            .padding(.horizontal, 16).frame(minHeight: 44)
-                            .background { if on { Capsule().fill(Color(hex: t.pillFill)) } }
-                            .glassIf(!on, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(on ? .isSelected : [])
-                }
+        let all = ForEach(AlbumFilter.allCases, id: \.self) { f in
+            let on = model.filter == f
+            Button { model.filter = f } label: {
+                Text(f.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color(hex: on ? t.pillText : t.text))
+                    .padding(.horizontal, 16).frame(minHeight: 44)
+                    .background { if on { Capsule().fill(Color(hex: t.pillFill)) } }
+                    .glassIf(!on, in: Capsule())
             }
-            .padding(.vertical, 2)
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(on ? .isSelected : [])
         }
-        .scrollClipDisabled()
+        return Group {
+            if typeSize.isAccessibilitySize {
+                // Big text: stacked, so no chip is cut off at the screen edge.
+                VStack(alignment: .leading, spacing: 8) { all }
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) { all }.padding(.vertical, 2)
+                }
+                .scrollClipDisabled()
+            }
+        }
     }
 
     @ViewBuilder private func content(_ t: Theme) -> some View {
