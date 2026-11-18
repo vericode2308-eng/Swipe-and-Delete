@@ -1,8 +1,7 @@
 import Photos
 import SwipeCore
 
-/// PhotoKit adapter. This is the only file that will ever delete photos
-/// (a later stage).
+/// PhotoKit adapter. This is the only file that deletes photos.
 struct PhotoKitLibrary: PhotoLibrary {
     func currentStatus() -> AuthStatus { Self.map(PHPhotoLibrary.authorizationStatus(for: .readWrite)) }
 
@@ -48,6 +47,46 @@ struct PhotoKitLibrary: PhotoLibrary {
                              created: a.creationDate ?? .distantPast))
         }
         return out
+    }
+
+    func existing(_ ids: [String]) async -> [String] {
+        guard !ids.isEmpty else { return [] }
+        let found = PHAsset.fetchAssets(withLocalIdentifiers: ids, options: nil)
+        var alive = Set<String>()
+        found.enumerateObjects { a, _, _ in alive.insert(a.localIdentifier) }
+        return ids.filter(alive.contains)
+    }
+
+    /// Original file sizes via the undocumented `fileSize` key; a missing value counts as 0.
+    func byteSize(of ids: [String]) async -> Int64 {
+        guard !ids.isEmpty else { return 0 }
+        let found = PHAsset.fetchAssets(withLocalIdentifiers: ids, options: nil)
+        var total: Int64 = 0
+        found.enumerateObjects { asset, _, _ in
+            for r in PHAssetResource.assetResources(for: asset) {
+                if let n = r.value(forKey: "fileSize") as? Int64 { total += n }
+                else if let n = r.value(forKey: "fileSize") as? NSNumber { total += n.int64Value }
+            }
+        }
+        return total
+    }
+
+    /// One change request, so iOS shows one prompt.
+    func delete(_ ids: [String]) async throws -> DeleteOutcome {
+        let found = PHAsset.fetchAssets(withLocalIdentifiers: ids, options: nil)
+        var assets: [PHAsset] = []
+        found.enumerateObjects { a, _, _ in assets.append(a) }
+        guard !assets.isEmpty else { return .deleted }
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.deleteAssets(assets as NSArray)
+            }
+            return .deleted
+        } catch let error as PHPhotosError where error.code == .userCancelled {
+            return .cancelled
+        } catch let error as NSError where error.domain == PHPhotosErrorDomain && error.code == PHPhotosError.userCancelled.rawValue {
+            return .cancelled
+        }
     }
 
     private static func kind(of a: PHAsset) -> AssetKind {

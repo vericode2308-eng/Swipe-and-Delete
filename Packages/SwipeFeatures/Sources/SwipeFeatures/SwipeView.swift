@@ -92,17 +92,18 @@ public struct SwipeView: View {
                     .font(.footnote).foregroundStyle(Color(hex: t.textSecondary))
             }
             Spacer(minLength: 8)
-            // The Review button arrives in Stage 6; until then this only shows the count.
-            HStack(spacing: 6) {
-                Image(systemName: "trash")
-                Text(session.marked.count, format: .number).monospacedDigit()
+            Button { model.beginReview() } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "trash")
+                    Text(session.marked.count, format: .number).monospacedDigit()
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color(hex: t.text))
+                .padding(.horizontal, 14).frame(minHeight: 44)
+                .glass(in: Capsule())
             }
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Color(hex: t.text))
-            .padding(.horizontal, 14).frame(minHeight: 44)
-            .glass(in: Capsule())
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(session.marked.count) marked for deletion")
+            .disabled(session.marked.isEmpty)
+            .accessibilityLabel("Review \(session.marked.count) marked for deletion")
         }
         .padding(.top, 4)
     }
@@ -243,8 +244,11 @@ public struct SwipeView: View {
                  : "\(session.marked.count.formatted()) marked for deletion.")
                 .foregroundStyle(Color(hex: t.textSecondary))
                 .multilineTextAlignment(.center)
-            // Review deletions replaces this in Stage 6.
-            PillButton("Back to Albums") { model.closeAlbum() }
+            if session.marked.isEmpty {
+                PillButton("Back to Albums") { model.closeAlbum() }
+            } else {
+                PillButton("Review deletions") { model.beginReview() }
+            }
         }
         .padding(24)
         .frame(width: size.width, height: size.height)

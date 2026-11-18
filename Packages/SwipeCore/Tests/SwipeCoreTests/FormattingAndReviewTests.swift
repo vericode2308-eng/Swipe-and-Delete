@@ -63,3 +63,11 @@ struct FormattingAndReviewTests {
         #expect(store.load() == p)
     }
 }
+
+struct SpokenSizeTests {
+    @Test func spokenUnits() {
+        #expect(Formatting.spokenSize(1_200_000_000) == "1.2 gigabytes")
+        #expect(Formatting.spokenSize(1_000_000_000) == "1 gigabyte")
+        #expect(Formatting.spokenSize(48_000_000) == "48 megabytes")
+    }
+}

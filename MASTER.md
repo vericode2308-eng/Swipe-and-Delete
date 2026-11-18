@@ -331,6 +331,27 @@ Working branch: `claude/sweet-gauss-20esu8`
   "Discard marks?" confirm; an iCloud-only or deleted-in-Photos photo;
   Swipe at AX5 and on iPhone SE; memory with a large album.
 
+**Change 22 — Stage 6: Review, real delete, Done celebration**
+- Core: `PhotoLibrary` gained `existing`, `byteSize`, `delete` (returns
+  `.deleted` / `.cancelled`, anything else throws); the fake can cancel, throw
+  and drop photos. `SwipeSession.mark/unmark([ids])`; `Formatting.spokenSize`.
+- `AppModel`: `beginReview`, `confirmDelete`, `summary`, free-plan count.
+  Order: re-fetch ids, drop vanished, `AccessPolicy.deletable`, size, thumbnails
+  for the drift, one `performChanges`. Allowance and review-prompt counters are
+  saved only on success; cancel and failure leave marks and count untouched.
+- Free plan over the limit deletes the first N (D-22). The paywall is Stage 7.
+- Screens: `ReviewView` (3-column glass grid, tap = keep, free-plan line, blush
+  pill), `DoneView` (time-driven: drift, ring + count-up, check pop, 22
+  sparkles, haptic, stats; tap skips; Reduce Motion = final state + fade).
+  `PhotoKitLibrary` is still the only code that deletes.
+- Tests: SwipeCore 30, SwipeFeatures 23 (7 new delete-flow tests).
+- Verified on the simulator: Review screen, real iOS prompt, Don't Allow keeps
+  Review, marks and "50 left today".
+- Not verified: a confirmed real delete and the Done screen on a device or
+  simulator (another process kept taking the shared simulator to the
+  foreground); freed size vs Settings › Storage; the rating prompt; Dawn; AX5;
+  VoiceOver; Reduce Motion; the drift thumbnails.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |
@@ -349,6 +370,8 @@ Working branch: `claude/sweet-gauss-20esu8`
 | M-12 | 2026-11-18 | Paywall said "Delete 50 now" even when part of today's 50 was used; Dusk Review board lacked the free-plan line | Claude (Change 14) | "Delete N now" (N = left today); line added | When drawing a screen, check every rule in the brief and every number against the limits |
 | M-13 | 2026-11-18 | Wordmark first rendered in the system font: `.custom` was given the family name, but the variable font needs PostScript names | Claude (screenshot) | Use `CormorantGaramond-SemiBold` / `-MediumItalic` | Check a bundled font renders in a screenshot, and read its real names with CoreText |
 | M-14 | 2026-11-18 | Card drag gesture never fired (no commit) while buttons worked | Claude (simulator test) | Gesture moved to the carousel container | Drive every gesture in the simulator before calling it done; a button working proves nothing about the drag |
+
+| M-15 | 2026-11-18 | Plan for Stage 6 UI test assumed the simulator was mine alone; another app (COLREGs) kept coming to the front during the iOS prompt | Claude (simulator test) | Reported the gap instead of claiming it | Use a dedicated simulator for destructive tests |
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).

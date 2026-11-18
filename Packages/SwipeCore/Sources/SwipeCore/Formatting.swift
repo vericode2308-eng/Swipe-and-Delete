@@ -34,4 +34,15 @@ public enum Formatting {
         let text = f.string(from: NSNumber(value: rounded)) ?? "\(rounded)"
         return "Room for about \(text) more photo\(rounded == 1 ? "" : "s")"
     }
+
+    /// For VoiceOver: "1.2 gigabytes".
+    public static func spokenSize(_ bytes: Int64) -> String {
+        let t = size(bytes)
+        for (short, long) in [(" KB", " kilobytes"), (" MB", " megabytes"), (" GB", " gigabytes"), (" TB", " terabytes")]
+        where t.hasSuffix(short) {
+            let n = String(t.dropLast(short.count))
+            return n + (n == "1" ? String(long.dropLast()) : long)
+        }
+        return t
+    }
 }

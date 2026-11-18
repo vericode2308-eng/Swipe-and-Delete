@@ -6,7 +6,10 @@ public enum AuthStatus: Equatable, Sendable {
     public var isGranted: Bool { self == .full || self == .limited }
 }
 
-/// Permission and albums so far. Assets and delete arrive with their stages; PhotoKit lives behind this protocol in the app target.
+/// What the iOS delete prompt ended with. Any other failure throws.
+public enum DeleteOutcome: Equatable, Sendable { case deleted, cancelled }
+
+/// Permission, albums, assets and delete. PhotoKit lives behind this protocol in the app target.
 public protocol PhotoLibrary: Sendable {
     /// Current status; never shows a prompt.
     func currentStatus() -> AuthStatus
@@ -16,4 +19,11 @@ public protocol PhotoLibrary: Sendable {
     func albums() async -> [Album]
     /// Every item in the album, oldest first.
     func assets(in album: Album) async -> [Asset]
+    /// The ids that still exist, in the order given. Used right before deleting.
+    func existing(_ ids: [String]) async -> [String]
+    /// Sum of the original file sizes, in bytes. Undocumented in PhotoKit, so a
+    /// missing value counts as 0 and the UI says "about".
+    func byteSize(of ids: [String]) async -> Int64
+    /// One request, one iOS prompt. Returns `.cancelled` when the user says no.
+    func delete(_ ids: [String]) async throws -> DeleteOutcome
 }

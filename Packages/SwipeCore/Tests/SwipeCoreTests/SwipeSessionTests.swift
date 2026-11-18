@@ -43,3 +43,28 @@ struct SwipeSessionTests {
         #expect(s.isFinished && s.index == 4 && s.current == nil)
     }
 }
+
+@MainActor
+struct ReviewMarkTests {
+    func make() -> SwipeSession {
+        let s = SwipeSession(album: Album(id: "a", title: "A", count: 4), assets: ["1", "2", "3", "4"].map { Asset(id: $0) })
+        s.delete(); s.keep(); s.delete(); s.delete()
+        return s
+    }
+    @Test func unmarkThenMarkRestoresAlbumOrder() {
+        let s = make()
+        #expect(s.marked == ["1", "3", "4"])
+        s.unmark("3"); #expect(s.marked == ["1", "4"])
+        s.mark("3"); #expect(s.marked == ["1", "3", "4"])
+    }
+    @Test func markIgnoresDuplicatesAndStrangers() {
+        let s = make()
+        s.mark("1"); s.mark("zzz")
+        #expect(s.marked == ["1", "3", "4"])
+    }
+    @Test func unmarkManyDropsOnlyThose() {
+        let s = make()
+        s.unmark(["1", "4"])
+        #expect(s.marked == ["3"])
+    }
+}

@@ -28,3 +28,4 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 | 03-swipe-dark.png | Stage 5 (Swipe) | 2026-11-18 | iPhone 18 Pro simulator |
 | 03-swipe-light.png | Stage 5 (Swipe) | 2026-11-18 | iPhone 18 Pro simulator |
 | 03-swipe-end-dark.png | Stage 5 (end card) | 2026-11-18 | iPhone 18 Pro simulator |
+| 04-review-ios-prompt-dark.png | Stage 6 (Review with the real iOS delete prompt) | 2026-11-18 | iPhone 18 Pro simulator |

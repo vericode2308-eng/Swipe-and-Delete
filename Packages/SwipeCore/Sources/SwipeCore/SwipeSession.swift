@@ -45,4 +45,18 @@ public final class SwipeSession {
     public func unmark(_ id: String) {
         marked.removeAll { $0 == id }
     }
+
+    /// Review: tapping a dimmed photo marks it again, back in album order.
+    public func mark(_ id: String) {
+        guard !marked.contains(id), let at = assets.firstIndex(where: { $0.id == id }) else { return }
+        let order = Dictionary(uniqueKeysWithValues: assets.enumerated().map { ($1.id, $0) })
+        let pos = marked.firstIndex { (order[$0] ?? 0) > at } ?? marked.endIndex
+        marked.insert(id, at: pos)
+    }
+
+    /// Drops marks for photos that no longer exist.
+    public func unmark(_ ids: [String]) {
+        let drop = Set(ids)
+        marked.removeAll { drop.contains($0) }
+    }
 }
