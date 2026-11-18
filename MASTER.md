@@ -227,6 +227,14 @@ Working branch: `claude/sweet-gauss-20esu8`
   uses it yet); Dynamic Type; the placeholder icon on a home screen;
   `LighterTests` target run.
 
+**Change 17 — Dynamic Type check on Welcome; pill label centred**
+- **What:** checked the empty Welcome at AX5 (Dawn). Nothing clips; the pill
+  grows to two lines. The label was left-aligned when wrapped, so
+  `PillButton` now centres it and adds vertical padding.
+- **Files:** `Packages/SwipeUI/Sources/SwipeUI/PillButton.swift`, this file.
+- **Verified:** simulator screenshot at AX5, Dawn, after the fix.
+  **Not verified:** AX5 in Dusk, other sizes, iPhone SE, VoiceOver.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |

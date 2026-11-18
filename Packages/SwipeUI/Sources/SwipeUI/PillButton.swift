@@ -8,7 +8,7 @@ public struct PillButton: View {
     public var body: some View {
         let t = Theme.resolve(scheme)
         Button(action: action) {
-            Text(title).font(.body.weight(.semibold))
+            Text(title).font(.body.weight(.semibold)).multilineTextAlignment(.center).padding(.vertical, 12).padding(.horizontal, 20)
                 .foregroundStyle(Color(hex: t.pillText))
                 .frame(maxWidth: .infinity, minHeight: 56)
                 .background(Color(hex: t.pillFill), in: Capsule())
