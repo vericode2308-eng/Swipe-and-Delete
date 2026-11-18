@@ -12,14 +12,14 @@ Paste this into the new app's plan or its CLAUDE.md. Fill in the `<…>` placeho
 4. **Record every owner decision** with its date in the `APP_PLAN.md` decision log. When a later decision overrides an earlier one, mark the old row "superseded" instead of deleting it, and update every doc that still states the old rule (I once had stale non-goal lists after features shipped).
 5. **Be honest about verification.** Every change report has two lists: **Verified** (and how: unit tests, simulator, physical device) and **Not verified**. Never say "fixed" from a build alone. Never say "works on device" if you only ran the simulator. Never claim a bug is fixed from a fresh install alone.
 6. **No unrequested work.** Do not create extra files, settings screens or features I did not ask for. If you notice something out of scope, report it; do not build it.
-7. **One master record.** `MASTER.md` gets a numbered "Change N" for every change: what, why, files, how verified, what is not verified. Update it in the same commit as the change.
+7. **One master record, from day one.** `MASTER.md` is the project's memory. It gets a numbered "Change N" for every change: what, why, files, how verified, what is not verified. It also keeps the full history since day one: every owner decision and correction, every mistake we made together and how it was fixed, and the lesson learned ("Mistakes and corrections" table). Never delete history; add to it. Update it in the same commit as the change. New lessons that apply to future apps are also added to section 11 of this file.
 8. **Concurrent sessions:** other Claude/Codex sessions may edit the same folder. Before editing a file that already shows as modified in `git status`, or "fixing" an unexpected change, check `git log -p` for that file and ask me. Commit small and often.
 9. **Model routing:** the model I pick does all substantive work. Haiku only for read-only search/lookup subagents. Never pass a model override to other subagents.
 
 ## 1. Git and repository hygiene
 
-1. Commit automatically after each **major** change (a stage, feature or design update) with a clear message; not for small edits. End commit messages with the attribution line the session's system reminder gives (it changes between sessions; do not hard-code it).
-2. `.gitignore` excludes everything that is not the code base: build output, generated Xcode project, generated media (PNG/PDF), downloaded tools, local config, secrets.
+1. Commit **and push** automatically after each **major** change (a stage, feature, design update or document restructure) with a clear message; not for small edits. Do not wait for the owner to ask. Push to the session's working branch. End commit messages with the attribution line the session's system reminder gives (it changes between sessions; do not hard-code it).
+2. `.gitignore` excludes everything that is not the code base: build output, generated Xcode project, generated media (PNG/PDF) except `media/screenshots/`, which is tracked because it is the source for App Store images, downloaded tools, local config, secrets.
 3. Never edit the upstream/source repo I told you is read-only. Generate from it with a script instead.
 4. Never hand-copy data that a script can export; keep the export script in the repo.
 5. After changing code, run `graphify update .` (if the project uses graphify) and use `graphify query` before grepping.
@@ -96,12 +96,13 @@ Paste this into the new app's plan or its CLAUDE.md. Fill in the `<…>` placeho
 ## 8. Simulator and device testing
 
 1. Drive the simulator with the **agent-device MCP** (session `<app>`, a fixed device name), not raw `simctl` taps. Boot the right device, install the fresh build, wait for the screen to settle, verify, then capture.
-2. When the UI visibly changes, **delete the outdated screenshots and recapture**. Never let stale ones accumulate; half the old shots were out of date after one reorder. All screenshots live in `media/screenshots/`.
-3. Check the build you launched is the build at HEAD (a stale `build/` folder caused a false "runner timed out"; delete it).
-4. Android-style signing note carried over from my global rules: before installing a rebuilt app over an installed one, check signing; before uninstalling, say what data would be lost.
-5. Physical device: automatic signing registers the bundle IDs on the first device build. `devicectl` install can fail once and succeed on retry. UI automation needs "Enable UI Automation" on the phone. Anything you cannot tap on the device goes in **Not verified** (purchase, audio, haptics, VoiceOver speech, widgets).
-6. Use mock servers on `127.0.0.1` for auth/network flows; do not create real users or purchases without my explicit OK. Note that some backends reject `example.com` emails.
-7. Tests: host tests for all logic (content validation, access policy, progress queries, auth client request shapes and error mapping); a small app-level test target for session models. Run before every commit that touches logic.
+2. **Save every simulator screenshot** in `media/screenshots/`, never in temp folders. Name them `<NN>-<screen>-<state>-<light|dark>.png` (for example `03-swipe-dragging-left-dark.png`) so the folder reads in app order.
+3. When the UI visibly changes, **delete the outdated screenshots and recapture** in the same commit. Never let stale ones accumulate; half the old shots were out of date after one reorder. The folder must always show the current UI of every screen, in both looks, ready for App Store images. `media/screenshots/INDEX.md` lists each file, the build/commit it came from and the date.
+4. Check the build you launched is the build at HEAD (a stale `build/` folder caused a false "runner timed out"; delete it).
+5. Android-style signing note carried over from my global rules: before installing a rebuilt app over an installed one, check signing; before uninstalling, say what data would be lost.
+6. Physical device: automatic signing registers the bundle IDs on the first device build. `devicectl` install can fail once and succeed on retry. UI automation needs "Enable UI Automation" on the phone. Anything you cannot tap on the device goes in **Not verified** (purchase, audio, haptics, VoiceOver speech, widgets).
+7. Use mock servers on `127.0.0.1` for auth/network flows; do not create real users or purchases without my explicit OK. Note that some backends reject `example.com` emails.
+8. Tests: host tests for all logic (content validation, access policy, progress queries, auth client request shapes and error mapping); a small app-level test target for session models. Run before every commit that touches logic.
 
 ## 9. Security habits
 
@@ -138,3 +139,6 @@ Paste this into the new app's plan or its CLAUDE.md. Fill in the `<…>` placeho
 - Simulator dark mode "didn't work" because the app had its own appearance setting.
 - Paywall screenshot showed "price couldn't be loaded" because StoreKit config only applies from Xcode runs.
 - Reporting items as done when only built, not run. Always split Verified / Not verified.
+- Relying on the owner to say "push". Push automatically after every major change.
+- Docs kept old colour names and comments after a redesign ("LEDs", coral/teal/indigo). Search the docs for the old terms after every redesign.
+- A small extra (a photo-size label) slipped into a mock-up against a written non-goal. Check the non-goals before adding any detail.
