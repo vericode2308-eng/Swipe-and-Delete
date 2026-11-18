@@ -28,6 +28,7 @@ struct QuickCleanupPanel: View {
             }
             .glass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
+        .frame(maxWidth: 560, alignment: .leading)   // don't stretch across a wide window (iPhone Duo open)
     }
 
     private func divider(_ t: Theme) -> some View {
