@@ -1,0 +1,54 @@
+name: Lighter
+options:
+  bundleIdPrefix: com.vericodestudio
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: P3DGPMF7LD
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  SwipeCore: { path: Packages/SwipeCore }
+  SwipeUI: { path: Packages/SwipeUI }
+  SwipeFeatures: { path: Packages/SwipeFeatures }
+targets:
+  Lighter:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: SwipeFeatures
+      - package: SwipeUI
+      - package: SwipeCore
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Lighter
+        UILaunchScreen: {}
+        ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryUsageDescription: Lighter shows your photos so you can choose which to keep or delete. They never leave this iPhone.
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIAppFonts: [CormorantGaramond.ttf, CormorantGaramond-Italic.ttf]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.vericodestudio.lighter
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+  LighterTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    dependencies:
+      - target: Lighter
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.vericodestudio.lighter.tests
+schemes:
+  Lighter:
+    build: { targets: { Lighter: all } }
+    test: { targets: [LighterTests] }

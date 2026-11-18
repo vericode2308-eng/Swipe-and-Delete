@@ -1,0 +1,10 @@
+build/
+DerivedData/
+.build/
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+*.xcconfig
+!*.xcconfig.example
+.DS_Store
+.codex/

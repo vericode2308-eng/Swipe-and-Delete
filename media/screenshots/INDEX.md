@@ -18,4 +18,5 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 
 | File | Build / commit | Date | Device |
 |---|---|---|---|
-| _none yet: the app has not been built_ | | | |
+| 01-welcome-empty-dark.png | Stage 1 skeleton (empty Welcome) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-empty-light.png | Stage 1 skeleton (empty Welcome) | 2026-11-18 | iPhone 18 Pro simulator |

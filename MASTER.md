@@ -211,6 +211,22 @@ Working branch: `claude/sweet-gauss-20esu8`
 - **Verified:** files copied and committed. **Not verified:** the folder on
   the Mac (owner runs the clone).
 
+**Change 16 — Stage 1: project skeleton**
+- **What:** `project.yml` (XcodeGen, iOS 18, portrait, bundle ID
+  `com.vericodestudio.lighter`, team ID copied from the owner's other
+  projects), local packages `SwipeCore` / `SwipeUI` / `SwipeFeatures`,
+  Theme (Dusk/Dawn tokens), Glass, AppCanvas, PillButton, an empty Welcome,
+  privacy manifest, placeholder icon (blurred colour field), Cormorant
+  Garamond (OFL, from google/fonts on GitHub) bundled in `App/Resources/Fonts`.
+- **Files:** `project.yml`, `App/`, `Packages/`, `Tests/`, `.gitignore`,
+  `media/screenshots/01-welcome-empty-*.png`, this file.
+- **Verified:** `xcodegen generate`; `swift test` passes in all three
+  packages; app builds and launches on the iPhone 18 Pro simulator in Dusk
+  and Dawn (screenshots checked by Claude; serif italic wordmark renders).
+- **Not verified:** a real device; signing with the team ID; glass (nothing
+  uses it yet); Dynamic Type; the placeholder icon on a home screen;
+  `LighterTests` target run.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |
@@ -227,6 +243,7 @@ Working branch: `claude/sweet-gauss-20esu8`
 | M-10 | 2026-11-18 | After the rename to Lighter, the Albums design board still said "Swipe & Delete" | Claude (Change 12) | Replaced with the ⓘ About button | After a rename, search every design file too, not only the docs |
 | M-11 | 2026-11-18 | Dawn colour tokens were written into the brief without a contrast check; three failed (delete text, keep text, photo scrim) | Claude (Change 14) | Tokens corrected and the reason noted in the brief | Run the contrast script on new colour tokens before writing them down |
 | M-12 | 2026-11-18 | Paywall said "Delete 50 now" even when part of today's 50 was used; Dusk Review board lacked the free-plan line | Claude (Change 14) | "Delete N now" (N = left today); line added | When drawing a screen, check every rule in the brief and every number against the limits |
+| M-13 | 2026-11-18 | Wordmark first rendered in the system font: `.custom` was given the family name, but the variable font needs PostScript names | Claude (screenshot) | Use `CormorantGaramond-SemiBold` / `-MediumItalic` | Check a bundled font renders in a screenshot, and read its real names with CoreText |
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).
