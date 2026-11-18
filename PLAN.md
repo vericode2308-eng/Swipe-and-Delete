@@ -7,39 +7,39 @@ design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 
 ## 1. UI
 
-### Visual language: Neumorphism + Glassmorphism
-Everything sits on **one soft grey surface**. Controls look pressed out of it
-(raised) or pressed into it (inset). Frosted glass is used only over photos.
-Colour appears only as small glowing "LED" dots and icons.
+### Visual language: "Dusk"
+Calm, polished, slightly cinematic. Based on the InSleep reference: moody
+slate-blue, blurred photo backgrounds, frosted glass, hairline outlines, and an
+elegant serif.
 
 | Token | Value | Use |
 |---|---|---|
-| Surface | `#E6E9EE` | Every screen background and control fill |
-| Shadow dark / light | `#C3C8D0` / `#FFFFFF` | Neumorphic pair |
-| Raised | `8 8 18 dark, -8 -8 18 light` | Buttons, cards, album tiles |
-| Pressed / inset | the same pair, `inset` | Tracks, pressed buttons, counters, Review grid well |
-| Glass | white 28–35 %, blur 14, 1 px white 55 % border | Date label, DELETE/KEEP tag and badges over photos |
-| Text | `#2B2F36`, secondary `#4F5560` (≥ 4.5:1 on surface) | |
-| LED coral | `#EA580C` + glow `#F97316` | Delete |
-| LED teal | `#14B8A6` + glow `#2DD4BF` | Keep |
-| LED indigo | `#4F46E5` + glow `#818CF8` | Primary "go" actions |
-| Font | Outfit (or SF Pro Rounded) | Titles 34–40 **Light 300**, body 15–17 Regular/Medium |
-| Radius | Cards 30–34, buttons fully round, pills 17–23 | |
+| Base | Slate `#262E3B` | Albums, Review; under every blur |
+| Photo backdrop | Current photo, blur 50, slate scrim 55 % | Swipe, Welcome, Done |
+| Glass | white 6–8 % (dark glass: slate 40 %), `.ultraThinMaterial` | Buttons, captions, info panels |
+| Hairline | 1 pt white 18–28 % | Glass edges, unselected pills |
+| Text | `#F4F6FA`, secondary `#C9D2E0` (≥ 7:1 on slate) | |
+| Primary pill | Mist `#E6ECF5`, text `#1F2633` | Allow access, Review, Back to Albums, selected album |
+| Delete | Blush `#F2B8A8` | ✕ icon, DELETE tag, Delete N button (dark text) |
+| Keep | Sage `#A9DCCD` | ✓ icon, KEEP tag |
+| Display font | Cormorant Garamond 600 (wordmark: 500 italic) | Titles, dates, numbers |
+| Body font | Inter / SF Pro 300–600 | Everything else; caps labels tracked +1.5 |
+| Radius | Card 30, tiles 22, pills fully round | |
 
 Rules
-- Pressing a button switches it from raised to inset (150 ms). The swipe
-  buttons do the same when a swipe commits.
-- The album switcher is an **inset track** with the selected pill raised
-  inside it, like the "MANUAL" toggle in the kit.
-- The photo card sits in a raised 8 pt frame. Photos never get neumorphic
-  shadows themselves.
-- Neumorphism is low-contrast by nature: never rely on shadows alone to show
-  state. Pair with an LED, an icon or a word. With Increase Contrast on, add a
-  1 pt `#9AA1AC` border to all controls.
-- In SwiftUI, a `NeuButtonStyle` uses
-  `.shadow(color: dark, radius: 9, x: 8, y: 8).shadow(color: .white, radius: 9, x: -8, y: -8)`.
-  Inset uses an overlay stroke with blur and mask, and glass uses
-  `.background(.ultraThinMaterial)`.
+- **The photo is the decoration.** The swipe screen background is the current
+  photo, heavily blurred. It cross-fades (0.5 s) when the next photo arrives,
+  so the whole screen shifts mood with each image.
+- Colour stays soft and sparse: only blush and sage, always with an icon or a
+  word.
+- One light primary pill per screen. Everything else is glass or a hairline.
+- Serif only for titles, dates and big numbers. Never use it for buttons or
+  body text.
+- SwiftUI: background = `Image(uiImage:).resizable().scaledToFill().blur(radius: 50)` plus
+  `Color(slate).opacity(0.55)`. Glass = `.background(.ultraThinMaterial, in: Capsule())`
+  plus `.overlay(Capsule().stroke(.white.opacity(0.28)))`. Bundle Cormorant
+  Garamond (OFL licence).
+- Reduce Transparency → replace glass with solid `#323B4B`.
 
 ### Screens
 1. **Welcome**: illustration, the line "Swipe left to delete, right to keep",
@@ -50,7 +50,7 @@ Rules
    Screenshots, Videos, Selfies) and a list of the user's own albums, each with
    a cover and a count. Limited access adds a **Manage selection** link.
    Empty albums are hidden.
-3. **Swipe (side-by-side carousel)**: a light screen (soft grey `#E6E9EE`) based on the
+3. **Swipe (side-by-side carousel)**: a light screen (blurred current photo over slate) based on the
    reference design. The top shows the album name as a large title, "38 of
    1,206", and a **Review** pill with a coral badge for the marked count.
    - **Album pills** sit under the title (All Photos, Screenshots, Videos,
@@ -122,7 +122,7 @@ SwipeAndDelete/
     DoneView.swift
   Shared/
     Theme.swift                  // surface, shadows, LEDs, radii
-    NeuStyles.swift              // NeuButtonStyle, .neuRaised(), .neuInset(), .glass()
+    Glass.swift                  // .glassPill(), .glassPanel(), BlurredBackdrop
 SwipeAndDeleteTests/
   SwipeSessionTests.swift
 ```
