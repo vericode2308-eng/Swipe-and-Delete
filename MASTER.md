@@ -404,3 +404,6 @@ See the decision log in `APP_PLAN.md` (D-01 onwards).
 **Change 27 — Paywall rules pass (user-supplied 5 rules)**
 - **What:** headline states the outcome ("Delete all N photos"); filler sparkle row removed; subline is one line ("The free plan stops at 50 a day."); one plan with the real price in the perk row and the button; flat base colour instead of the blurred-blob backdrop.
 - **Verified:** SwipeFeatures 41 tests pass. **Not verified:** not rendered on the simulator (needs more than 50 photos marked or the debug path); Dawn; AX5.
+
+## Change 28 — Stage 10: security audit and release checklist
+Audited source and an unsigned Release build: no network, logging, or tracking; debug unlock compiled out; privacy manifest accurate. Wrote RELEASE_CHECKLIST.md with findings and owner steps. No code changed. TestFlight upload not done: needs an Apple Distribution certificate and the App Store Connect app, which only the owner can set up.
