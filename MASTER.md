@@ -235,6 +235,24 @@ Working branch: `claude/sweet-gauss-20esu8`
 - **Verified:** simulator screenshot at AX5, Dawn, after the fix.
   **Not verified:** AX5 in Dusk, other sizes, iPhone SE, VoiceOver.
 
+**Change 18 — Stage 2: SwipeCore logic**
+- **What:** `Models`, `SwipeSession` (keep / delete / undo / unmark),
+  `DeletionAllowance` + `AllowanceStore` (50 a day, local midnight, keys
+  `allowance.*`), `AccessPolicy`, `Formatting` (sizes, "Room for about N
+  more photos"), `ReviewPromptPolicy` + `ReviewPromptStore` (keys
+  `review.*`). The placeholder core file and its test were removed.
+- **Assumption to confirm:** "room for about N photos" uses an average
+  photo of 3 MB, rounded (exact below 100, nearest 10 below 1,000, nearest
+  100 above). Sizes use decimal units like Settings › Storage.
+- **Files:** `Packages/SwipeCore/Sources/SwipeCore/*`,
+  `Packages/SwipeCore/Tests/SwipeCoreTests/*`, this file.
+- **Verified:** `swift test` in `SwipeCore`: 22 tests pass (the Stage 2
+  items from the build plan, except "count not recorded when delete throws",
+  which needs the fake library and moves to Stage 6). Other packages' tests
+  and the app build still pass.
+  **Not verified:** the real UserDefaults on a device; the 3 MB figure
+  against real photos.
+
 ## Mistakes and corrections
 
 | # | Date | What went wrong | Who caught it | Fix | Lesson |
