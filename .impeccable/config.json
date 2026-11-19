@@ -26,6 +26,42 @@
         "value": "montserrat",
         "createdAt": "2026-11-19T12:56:29.197Z",
         "reason": "Body font comes from the ui-ux-pro-max Cormorant + Montserrat pairing; the user said ui-ux-pro-max takes priority"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "landing-page-design/support.html"
+        ],
+        "createdAt": "2026-11-19T13:38:38.879Z",
+        "reason": "Pages link styles.css, whose hero-heading gradient is the sanctioned landing-page-design B5 exception; these pages' own headings are solid colour"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "landing-page-design/privacy.html"
+        ],
+        "createdAt": "2026-11-19T13:38:38.899Z",
+        "reason": "Pages link styles.css, whose hero-heading gradient is the sanctioned landing-page-design B5 exception; these pages' own headings are solid colour"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "landing-page-design/terms.html"
+        ],
+        "createdAt": "2026-11-19T13:38:38.917Z",
+        "reason": "Pages link styles.css, whose hero-heading gradient is the sanctioned landing-page-design B5 exception; these pages' own headings are solid colour"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "landing-page-design/licenses.html"
+        ],
+        "createdAt": "2026-11-19T13:38:38.933Z",
+        "reason": "Pages link styles.css, whose hero-heading gradient is the sanctioned landing-page-design B5 exception; these pages' own headings are solid colour"
       }
     ]
   }
