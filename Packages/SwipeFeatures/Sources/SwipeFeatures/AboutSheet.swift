@@ -3,12 +3,14 @@ import SwipeCore
 import SwipeUI
 
 /// Pro status, Unlock and Restore (R-14).
-/// Rate and Privacy rows show only once the owner supplies the links.
+/// Also Photo Access, Support, Privacy Policy and Terms of Use (D-27).
+/// Rate and Support rows show only once the owner supplies the link or email.
 struct AboutSheet: View {
     let model: AppModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dismiss) private var dismiss
     @State private var showsAcknowledgements = false
+    @State private var legal: LegalDocument?
 
     var body: some View {
         let t = Theme.resolve(scheme)
@@ -33,8 +35,25 @@ struct AboutSheet: View {
                                 .accessibilityAddTraits(.updatesFrequently)
                         }
                     }
+                    divider(t)
+                    Button { model.openPhotoSettings() } label: {
+                        HStack {
+                            Text("Photo Access"); Spacer()
+                            Image(systemName: "arrow.up.right").font(.footnote.weight(.semibold))
+                        }
+                        .foregroundStyle(Color(hex: t.text))
+                        .padding(.horizontal, 16).frame(minHeight: 52)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Opens this app's page in iOS Settings")
                     if let url = model.links.rateOnAppStore { divider(t); link("Rate on the App Store", url, t) }
-                    if let url = model.links.privacyPolicy { divider(t); link("Privacy Policy", url, t) }
+                    if let email = model.links.supportEmail, let url = URL(string: "mailto:\(email)") {
+                        divider(t); link("Contact Support", url, t)
+                    }
+                    divider(t)
+                    legalRow("Privacy Policy", t) { legal = .privacy(model.links) }
+                    divider(t)
+                    legalRow("Terms of Use", t) { legal = .terms(model.links) }
                     divider(t)
                     Button { withAnimation { showsAcknowledgements.toggle() } } label: {
                         HStack {
@@ -66,6 +85,9 @@ struct AboutSheet: View {
         }
         .appCanvas()
         .onAppear { model.dismissPaywallMessage() }
+        .sheet(item: $legal) { doc in
+            LegalView(document: doc, onlineURL: doc.title == "Privacy Policy" ? model.links.privacyPolicy : model.links.termsOfUse)
+        }
         .presentationDetents([.medium, .large])
         .presentationBackground(.clear)
         .overlay(alignment: .topTrailing) {
@@ -89,6 +111,18 @@ struct AboutSheet: View {
         .buttonStyle(.plain)
         .disabled(!enabled || model.isPurchasing)
         .opacity(enabled ? 1 : 0.5)
+    }
+
+    private func legalRow(_ title: String, _ t: Theme, _ open: @escaping () -> Void) -> some View {
+        Button(action: open) {
+            HStack {
+                Text(title); Spacer()
+                Image(systemName: "chevron.right").font(.footnote.weight(.semibold))
+            }
+            .foregroundStyle(Color(hex: t.text))
+            .padding(.horizontal, 16).frame(minHeight: 52)
+        }
+        .buttonStyle(.plain)
     }
 
     private func link(_ title: String, _ url: URL, _ t: Theme) -> some View {

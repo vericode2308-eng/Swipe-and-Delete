@@ -33,7 +33,7 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 | R-11 | Free plan: up to **50 deletions per calendar day** (device's local time). Swiping, keeping and reviewing are always unlimited. |
 | R-12 | Pro: one-time purchase (**$4.99**, StoreKit 2, non-consumable) removes the daily limit. Restore Purchases is always available. |
 | R-13 | Paywall appears only when the user taps Delete with more marked than today's allowance left. It offers **Unlock Pro** and **Delete N now**, where N = deletions left today (50 on a fresh day; the first N marked, in order). The marks left over are dropped, not kept for tomorrow (D-22). Never on launch. |
-| R-14 | About sheet (from an ⓘ button on Albums): Pro status, Restore Purchases, Rate on the App Store, Privacy Policy, Acknowledgements. |
+| R-14 | About sheet (from an ⓘ button on Albums): Pro status, Restore Purchases, Photo Access (opens iOS Settings), Rate on the App Store *(hidden until the link exists)*, Contact Support *(mail to the support address)*, **Privacy Policy and Terms of Use read inside the app, offline (D-27)**, Acknowledgements. |
 | R-15 | Light and dark looks that follow the iPhone's appearance setting. |
 | R-16 | Full VoiceOver, Dynamic Type up to AX5, Reduce Motion and Reduce Transparency support. |
 | R-17 | The app never uploads anything. No account, no server, no analytics. |
@@ -81,7 +81,7 @@ Adding any of these needs a new dated row in the decision log first.
 | No duplicates / no matches found | Row says "None found" and is not a button. |
 
 ## Owner questions still open
-- Support email address and the URL for privacy, terms and support pages.
+- URLs for the privacy, terms and support web pages (to be built with the VeriCode website; the owner will say when) and the App Store link for Rate. The in-app Privacy Policy and Terms already work without them. *(Support email, publisher name and governing law answered by D-27.)*
 - Apple team ID for `project.yml`.
 
 ## Decision log
@@ -114,3 +114,4 @@ Adding any of these needs a new dated row in the decision log first.
 | D-24 | 2026-11-18 | Add **Select** on the swipe screen: a grid of the open album where the user taps many photos (or Select all) and goes to Review. Owner request (150 screenshots). Supersedes the non-goal "select all and delete". Still ends in Review and the one iOS prompt; free-plan limit unchanged. | Active |
 | D-25 | 2026-11-18 | Add a **filmstrip** under the swipe controls: small thumbnails that turn in 3D; sliding it browses quickly. Photos slid past are **kept** (owner: "1 kept"), the swiping continues from the photo where it stops, and sliding back undoes those decisions. Owner request. Not a "Skip"/"Later" choice. | Active |
 | D-26 | 2026-11-19 | Upgrade the swipe-screen carousel to a Cover Flow **ring** (several cards each side, progressive turn / depth / fade; dots become a pill; tap a dot to jump; haptic when the ring settles). Ring turns only via the dot scrubber; dragging the photo still means Delete / Keep. **No wrap-around** in Swipe (album stays finite). Owner chose these three options. | Active |
+| D-27 | 2026-11-19 | Owner asked for Privacy, Terms "etc" in the settings page. The About sheet *is* that page (no separate Settings screen; the non-goal stands). It now has **Privacy Policy and Terms of Use read in the app** (bundled text, works offline), **Photo Access**, **Contact Support**; Rate stays hidden until the App Store link exists. Publisher **VeriCode**, support **support@vericodestudio.com**, governing law **India**: taken from the owner's VeriCode website records. Legal text corrected against the code the same day (see MASTER Change 42). Website and its legal pages come later, when the owner says. | Active |

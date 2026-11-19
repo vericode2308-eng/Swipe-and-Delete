@@ -31,9 +31,16 @@ public struct NoImages: PhotoImageLoading {
 /// Store links the owner has not supplied yet stay nil, and their rows stay hidden.
 public struct AppLinks: Sendable {
     public var privacyPolicy: URL?
+    public var termsOfUse: URL?
     public var rateOnAppStore: URL?
-    public init(privacyPolicy: URL? = nil, rateOnAppStore: URL? = nil) {
-        self.privacyPolicy = privacyPolicy; self.rateOnAppStore = rateOnAppStore
+    /// Shown in the legal text and as a Support row only once supplied.
+    public var supportEmail: String?
+    public var developerName: String?
+    public var jurisdiction: String?
+    public init(privacyPolicy: URL? = nil, termsOfUse: URL? = nil, rateOnAppStore: URL? = nil,
+                supportEmail: String? = nil, developerName: String? = nil, jurisdiction: String? = nil) {
+        self.privacyPolicy = privacyPolicy; self.termsOfUse = termsOfUse; self.rateOnAppStore = rateOnAppStore
+        self.supportEmail = supportEmail; self.developerName = developerName; self.jurisdiction = jurisdiction
     }
 }
 
@@ -301,6 +308,9 @@ public final class AppModel {
         case .full, .limited: break
         }
     }
+
+    /// About > Photo Access: opens this app's page in iOS Settings.
+    public func openPhotoSettings() { openSettings() }
 
     public var pillTitle: String { status == .denied ? "Open Settings" : "Allow Photo Access" }
 
