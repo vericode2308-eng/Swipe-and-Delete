@@ -81,7 +81,7 @@ Adding any of these needs a new dated row in the decision log first.
 | No duplicates / no matches found | Row says "None found" and is not a button. |
 
 ## Owner questions still open
-- Support email address and the URL for privacy, terms and support pages.
+- URL for privacy, terms and support pages (support email is settled: support@vericodestudio.com, MASTER Change 34). Confirm the 13+ audience and India governing law.
 - Apple team ID for `project.yml`.
 
 ## Decision log
