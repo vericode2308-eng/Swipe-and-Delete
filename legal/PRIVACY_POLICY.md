@@ -17,6 +17,8 @@ Lighter ("the app") is an iPhone app that helps you review your photos and delet
 ## What the app stores on your device
 All of the following stays on your iPhone and is removed when you delete the app:
 - **Daily deletion count and date**, to apply the free plan's daily limit.
+- **Totals for Settings.** The number of photos you have deleted and roughly how much space they took, added up since you installed Lighter, so Settings can show how much you have cleared.
+- **Your appearance choice** (System, Light or Dark).
 - **Rating-prompt state** (for example, how many albums you finished and when you last saw the prompt), so the app does not ask for a rating too often.
 - **Clean-up scan results.** The Quick clean-up feature analyses your photos on your iPhone using Apple's Vision framework to find duplicates, similar photos, screenshots and similar groups. Results (the photo's Photos-library identifier, a fingerprint and a quality score per photo) are saved in the app's private storage so a scan can resume. They are not readable as images and are never sent off your device.
 - **Photos you have marked** during a session are held only while you review them.

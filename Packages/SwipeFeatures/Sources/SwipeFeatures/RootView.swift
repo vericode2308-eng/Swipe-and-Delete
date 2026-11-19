@@ -26,11 +26,19 @@ public struct RootView: View {
             }
         }
         // Asked once, only after Back to Albums on the Albums screen, never on Review or Done.
+        .preferredColorScheme(model.appearance.colorScheme)
         .onChange(of: model.session == nil) { _, onAlbums in
             if onAlbums, model.reviewPromptDue { model.ratingShown(); requestReview() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await model.refresh() } }
         }
+    }
+}
+
+extension AppearanceSetting {
+    /// nil lets the iPhone's own setting decide.
+    var colorScheme: ColorScheme? {
+        switch self { case .system: nil; case .light: .light; case .dark: .dark }
     }
 }

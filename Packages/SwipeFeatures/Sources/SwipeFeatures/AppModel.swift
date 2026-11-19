@@ -31,9 +31,10 @@ public struct NoImages: PhotoImageLoading {
 /// Store links the owner has not supplied yet stay nil, and their rows stay hidden.
 public struct AppLinks: Sendable {
     public var privacyPolicy: URL?
+    public var termsOfUse: URL?
     public var rateOnAppStore: URL?
-    public init(privacyPolicy: URL? = nil, rateOnAppStore: URL? = nil) {
-        self.privacyPolicy = privacyPolicy; self.rateOnAppStore = rateOnAppStore
+    public init(privacyPolicy: URL? = nil, termsOfUse: URL? = nil, rateOnAppStore: URL? = nil) {
+        self.privacyPolicy = privacyPolicy; self.termsOfUse = termsOfUse; self.rateOnAppStore = rateOnAppStore
     }
 }
 
@@ -99,6 +100,12 @@ public final class AppModel {
     private var prompts: ReviewPromptPolicy
     private let allowanceStore: AllowanceStore
     private let promptStore: ReviewPromptStore
+    /// Space and photos cleared since install, for Settings (D-24).
+    public private(set) var lifetime: LifetimeStats
+    private let statsStore: LifetimeStatsStore
+    /// Settings › Appearance (D-25). The root applies it; System follows the iPhone.
+    public private(set) var appearance: AppearanceSetting
+    private let appearanceStore: AppearanceStore
     private let now: @Sendable () -> Date
 
     /// Filters and scan progress. Grows while the scan runs; empty without a scanner.
@@ -123,6 +130,8 @@ public final class AppModel {
                 appVersion: String = "",
                 allowanceStore: AllowanceStore = AllowanceStore(),
                 promptStore: ReviewPromptStore = ReviewPromptStore(),
+                statsStore: LifetimeStatsStore = LifetimeStatsStore(),
+                appearanceStore: AppearanceStore = AppearanceStore(),
                 now: @escaping @Sendable () -> Date = { Date() },
                 presentLimitedPicker: @escaping @MainActor () -> Void = {},
                 openSettings: @escaping @MainActor () -> Void) {
@@ -139,9 +148,13 @@ public final class AppModel {
         self.openSettings = openSettings
         self.allowanceStore = allowanceStore
         self.promptStore = promptStore
+        self.statsStore = statsStore
+        self.appearanceStore = appearanceStore
         self.now = now
         self.allowance = allowanceStore.load()
         self.prompts = promptStore.load()
+        self.lifetime = statsStore.load()
+        self.appearance = appearanceStore.load()
         self.status = library.currentStatus()
     }
 
@@ -377,6 +390,9 @@ public final class AppModel {
                 reviewPromptDue = prompts.shouldPrompt(after: .deleteSucceeded, now: date)
                 if reviewPromptDue { prompts.markPrompted(now: date) }
                 promptStore.save(prompts)
+                // Counted only now, after iOS confirmed the delete (rule 3.3).
+                lifetime.record(deleted: ids.count, bytes: bytes)
+                statsStore.save(lifetime)
                 summary = DeletionSummary(albumTitle: session.album.title,
                                           reviewed: min(session.index, session.assets.count),
                                           kept: session.keptCount, deleted: ids.count,
@@ -389,6 +405,11 @@ public final class AppModel {
         } catch {
             deleteMessage = "Couldn't delete the photos. Nothing was removed."
         }
+    }
+
+    public func setAppearance(_ setting: AppearanceSetting) {
+        appearance = setting
+        appearanceStore.save(setting)
     }
 
     public func ratingShown() { reviewPromptDue = false }

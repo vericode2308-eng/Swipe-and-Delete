@@ -56,7 +56,7 @@ Packages/
   SwipeUI/                       // Theme (light/dark), Glass, Backdrop, AppCanvas,
                                  // PillButton, GlassChip, GlassDock, CelebrationRing
   SwipeFeatures/                 // WelcomeView, AlbumsView, SwipeView, PhotoCard,
-                                 // ReviewView, PaywallSheet, DoneView, AboutSheet,
+                                 // ReviewView, PaywallSheet, DoneView, SettingsView,
                                  // AppModel (@Observable navigation + auth state)
 ```
 
