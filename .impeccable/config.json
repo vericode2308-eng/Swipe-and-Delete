@@ -20,6 +20,12 @@
         ],
         "createdAt": "2026-11-19T12:49:41.734Z",
         "reason": "landing-page-design skill (invoked by user) rule B5 mandates a left-to-right gradient on the hero heading text only"
+      },
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "createdAt": "2026-11-19T12:56:29.197Z",
+        "reason": "Body font comes from the ui-ux-pro-max Cormorant + Montserrat pairing; the user said ui-ux-pro-max takes priority"
       }
     ]
   }
