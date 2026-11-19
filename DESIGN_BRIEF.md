@@ -197,3 +197,6 @@ skips to the end.
   button". While scanning: "Checking photos, 1,240 of 4,812".
 - Done reads as "1.2 gigabytes cleared. 38 reviewed, 31 kept, 7 deleted."
 - Check iPhone SE and the largest iPhone in both looks.
+
+## App icon (decided 2026-11-19, direction B1)
+Two frosted-glass photo cards on the Dusk colour field (slate base, blue, rose and teal blurs). A blush circle with a dark ✕ sits on the back card (swipe left deletes); a sage circle with a dark ✓ sits on the front card (swipe right keeps). Same Delete and Keep colours and shapes as the app, so the meaning does not rely on colour alone. No text, no broom or sparkle (the crowded cleaner look). Source: `design/logo/icon-final.html`; 1024 px master: `design/logo/lighter-icon-1024.png` (RGB, no alpha), installed as `App/Resources/Assets.xcassets/AppIcon.appiconset/icon.png`. Use the same artwork for the App Store listing icon.

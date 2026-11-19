@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Lighter icon concepts</title>
+<style>
+@font-face{font-family:CG;src:url(../../App/Resources/Fonts/CormorantGaramond-Italic.ttf);font-style:italic}
+:root{--slate:#262E3B;--blue:#5E7AA6;--rose:#9A6F80;--teal:#3F6B66;--text:#F4F6FA}
+*{box-sizing:border-box;margin:0}
+body{background:#161b24;width:3400px;padding:60px;font:28px system-ui;color:#C9D2E0}
+.row{display:flex;gap:60px;margin-bottom:50px;align-items:flex-end}
+.col{display:flex;flex-direction:column;gap:18px}
+.icon{width:1024px;height:1024px;position:relative;overflow:hidden;background:var(--slate)}
+.b{position:absolute;border-radius:50%;filter:blur(130px)}
+.b1{width:900px;height:900px;left:-250px;top:-300px;background:var(--blue)}
+.b2{width:760px;height:760px;right:-260px;top:140px;background:var(--rose)}
+.b3{width:900px;height:800px;left:-80px;bottom:-380px;background:var(--teal)}
+.glass{position:absolute;border:3px solid rgba(255,255,255,.38);background:rgba(255,255,255,.14);
+ backdrop-filter:blur(34px) saturate(170%);box-shadow:0 40px 80px rgba(10,14,22,.38),inset 0 4px 0 rgba(255,255,255,.5)}
+.L{font:italic 500 560px/1 CG,serif;color:var(--text);position:absolute;text-align:center;width:100%}
+/* A: the letter */
+#A .L{top:130px;font-size:720px;text-shadow:0 30px 60px rgba(10,14,22,.35)}
+/* B: stacked cards, front one lifted */
+#B .c1{width:430px;height:560px;left:210px;top:330px;border-radius:70px;transform:rotate(-6deg);opacity:.65}
+#B .c2{width:430px;height:560px;left:380px;top:190px;border-radius:70px;transform:rotate(8deg);background:rgba(255,255,255,.2)}
+/* C: tilted swipe card with trail and the letter */
+#C .t1{width:470px;height:620px;left:150px;top:230px;border-radius:76px;transform:rotate(-14deg);opacity:.22}
+#C .t2{width:470px;height:620px;left:235px;top:230px;border-radius:76px;transform:rotate(-14deg);opacity:.42}
+#C .c{width:470px;height:620px;left:340px;top:210px;border-radius:76px;transform:rotate(12deg);background:rgba(255,255,255,.2)}
+#C .L{font-size:470px;left:340px;top:268px;width:470px;transform:rotate(12deg)}
+.small{display:flex;gap:30px;align-items:flex-end}
+.s{border-radius:22.4%;overflow:hidden;position:relative}
+.s .icon{transform-origin:0 0}
+</style></head><body>
+<div class="row">
+ <div class="col"><div class="icon" id="A"><i class="b b1"></i><i class="b b2"></i><i class="b b3"></i><div class="L">L</div></div>A · The letter</div>
+ <div class="col"><div class="icon" id="B"><i class="b b1"></i><i class="b b2"></i><i class="b b3"></i><div class="glass c1"></div><div class="glass c2"></div></div>B · Lifted cards</div>
+ <div class="col"><div class="icon" id="C"><i class="b b1"></i><i class="b b2"></i><i class="b b3"></i><div class="glass t1"></div><div class="glass t2"></div><div class="glass c"></div><div class="L">L</div></div>C · Swipe card</div>
+</div>
+</body></html>
