@@ -225,14 +225,27 @@
   }
 
   /* =====================================================================
-     Swipe demo (SwipeView.swift)
+     Swipe demo (SwipeView.swift + CoverFlowRing.swift + SelectView.swift)
+     A flat, front-facing Cover Flow ring: each card sits at a continuous
+     position r (0 = front). Springs move r; the pose is a pure function of r.
      ===================================================================== */
+  const RING = { scaleFalloff: 0.26, minScale: 0.5, opacityFalloff: 0.2, farSpacing: 0.14, maxDim: 0.4, visible: 2 };
+  function pose(r, step, cw) {
+    const a = Math.abs(r), sign = r < 0 ? -1 : 1;
+    return {
+      x: sign * (Math.min(a, 1) * step + Math.max(a - 1, 0) * cw * RING.farSpacing),
+      scale: Math.max(RING.minScale, 1 - Math.min(a, 3) * RING.scaleFalloff),
+      opacity: Math.max(0, 1 - Math.max(a - 0.5, 0) * RING.opacityFalloff) * Math.max(0, Math.min(1, RING.visible + 0.6 - a)),
+      dim: Math.min(a, 1) * RING.maxDim,
+      shadow: Math.max(0, 1 - a),
+    };
+  }
+
   function SwipeDemo(screen, { onPhoto, live }) {
-    const W = 361;             // carousel width (screen 393 − 2 × 16 margin)
-    const CW = 282, STEP = CW + 12;
+    const W = 393, CW = Math.round(W * 0.86), STEP = CW * 0.62, PITCH = 18;
     const N = DECK.length;
     let index = 0, decisions = [], busy = false, interacted = false;
-    let view = 'swipe', done = null, reviewKept = new Set();
+    let view = 'swipe', done = null, reviewKept = new Set(), reviewFrom = 'swipe';
 
     screen.innerHTML = `
       <div class="scr-bg">${CANVAS}<img class="bgimg" alt=""><img class="bgimg" alt=""><div class="scrim"></div></div>
@@ -241,22 +254,24 @@
         <div class="topbar">
           <button class="ibtn glass js-restart" type="button" aria-label="Start the demo again">${icon('i-back')}</button>
           <div class="ttl"><b>Recents</b><small class="js-count">1 of ${N}</small></div>
+          <button class="rvbtn glass js-select" type="button" aria-label="Select many photos">${icon('i-selcircle')}<span>Select</span></button>
           <button class="rvbtn glass js-review" type="button" disabled>${icon('i-trash')}<span class="js-marked">0</span></button>
         </div>
-        <div class="chips" aria-hidden="true"><span class="chip sel">Recents</span><span class="chip glass">Screenshots</span><span class="chip glass">Videos</span></div>
         <div class="carousel"></div>
+        <div class="dots" role="slider" tabindex="0" aria-label="Photo position" aria-valuemin="1" aria-valuemax="${N}" aria-valuenow="1"></div>
         <div class="dock glass">
-          <button class="dbtn big del js-del" type="button" aria-label="Delete">${icon('i-x')}</button>
-          <button class="dbtn small js-undo" type="button" aria-label="Undo" disabled>${icon('i-undo')}</button>
-          <button class="dbtn big kp js-keep" type="button" aria-label="Keep">${icon('i-check')}</button>
+          <button class="dbtn del js-del" type="button" aria-label="Delete">${icon('i-trashf')}<span>Delete</span></button>
+          <button class="dbtn und js-undo" type="button" aria-label="Undo last decision" disabled>${icon('i-undo')}<span>Undo</span></button>
+          <button class="dbtn kp js-keep" type="button" aria-label="Keep">${icon('i-heart')}<span>Keep</span></button>
         </div>
       </div>
+      <div class="view view-select"></div>
       <div class="view view-review"></div>
       <div class="view view-done"></div>`;
 
     const bgImgs = $$('.bgimg', screen), scrim = $('.scrim', screen);
-    const carousel = $('.carousel', screen);
-    const vSwipe = $('.view-swipe', screen), vReview = $('.view-review', screen), vDone = $('.view-done', screen);
+    const carousel = $('.carousel', screen), dotsEl = $('.dots', screen);
+    const vSwipe = $('.view-swipe', screen), vSelect = $('.view-select', screen), vReview = $('.view-review', screen), vDone = $('.view-done', screen);
     const countEl = $('.js-count', screen), markedEl = $('.js-marked', screen), reviewBtn = $('.js-review', screen);
     const delBtn = $('.js-del', screen), keepBtn = $('.js-keep', screen), undoBtn = $('.js-undo', screen);
 
@@ -273,77 +288,100 @@
         <div class="badge glass"></div>`);
       el.setAttribute('aria-hidden', 'true');
       carousel.appendChild(el);
-      return { el, k, x: k === 0 ? 0 : k === 1 ? STEP : 0, v: 0, tx: k === 0 ? 0 : STEP, s: 1, ts: 1, o: k <= 1 ? 1 : 0, to: k <= 1 ? 1 : 0, drag: false,
+      return { el, k, r: k, vr: 0, dx: 0, vx: 0, tdx: 0, o: 1, drag: false,
         tint: $('.tint', el), tag: $('.tag', el), cap: $('.cap', el), badge: $('.badge', el) };
     });
     const endEl = document.createElement('div');
     endEl.className = 'card end glass';
+    endEl.setAttribute('aria-hidden', 'true');
     carousel.appendChild(endEl);
-    const endBody = { el: endEl, k: N, x: 0, v: 0, tx: 0, s: 1, ts: 1, o: 0, to: 0, drag: false };
+    const endBody = { el: endEl, k: N, r: N, vr: 0, dx: 0, vx: 0, tdx: 0, o: 1, drag: false };
     const all = [...bodies, endBody];
 
+    /* Dots: one pill-stretch dot per photo. */
+    const dots = DECK.map(() => { const d = document.createElement('i'); dotsEl.appendChild(d); return d; });
+
     let pending = null, raf = 0, last = 0;
+    const spring = (x, v, t, h) => { const a = -K * (x - t) - C * v; v += a * h; return [x + v * h, v]; };
     function loop(now) {
       const dt = Math.min(0.032, (now - last) / 1000 || 0.016); last = now;
       let moving = false;
       for (const b of all) {
-        if (!b.drag) {
-          // integrate in small steps for stability
-          for (let i = 0; i < 4; i++) {
-            const h = dt / 4, a = -K * (b.x - b.tx) - C * b.v;
-            b.v += a * h; b.x += b.v * h;
-          }
-          if (Math.abs(b.x - b.tx) > 0.3 || Math.abs(b.v) > 2) moving = true; else { b.x = b.tx; b.v = 0; }
-        } else moving = true;
-        b.s += (b.ts - b.s) * Math.min(1, dt * 14);
-        b.o += (b.to - b.o) * Math.min(1, dt * (reduce ? 10 : 9));
-        if (Math.abs(b.ts - b.s) > 0.001 || Math.abs(b.to - b.o) > 0.01) moving = true; else { b.s = b.ts; b.o = b.to; }
+        const tr = b.k - index;
+        for (let i = 0; i < 4; i++) {
+          const h = dt / 4;
+          [b.r, b.vr] = spring(b.r, b.vr, tr, h);
+          if (!b.drag) [b.dx, b.vx] = spring(b.dx, b.vx, b.tdx, h);
+        }
+        if (Math.abs(b.r - tr) > 0.002 || Math.abs(b.vr) > 0.02) moving = true; else { b.r = tr; b.vr = 0; }
+        if (b.drag) moving = true;
+        else if (Math.abs(b.dx - b.tdx) > 0.3 || Math.abs(b.vx) > 2) moving = true; else { b.dx = b.tdx; b.vx = 0; }
+        if (b.o < 1) { b.o = Math.min(1, b.o + dt * 5); moving = true; }
       }
       if (pending && pending.test()) { const f = pending.fn; pending = null; f(); moving = true; }
       draw();
-      if (moving || pending) raf = requestAnimationFrame(loop); else raf = 0;
+      raf = (moving || pending) ? requestAnimationFrame(loop) : 0;
     }
     const kick = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } };
 
     function draw() {
       let grow = 0;
       for (const b of all) {
-        const rel = b.k - index;
-        const isCur = rel === 0 && b !== endBody;
-        const rot = isCur ? 12 * Math.max(-1, Math.min(1, b.x / (W * 0.5))) : 0;
-        b.el.style.transform = `translate3d(${b.x}px,0,0) rotate(${rot}deg) scale(${b.s})`;
-        b.el.style.opacity = b.o.toFixed(3);
-        b.el.style.visibility = b.o < 0.01 ? 'hidden' : 'visible';
-        b.el.style.zIndex = isCur ? 3 : rel === -1 ? 2 : 1;
-        if (b === endBody) continue;
-        const p = isCur ? Math.max(-1, Math.min(1, b.x / (W * 0.3))) : 0;
-        if (isCur) grow = p;
-        b.tint.style.background = p < 0 ? '#F2B8A8' : '#A9DCCD';
-        b.tint.style.opacity = String(0.45 * Math.abs(p));
-        if (Math.abs(p) > 0.05) {
-          const del = p < 0;
+        const p = pose(b.r, STEP, CW), front = b.k === index && b !== endBody;
+        const rot = front ? 12 * Math.max(-1, Math.min(1, b.dx / (W * 0.5))) : 0;
+        const s = b.el.style;
+        s.transform = `translate3d(${(p.x + b.dx).toFixed(2)}px,0,0) rotate(${rot.toFixed(2)}deg) scale(${p.scale.toFixed(4)})`;
+        s.opacity = (p.opacity * b.o).toFixed(3);
+        s.visibility = p.opacity * b.o < 0.01 ? 'hidden' : 'visible';
+        s.zIndex = String(100 - Math.round(Math.abs(b.r) * 10) + (front ? 5 : 0));
+        if (b === endBody) { s.filter = ''; continue; }
+        s.filter = p.dim > 0.005 ? `brightness(${(1 - p.dim).toFixed(3)}) saturate(${(1 - p.dim * 0.6).toFixed(3)})` : '';
+        s.boxShadow = p.shadow > 0.01 ? `0 6px 22px rgba(0,0,0,${(0.45 * p.shadow).toFixed(3)})` : 'none';
+        const q = front ? Math.max(-1, Math.min(1, b.dx / (W * 0.3))) : 0;
+        if (front) grow = q;
+        b.tint.style.background = q < 0 ? '#F2B8A8' : '#A9DCCD';
+        b.tint.style.opacity = String(0.45 * Math.abs(q));
+        if (Math.abs(q) > 0.05) {
+          const del = q < 0;
           if (b.tag.dataset.side !== (del ? 'd' : 'k')) {
             b.tag.dataset.side = del ? 'd' : 'k';
-            b.tag.innerHTML = `${icon(del ? 'i-x' : 'i-check')}${del ? 'DELETE' : 'KEEP'}`;
+            b.tag.innerHTML = `${icon(del ? 'i-trashf' : 'i-heart')}${del ? 'DELETE' : 'KEEP'}`;
             b.tag.style.color = del ? 'var(--del)' : 'var(--keep)';
           }
           b.tag.style.display = 'inline-flex';
-          b.tag.style.opacity = String(Math.min(1, Math.abs(p) * 1.4));
+          b.tag.style.opacity = String(Math.min(1, Math.abs(q) * 1.4));
         } else b.tag.style.display = 'none';
-        b.cap.style.opacity = isCur ? '1' : '0';
+        b.cap.style.opacity = String(Math.max(0, 1 - Math.abs(b.r) * 2));
         const dec = decisions.find(d => d.k === b.k);
-        if (rel === -1 && dec) {
+        if (dec && b.r < -0.4) {
           b.badge.style.display = 'grid';
-          b.badge.innerHTML = icon(dec.side < 0 ? 'i-x' : 'i-check');
+          b.badge.innerHTML = icon(dec.side < 0 ? 'i-trashf' : 'i-heart');
           b.badge.style.color = dec.side < 0 ? 'var(--del)' : 'var(--keep)';
         } else b.badge.style.display = 'none';
       }
-      delBtn.style.transform = `scale(${1 + 0.25 * (grow < 0 ? -grow : 0)})`;
-      keepBtn.style.transform = `scale(${1 + 0.25 * (grow > 0 ? grow : 0)})`;
+      delBtn.style.transform = `scale(${1 + 0.06 * (grow < 0 ? -grow : 0)})`;
+      keepBtn.style.transform = `scale(${1 + 0.06 * (grow > 0 ? grow : 0)})`;
+      drawDots(-bodies[0].r + 0);
+    }
+
+    /* Pill-stretch dots: nearest stretches wide, the rest shrink and fade with distance. */
+    function drawDots(pos) {
+      const mid = (N - 1) / 2;
+      dots.forEach((d, k) => {
+        const dist = Math.min(6, Math.abs(k - pos));
+        const near = Math.max(0, 1 - dist);
+        const sc = Math.max(0.45, 1.5 - dist * 0.2);
+        d.style.transform = `translateX(${((k - mid) * PITCH).toFixed(1)}px) scale(${(sc * (1 + 1.2 * near)).toFixed(3)}, ${sc.toFixed(3)})`;
+        d.style.opacity = String(Math.max(0.25, 1 - dist * 0.12));
+        const dec = decisions.find(x => x.k === k);
+        d.classList.toggle('mark', !!dec && dec.side < 0);
+        d.classList.toggle('keptd', !!dec && dec.side > 0);
+      });
     }
 
     function chrome() {
       countEl.textContent = `${Math.min(index + 1, N)} of ${N}`;
+      dotsEl.setAttribute('aria-valuenow', String(Math.min(index + 1, N)));
       const marked = decisions.filter(d => d.side < 0).length;
       markedEl.textContent = marked;
       reviewBtn.disabled = marked === 0;
@@ -351,14 +389,15 @@
       undoBtn.disabled = decisions.length === 0;
       delBtn.disabled = keepBtn.disabled = index >= N;
       const cur = DECK[Math.min(index, N - 1)];
-      setBackdrop(cur.img || null);
-      onPhoto?.(cur.img || null);
+      setBackdrop(index >= N ? null : (cur.img || null));
+      onPhoto?.(index >= N ? null : (cur.img || null));
       if (index >= N) {
         endEl.innerHTML = `<b>That's all</b><p>${marked ? `${marked} marked for deletion.` : 'Nothing marked for deletion.'}</p>
           <button class="ppill js-end" type="button">${marked ? 'Review deletions' : 'Start again'}</button>`;
-        $('.js-end', endEl).addEventListener('click', () => marked ? openReview() : reset());
+        $('.js-end', endEl).addEventListener('click', () => marked ? openReview(markedCards(), 'swipe') : reset());
       }
     }
+    const markedCards = () => decisions.filter(d => d.side < 0).map(d => DECK[d.k]);
 
     let bgFlip = 0;
     function setBackdrop(src) {
@@ -370,33 +409,10 @@
       next.src = src; next.classList.add('on'); prev.classList.remove('on'); scrim.classList.add('on');
     }
 
-    function layout(mode, prevIndex) {
-      for (const b of all) {
-        const rel = b.k - index;
-        if (b === endBody) { b.tx = 0; b.x = 0; b.to = index >= N ? 1 : 0; b.ts = 1; continue; }
-        if (mode === 'forward') {
-          if (b.k === prevIndex) { b.x = b.tx = -STEP; b.v = 0; b.s = b.ts = 0.94; b.o = 0; b.to = 1; }
-          else if (rel === 0) { b.tx = 0; b.ts = 1; b.to = 1; }
-          else if (rel === 1) { b.x = b.tx = STEP; b.v = 0; b.s = b.ts = 1; b.o = 0; b.to = 1; }
-          else { b.to = 0; }
-        } else if (mode === 'undo') {
-          if (b.k === prevIndex) { b.tx = STEP; b.ts = 1; b.to = 1; }
-          else if (rel === 0) { b.x = reduce ? 0 : -393; b.tx = 0; b.v = 0; b.s = b.ts = 1; b.o = reduce ? 0 : 1; b.to = 1; }
-          else if (rel === -1) { b.x = b.tx = -STEP; b.v = 0; b.s = b.ts = 0.94; b.o = 0; b.to = 1; }
-          else { b.to = 0; }
-        } else {
-          b.v = 0;
-          b.x = b.tx = rel === 0 ? 0 : rel === 1 ? STEP : rel === -1 ? -STEP : 0;
-          b.s = b.ts = rel === -1 ? 0.94 : 1;
-          b.o = 0; b.to = (rel >= -1 && rel <= 1) ? 1 : 0;
-        }
-        if (reduce && mode !== 'reset') { b.x = b.tx; if (rel === 0 || rel === 1 || rel === -1) b.o = Math.min(b.o, 0.0); }
-      }
-      chrome(); kick();
-    }
-
+    function snapAll() { for (const b of all) { b.r = b.k - index; b.vr = 0; b.dx = b.tdx = 0; b.vx = 0; b.o = 1; } draw(); }
     function announce(t) { if (live) { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); } }
 
+    /* Delete / Keep: the front card flies off, then the ring turns one place. */
     function commit(side) {
       if (busy || index >= N || view !== 'swipe') return;
       interacted = true; busy = true;
@@ -405,15 +421,18 @@
       b.drag = false;
       const apply = () => {
         decisions.push({ k: index, side });
-        const prev = index; index++;
-        layout('forward', prev);
+        b.dx = b.tdx = 0; b.vx = 0;
+        if (!reduce) b.o = 0;           // it rejoins the ring, passed, on the left
+        index++;
+        if (reduce) snapAll();
+        chrome(); kick();
         busy = false;
         announce(index >= N ? (side < 0 ? "Marked for deletion. That's all." : "Kept. That's all.")
           : `${side < 0 ? 'Marked for deletion' : 'Kept'}, ${index + 1} of ${N}`);
       };
-      if (reduce) { b.x = b.tx = 0; apply(); return; }
-      b.tx = side * W * 1.3;
-      pending = { test: () => Math.abs(b.x - b.tx) < 40, fn: apply };
+      if (reduce) { apply(); return; }
+      b.tdx = side * W * 1.1;
+      pending = { test: () => Math.abs(b.dx - b.tdx) < 60, fn: apply };
       kick();
     }
 
@@ -421,33 +440,109 @@
       if (busy || decisions.length === 0 || view !== 'swipe') return;
       interacted = true;
       decisions.pop();
-      const prev = index; index--;
-      layout('undo', prev);
+      index--;
+      if (reduce) snapAll();
+      chrome(); kick();
       announce(`Undone, ${index + 1} of ${N}`);
+    }
+
+    /* Scrub the dots: forward keeps what you pass, backward undoes it. */
+    function scrubTo(t) {
+      t = Math.max(0, Math.min(N, t));
+      if (t === index || busy || view !== 'swipe') return;
+      interacted = true;
+      if (t > index) { for (let k = index; k < t; k++) if (!decisions.find(d => d.k === k)) decisions.push({ k, side: 1 }); }
+      else decisions = decisions.filter(d => d.k < t);
+      index = t;
+      navigator.vibrate?.(4);
+      if (reduce) snapAll();
+      chrome(); kick();
     }
 
     function reset() {
       decisions = []; index = 0; reviewKept = new Set(); busy = false; pending = null;
       done?.destroy(); done = null;
       show('swipe');
-      layout('reset');
+      snapAll(); chrome(); kick();
     }
 
     function show(v) {
       view = v;
       vSwipe.classList.toggle('on', v === 'swipe');
+      vSelect.classList.toggle('on', v === 'select');
       vReview.classList.toggle('on', v === 'review');
       vDone.classList.toggle('on', v === 'done');
     }
 
+    /* Select grid (SelectView): tap or drag across photos, then review them. */
+    function openSelect() {
+      stopHint();
+      const picked = new Set();
+      const cells = [0, 1, 2, 3, 4, 0, 4, 2, 3, 1, 4, 0].map((k, i) => ({ c: DECK[k], i }));
+      vSelect.innerHTML = `
+        <div class="rv-top">
+          <button class="ibtn glass js-sel-back" type="button" aria-label="Back to swiping">${icon('i-back')}</button>
+          <div class="ttl"><b class="js-sel-title"></b><small>Tap or swipe across photos. Back cancels.</small></div>
+        </div>
+        <div class="sel-actions"><button class="sel-link js-sel-all" type="button">Select all</button><button class="sel-link js-sel-clear" type="button">Clear</button></div>
+        <div class="sel-grid" role="group" aria-label="Photos"></div>
+        <div class="rv-foot"><button class="ppill blush js-sel-go" type="button" disabled></button></div>`;
+      const grid = $('.sel-grid', vSelect);
+      const els = cells.map(({ c, i }) => {
+        const t = document.createElement('button');
+        t.type = 'button'; t.className = 'sel-cell'; t.dataset.i = i;
+        const m = mediaEl(c); t.appendChild(m);
+        if (i % 3 === 1 && m.tagName === 'IMG') m.style.objectPosition = `${30 + (i * 13) % 50}% ${20 + (i * 17) % 60}%`;
+        t.insertAdjacentHTML('beforeend', `<span class="selmark">${icon('i-circle')}</span>`);
+        t.setAttribute('aria-pressed', 'false');
+        t.setAttribute('aria-label', `${c.label}, not selected`);
+        grid.appendChild(t);
+        return t;
+      });
+      const sync = () => {
+        $('.js-sel-title', vSelect).textContent = `${picked.size} selected`;
+        const go = $('.js-sel-go', vSelect);
+        go.disabled = picked.size === 0;
+        go.textContent = picked.size ? `Review ${picked.size} photo${picked.size === 1 ? '' : 's'}` : 'Select photos to review';
+        els.forEach((t, i) => {
+          const on = picked.has(i);
+          t.classList.toggle('on', on);
+          t.setAttribute('aria-pressed', String(on));
+          t.setAttribute('aria-label', `${cells[i].c.label}, ${on ? 'selected' : 'not selected'}`);
+          $('.selmark', t).innerHTML = icon(on ? 'i-checkcircle' : 'i-circle');
+        });
+      };
+      let dragMode = null, lastHit = -1, dpid = null;
+      const hit = e => { const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('.sel-cell'); return el && grid.contains(el) ? +el.dataset.i : -1; };
+      const apply = i => { if (i < 0 || i === lastHit) return; lastHit = i; dragMode === 'add' ? picked.add(i) : picked.delete(i); navigator.vibrate?.(3); sync(); };
+      grid.addEventListener('pointerdown', e => {
+        const i = hit(e); if (i < 0 || e.button > 0) return;
+        dpid = e.pointerId; dragMode = picked.has(i) ? 'remove' : 'add'; lastHit = -1;
+        apply(i);
+      });
+      grid.addEventListener('pointermove', e => { if (e.pointerId === dpid) apply(hit(e)); });
+      const up = e => { if (e.pointerId === dpid) { dpid = null; dragMode = null; } };
+      grid.addEventListener('pointerup', up); grid.addEventListener('pointercancel', up);
+      grid.addEventListener('keydown', e => {
+        if (e.key !== ' ' && e.key !== 'Enter') return;
+        const t = e.target.closest('.sel-cell'); if (!t) return;
+        e.preventDefault(); const i = +t.dataset.i; picked.has(i) ? picked.delete(i) : picked.add(i); sync();
+      });
+      $('.js-sel-all', vSelect).addEventListener('click', () => { els.forEach((_, i) => picked.add(i)); sync(); });
+      $('.js-sel-clear', vSelect).addEventListener('click', () => { picked.clear(); sync(); });
+      $('.js-sel-back', vSelect).addEventListener('click', () => show('swipe'));
+      $('.js-sel-go', vSelect).addEventListener('click', () => openReview([...picked].map(i => cells[i].c), 'select'));
+      sync(); show('select');
+    }
+
     /* Review (ReviewView) */
-    function openReview() {
-      const marked = decisions.filter(d => d.side < 0).map(d => DECK[d.k]);
+    function openReview(marked, from) {
       if (!marked.length) return;
+      reviewFrom = from;
       reviewKept = new Set();
       vReview.innerHTML = `
         <div class="rv-top">
-          <button class="ibtn glass js-rv-back" type="button" aria-label="Back to swiping">${icon('i-back')}</button>
+          <button class="ibtn glass js-rv-back" type="button" aria-label="Back">${icon('i-back')}</button>
           <div class="ttl"><b class="js-rv-title"></b><small>Tap a photo to keep it instead.</small></div>
         </div>
         <div class="rv-grid glass"></div>
@@ -457,36 +552,37 @@
           <button class="ppill blush js-rv-del" type="button"></button>
         </div>`;
       const grid = $('.rv-grid', vReview);
-      marked.forEach(c => {
+      const uniq = [...new Map(marked.map(c => [c.id, c])).values()];
+      uniq.forEach(c => {
         const t = document.createElement('button');
         t.type = 'button';
         t.className = 'rv-tile' + (c.blurry ? ' blurry' : '');
         t.appendChild(mediaEl(c));
-        t.insertAdjacentHTML('beforeend', `<span class="badge glass" style="color:var(--del)">${icon('i-x')}</span>`);
+        t.insertAdjacentHTML('beforeend', `<span class="badge glass" style="color:var(--del)">${icon('i-trashf')}</span>`);
         t.setAttribute('aria-label', `${c.label}, marked for deletion. Tap to keep.`);
         t.addEventListener('click', () => {
           const kept = !reviewKept.has(c.id);
           kept ? reviewKept.add(c.id) : reviewKept.delete(c.id);
           t.classList.toggle('kept', kept);
-          $('.badge', t).innerHTML = icon(kept ? 'i-check' : 'i-x');
+          $('.badge', t).innerHTML = icon(kept ? 'i-heart' : 'i-trashf');
           $('.badge', t).style.color = kept ? 'var(--keep)' : 'var(--del)';
           t.setAttribute('aria-label', `${c.label}, ${kept ? 'kept' : 'marked for deletion'}.`);
           sync();
         });
         grid.appendChild(t);
       });
-      const rows = Math.ceil(marked.length / 3);
+      const rows = Math.ceil(uniq.length / 3);
       const tile = (361 - 20 - 16) / 3;
       $('.rv-note', vReview).style.top = `${140 + 20 + rows * tile + (rows - 1) * 8 + 16}px`;
       const sync = () => {
-        const n = marked.length - reviewKept.size;
+        const n = uniq.length - reviewKept.size;
         $('.js-rv-title', vReview).textContent = `${n} to delete`;
         $('.js-rv-del', vReview).textContent = n ? `Delete ${n} photo${n === 1 ? '' : 's'}` : 'Back to Albums';
       };
       sync();
-      $('.js-rv-back', vReview).addEventListener('click', () => show('swipe'));
+      $('.js-rv-back', vReview).addEventListener('click', () => show(reviewFrom));
       $('.js-rv-del', vReview).addEventListener('click', () => {
-        const toDelete = marked.filter(c => !reviewKept.has(c.id));
+        const toDelete = uniq.filter(c => !reviewKept.has(c.id));
         if (!toDelete.length) { reset(); return; }
         openDone(toDelete);
       });
@@ -526,7 +622,7 @@
         bodies[index].drag = true;
       }
       const b = bodies[index];
-      b.x = dx; b.v = 0;
+      b.dx = dx; b.vx = 0;
       samples.push({ t: e.timeStamp, x: dx });
       while (samples.length > 2 && e.timeStamp - samples[0].t > 100) samples.shift();
       draw();
@@ -538,33 +634,50 @@
       const b = bodies[index]; b.drag = false;
       const f = samples[0], l = samples[samples.length - 1];
       const vel = l.t > f.t ? (l.x - f.x) / ((l.t - f.t) / 1000) : 0;
-      const far = Math.abs(b.x) > W * 0.3;
-      const flick = Math.abs(vel) > 900 && Math.abs(b.x) > 30 && (vel > 0) === (b.x > 0);
-      if (far || flick) { b.v = vel; commit(b.x < 0 ? -1 : 1); }
-      else { b.v = vel; b.tx = 0; kick(); }
+      const far = Math.abs(b.dx) > W * 0.3;
+      const flick = Math.abs(vel) > 900 && Math.abs(b.dx) > 30 && (vel > 0) === (b.dx > 0);
+      b.vx = vel;
+      if (far || flick) commit(b.dx < 0 ? -1 : 1);
+      else { b.tdx = 0; kick(); }
     };
     carousel.addEventListener('pointerup', end);
     carousel.addEventListener('pointercancel', end);
 
+    /* Dot scrubber: drag along the dots to turn the ring; tap a dot to jump. */
+    let dpid = null;
+    const dotIndex = e => {
+      const r = dotsEl.getBoundingClientRect(), s = scaleOf(screen);
+      return Math.round((e.clientX - (r.left + r.width / 2)) / s / PITCH + (N - 1) / 2);
+    };
+    dotsEl.addEventListener('pointerdown', e => { if (e.button > 0) return; dpid = e.pointerId; dotsEl.setPointerCapture(dpid); stopHint(); scrubTo(Math.min(N - 1, Math.max(0, dotIndex(e)))); });
+    dotsEl.addEventListener('pointermove', e => { if (e.pointerId === dpid) scrubTo(Math.min(N - 1, Math.max(0, dotIndex(e)))); });
+    const dend = e => { if (e.pointerId === dpid) dpid = null; };
+    dotsEl.addEventListener('pointerup', dend); dotsEl.addEventListener('pointercancel', dend);
+    dotsEl.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { scrubTo(Math.min(N - 1, index + 1)); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { scrubTo(Math.max(0, index - 1)); e.preventDefault(); }
+    });
+
     delBtn.addEventListener('click', () => { stopHint(); commit(-1); });
     keepBtn.addEventListener('click', () => { stopHint(); commit(1); });
     undoBtn.addEventListener('click', () => { stopHint(); undo(); });
-    reviewBtn.addEventListener('click', () => { stopHint(); openReview(); });
+    reviewBtn.addEventListener('click', () => { stopHint(); openReview(markedCards(), 'swipe'); });
+    $('.js-select', screen).addEventListener('click', openSelect);
     $('.js-restart', screen).addEventListener('click', () => { stopHint(); reset(); });
 
-    /* Gentle hint: the card leans left, then right, until the visitor touches it. */
+    /* Gentle hint: the front card leans left, then right, until the visitor touches it. */
     let hintTimers = [], hintRuns = 0;
     function hint() {
       if (interacted || reduce || view !== 'swipe' || index >= N || busy || hintRuns >= 2) return;
       hintRuns++;
       const b = bodies[index];
       const seq = [[0, -64], [700, 0], [1300, 64], [2000, 0]];
-      seq.forEach(([t, x]) => hintTimers.push(setTimeout(() => { if (!interacted && !b.drag) { b.tx = x; kick(); } }, t)));
+      seq.forEach(([t, x]) => hintTimers.push(setTimeout(() => { if (!interacted && !b.drag) { b.tdx = x; kick(); } }, t)));
       hintTimers.push(setTimeout(hint, 7000));
     }
-    function stopHint() { interacted = true; hintTimers.forEach(clearTimeout); hintTimers = []; const b = bodies[index]; if (b && !b.drag && !pending) { b.tx = 0; kick(); } }
+    function stopHint() { interacted = true; hintTimers.forEach(clearTimeout); hintTimers = []; const b = bodies[index]; if (b && !b.drag && !pending) { b.tdx = 0; kick(); } }
 
-    layout('reset');
+    snapAll(); chrome();
     return {
       startHint: () => hintTimers.push(setTimeout(hint, 1400)),
       key(e) {
@@ -590,6 +703,7 @@
   const demoScreen = $('#demoScreen');
   const demo = SwipeDemo(demoScreen, { onPhoto: setGlow, live: $('#demoLive') });
   demo.startHint();
+  ['storySwipe', 'stepSwipe', 'fanSwipe'].forEach(id => { const el = document.getElementById(id); if (el) SwipeDemo(el, {}); });
 
   let heroVisible = true;
   new IntersectionObserver(([en]) => { heroVisible = en.intersectionRatio > 0.4; }, { threshold: [0, 0.4, 1] }).observe($('#demoPhone'));
