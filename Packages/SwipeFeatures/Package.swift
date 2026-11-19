@@ -6,7 +6,8 @@ let package = Package(
     products: [.library(name: "SwipeFeatures", targets: ["SwipeFeatures"])],
     dependencies: [.package(path: "../SwipeUI"), .package(path: "../SwipeCore")],
     targets: [
-        .target(name: "SwipeFeatures", dependencies: [.product(name: "SwipeUI", package: "SwipeUI"), .product(name: "SwipeCore", package: "SwipeCore")]),
+        .target(name: "SwipeFeatures", dependencies: [.product(name: "SwipeUI", package: "SwipeUI"), .product(name: "SwipeCore", package: "SwipeCore")],
+                resources: [.copy("Legal")]),
         .testTarget(name: "SwipeFeaturesTests", dependencies: ["SwipeFeatures"]),
     ]
 )

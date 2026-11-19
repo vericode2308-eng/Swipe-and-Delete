@@ -13,6 +13,7 @@ import UIKit
         thumbnails: loader,
         images: loader,
         media: loader,
+        links: AppLinks(supportEmail: "support@vericodestudio.com"),
         scanner: CleanupScanner(library: PhotoKitLibrary(), analyzer: VisionPhotoAnalyzer(),
                                 store: .standard(), shouldPause: {
             // Low Power Mode or a hot phone: wait instead of draining the battery.

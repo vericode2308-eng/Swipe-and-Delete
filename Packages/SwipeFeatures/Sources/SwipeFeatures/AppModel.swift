@@ -33,8 +33,11 @@ public struct AppLinks: Sendable {
     public var privacyPolicy: URL?
     public var termsOfUse: URL?
     public var rateOnAppStore: URL?
-    public init(privacyPolicy: URL? = nil, termsOfUse: URL? = nil, rateOnAppStore: URL? = nil) {
+    public var supportEmail: String?
+    public init(privacyPolicy: URL? = nil, termsOfUse: URL? = nil, rateOnAppStore: URL? = nil,
+                supportEmail: String? = nil) {
         self.privacyPolicy = privacyPolicy; self.termsOfUse = termsOfUse; self.rateOnAppStore = rateOnAppStore
+        self.supportEmail = supportEmail
     }
 }
 
@@ -119,6 +122,8 @@ public final class AppModel {
 
     private let library: PhotoLibrary
     private let openSettings: @MainActor () -> Void
+    /// Opens this app's page in iOS Settings (the Photo Access row).
+    public func openPhotoSettings() { openSettings() }
     private let presentLimitedPicker: @MainActor () -> Void
 
     public init(library: PhotoLibrary,

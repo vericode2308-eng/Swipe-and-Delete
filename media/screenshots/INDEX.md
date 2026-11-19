@@ -29,9 +29,9 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 | 03-select-grid-light.png | Multi-select grid, Change 37 build (881bddc + chip removal) | 2026-11-19 | iPhone 17 simulator (1206x2622) |
 | 04-review-ios-prompt-dark.png | Stage 6 (Review with the real iOS delete prompt) | 2026-11-18 | iPhone 18 Pro simulator |
 | 05-albums-quick-cleanup-dark.png | Albums with Quick clean-up panel, Change 37 build (881bddc + chip removal) | 2026-11-19 | iPhone 17 simulator (1206x2622) |
-| 07-settings-dark.png | Settings, Change 37 build (881bddc + chip removal) | 2026-11-19 | iPhone 17 simulator (1206x2622) |
-| 07-settings-light.png | Settings, Change 37 build (881bddc + chip removal) | 2026-11-19 | iPhone 17 simulator (1206x2622) |
+| 07-settings-about-dark.png | Settings scrolled to the About rows (Photo Access, Contact Support, Privacy Policy, Terms of Use), Change 38 build | 2026-11-19 | iPhone 17 simulator |
+| 07-settings-about-light.png | Settings scrolled to the About rows, Change 38 build | 2026-11-19 | iPhone 17 simulator |
 | 09-albums-ax5.png | Albums at AX5 Dynamic Type, dark, Change 37 build (881bddc + chip removal) | 2026-11-19 | iPhone 17 simulator (1206x2622) |
 | 08-video-fullscreen-playing.png | Stage 8: full-screen video playing (not re-checked against current build) | 2026-11-18 | iPhone 18 Pro simulator |
 
-Still to recapture: swipe end card, video card (removed as outdated; need a Done state and a video in the simulator library). Note: the photos in the simulator library include earlier app screenshots, so the card inside the ring shows a nested app screen.
+Still to recapture: Settings top (cleared-so-far card) in both looks, the in-app legal reader, swipe end card, video card (removed as outdated; need a Done state and a video in the simulator library). Note: the photos in the simulator library include earlier app screenshots, so the card inside the ring shows a nested app screen.

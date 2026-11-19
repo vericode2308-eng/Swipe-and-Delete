@@ -10,6 +10,7 @@ struct SettingsView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.dismiss) private var dismiss
+    @State private var legal: LegalDocument?
 
     var body: some View {
         let t = Theme.resolve(scheme)
@@ -19,9 +20,7 @@ struct SettingsView: View {
                 clearedCard(t)
                 section("Lighter Pro", t) { planRows(t) }
                 section("Appearance", t) { appearancePicker(t) }
-                if hasAboutRows {
-                    section("About", t) { aboutRows(t) }
-                }
+                section("About", t) { aboutRows(t) }
                 if !model.appVersion.isEmpty {
                     Text("Lighter \(model.appVersion)").font(.footnote)
                         .foregroundStyle(Color(hex: t.textSecondary))
@@ -33,6 +32,9 @@ struct SettingsView: View {
         .scrollBounceBehavior(.basedOnSize)
         .appCanvas()
         .onAppear { model.dismissPaywallMessage() }
+        .sheet(item: $legal) { doc in
+            LegalView(document: doc, onlineURL: doc.title == "Privacy Policy" ? model.links.privacyPolicy : model.links.termsOfUse)
+        }
         .presentationDetents([.large])
         .presentationBackground(.clear)
     }
@@ -124,20 +126,37 @@ struct SettingsView: View {
         }
     }
 
-    private var hasAboutRows: Bool {
-        model.links.rateOnAppStore != nil || model.links.privacyPolicy != nil || model.links.termsOfUse != nil
+    @ViewBuilder private func aboutRows(_ t: Theme) -> some View {
+        Button { model.openPhotoSettings() } label: {
+            HStack {
+                Text("Photo Access"); Spacer()
+                Image(systemName: "arrow.up.right").font(.footnote.weight(.semibold))
+            }
+            .foregroundStyle(Color(hex: t.text))
+            .padding(.horizontal, 16).padding(.vertical, 8).frame(minHeight: 52)
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Opens this app's page in iOS Settings")
+        if let url = model.links.rateOnAppStore { divider(t); link("Rate on the App Store", url, t) }
+        if let email = model.links.supportEmail, let url = URL(string: "mailto:\(email)") {
+            divider(t); link("Contact Support", url, t)
+        }
+        divider(t)
+        legalRow("Privacy Policy", t) { legal = .privacy }
+        divider(t)
+        legalRow("Terms of Use", t) { legal = .terms }
     }
 
-    @ViewBuilder private func aboutRows(_ t: Theme) -> some View {
-        let rows: [(String, URL)] = [
-            ("Rate on the App Store", model.links.rateOnAppStore),
-            ("Privacy Policy", model.links.privacyPolicy),
-            ("Terms of Use", model.links.termsOfUse),
-        ].compactMap { title, url in url.map { (title, $0) } }
-        ForEach(Array(rows.enumerated()), id: \.offset) { i, r in
-            if i > 0 { divider(t) }
-            link(r.0, r.1, t)
+    private func legalRow(_ title: String, _ t: Theme, _ open: @escaping () -> Void) -> some View {
+        Button(action: open) {
+            HStack {
+                Text(title); Spacer()
+                Image(systemName: "chevron.right").font(.footnote.weight(.semibold))
+            }
+            .foregroundStyle(Color(hex: t.text))
+            .padding(.horizontal, 16).padding(.vertical, 8).frame(minHeight: 52)
         }
+        .buttonStyle(.plain)
     }
 
     // MARK: Appearance
