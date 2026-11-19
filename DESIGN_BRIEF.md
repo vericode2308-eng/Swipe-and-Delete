@@ -88,7 +88,7 @@ Dawn values were corrected on 2026-11-18 after a contrast check (see
     2 pt progress hairline under the row; the count grows as results arrive.
     Reduce Motion: no animated hairline, text only.
   - Nothing found: "None found", dimmed, not a button.
-- Glass filter chips: All / Smart Albums / My Albums.
+- ~~Glass filter chips: All / Smart Albums / My Albums.~~ Removed 2026-11-19 (owner: not working); Albums shows one list.
 - Two-column grid of album tiles (radius 22) with a glass caption bar: name and
   count. Empty albums hidden.
 - Limited access → a glass row "Limited access · Manage selection".

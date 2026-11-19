@@ -2,12 +2,6 @@ import SwiftUI
 import SwipeCore
 import SwipeUI
 
-extension AlbumFilter {
-    var title: String {
-        switch self { case .all: "All"; case .smart: "Smart Albums"; case .mine: "My Albums" }
-    }
-}
-
 public struct AlbumsView: View {
     let model: AppModel
     @Environment(\.colorScheme) private var scheme
@@ -23,7 +17,6 @@ public struct AlbumsView: View {
                 header(t)
                 if model.status == .limited { limitedRow(t) }
                 if model.cleanupEnabled { QuickCleanupPanel(model: model) }
-                chips(t)
                 content(t)
             }
             .padding(.horizontal, 20)
@@ -71,33 +64,6 @@ public struct AlbumsView: View {
         .accessibilityLabel("Limited access. Manage selection")
     }
 
-    private func chips(_ t: Theme) -> some View {
-        let all = ForEach(AlbumFilter.allCases, id: \.self) { f in
-            let on = model.filter == f
-            Button { model.filter = f } label: {
-                Text(f.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color(hex: on ? t.pillText : t.text))
-                    .padding(.horizontal, 16).frame(minHeight: 44)
-                    .background { if on { Capsule().fill(Color(hex: t.pillFill)) } }
-                    .glassIf(!on, in: Capsule())
-            }
-            .buttonStyle(.plain)
-            .accessibilityAddTraits(on ? .isSelected : [])
-        }
-        return Group {
-            if typeSize.isAccessibilitySize {
-                // Big text: stacked, so no chip is cut off at the screen edge.
-                VStack(alignment: .leading, spacing: 8) { all }
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) { all }.padding(.vertical, 2)
-                }
-                .scrollClipDisabled()
-            }
-        }
-    }
-
     @ViewBuilder private func content(_ t: Theme) -> some View {
         let albums = model.visibleAlbums
         if !model.hasLoadedAlbums {
@@ -120,12 +86,6 @@ public struct AlbumsView: View {
                 }
             }
         }
-    }
-}
-
-private extension View {
-    @ViewBuilder func glassIf<S: InsettableShape>(_ on: Bool, in shape: S) -> some View {
-        if on { glass(in: shape) } else { self }
     }
 }
 
