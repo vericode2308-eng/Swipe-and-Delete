@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "landing-page-design/styles.css"
+        ],
+        "createdAt": "2026-11-19T12:47:57.777Z",
+        "reason": "landing-page-design skill (invoked by user) rule B5 mandates a left-to-right gradient on the hero heading text only"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "landing-page-design/index.html"
+        ],
+        "createdAt": "2026-11-19T12:49:41.734Z",
+        "reason": "landing-page-design skill (invoked by user) rule B5 mandates a left-to-right gradient on the hero heading text only"
+      }
+    ]
+  }
+}

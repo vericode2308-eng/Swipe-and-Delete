@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lighter: Swipe Photo Cleaner for iPhone</title>
+<meta name="description" content="Clear your iPhone camera roll one swipe at a time. Swipe left to delete, right to keep, and check everything before it goes. No subscription. Your photos never leave your iPhone.">
+<meta name="theme-color" content="#1A1F29" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EEF1F6" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lighter: Swipe Photo Cleaner">
+<meta property="og:description" content="Swipe left to delete, right to keep. A calm, beautiful way to clear your camera roll. No subscription.">
+<meta property="og:image" content="assets/03-swipe-dark.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23262E3B'/%3E%3Ctext x='33' y='47' font-family='Georgia,serif' font-style='italic' font-size='42' text-anchor='middle' fill='%23F4F6FA'%3EL%3C/text%3E%3Ccircle cx='48' cy='18' r='5' fill='%23A9DCCD'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="preload" as="image" href="assets/photo-flowers.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Does Lighter ever delete a photo without asking?", "acceptedAnswer": {"@type": "Answer", "text": "No. You swipe every photo yourself, the Review screen shows everything you marked, and iOS asks you once before anything is deleted."}},
+    {"@type": "Question", "name": "Can I get a deleted photo back?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Deleted photos go to Recently Deleted in the Photos app and stay there for 30 days."}},
+    {"@type": "Question", "name": "Do my photos leave my iPhone?", "acceptedAnswer": {"@type": "Answer", "text": "No. Lighter never uploads anything. There is no account, no server and no analytics."}},
+    {"@type": "Question", "name": "What does the free plan include?", "acceptedAnswer": {"@type": "Answer", "text": "Swiping, keeping, reviewing and Quick clean-up are unlimited. You can delete up to 50 photos a day, and the count resets at midnight."}},
+    {"@type": "Question", "name": "How much is Lighter Pro?", "acceptedAnswer": {"@type": "Answer", "text": "Lighter Pro is a single $4.99 purchase, shown in your local currency. It removes the daily limit. There is no subscription."}}
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Icon sprite (drawn for this page; stroke icons in one consistent 24 px set) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></symbol>
+    <symbol id="i-dup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 4H7a3 3 0 00-3 3v9"/></symbol>
+    <symbol id="i-page" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.8 7L4 20l1.1-4.6A8 8 0 1121 12z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
+    <symbol id="i-noacct" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6M3 3l18 18"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10 18.5h4"/></symbol>
+    <symbol id="i-eyeoff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 5.1A9.6 9.6 0 0112 5c6 0 9.5 7 9.5 7a16 16 0 01-3 3.8M6.4 6.4C3.9 8.1 2.5 12 2.5 12s3.5 7 9.5 7a9 9 0 004.3-1.1M9.9 9.9a3 3 0 004.2 4.2"/></symbol>
+    <symbol id="i-get" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 7.5v8M8.5 12.5l3.5 3.5 3.5-3.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9.7 9.7 0 00-6.7 2.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-signal" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.3A10.6 10.6 0 008 .4 10.6 10.6 0 00.5 3.4l1.2 1.3A8.9 8.9 0 018 2.2zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.2-1.3A7.2 7.2 0 008 4a7.2 7.2 0 00-4.9 1.9l1.2 1.3c1-.9 2.3-1.4 3.7-1.4zM8 9.4c-.6 0-1.1.2-1.5.6L8 11.6l1.5-1.6c-.4-.4-.9-.6-1.5-.6z"/></symbol>
+    <symbol id="i-batt" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2" fill="currentColor"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" fill="currentColor" opacity=".4"/></symbol>
+  </defs>
+</svg>
+
+<div class="ambient" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<!-- Fluid island nav -->
+<div class="nav-shell">
+  <nav class="island glass" aria-label="Main">
+    <a class="wordmark" href="#top" aria-label="Lighter, back to top">Lighter</a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#cleanup">Quick clean-up</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a class="btn btn-primary nav-cta" href="#download">Get Lighter</a>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </nav>
+</div>
+<div class="menu" id="menu" aria-hidden="true">
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#cleanup">Quick clean-up</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#download">Get Lighter</a></li>
+  </ul>
+</div>
+
+<main id="main">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="photo-glow" aria-hidden="true" id="photoGlow"></div>
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow glass rise"><span class="dot"></span>Photo cleaner for iPhone</span>
+      <h1 class="h1 rise d1" id="hero-title">Clear your camera roll,<br><em>one swipe</em> at a time.</h1>
+      <p class="hero-sub rise d2">Lighter shows your photos one by one. Swipe left to delete, right to keep, then check every choice before anything goes.</p>
+      <div class="rise d3">
+        <a class="btn btn-primary" data-store href="#download">
+          <svg class="store-ico" aria-hidden="true"><use href="#i-get"/></svg>
+          <span class="two-line"><small data-store-small>Download on the</small><span data-store-big>App Store</span></span>
+        </a>
+      </div>
+      <ul class="proof rise d4" aria-label="Key facts">
+        <li class="glass"><svg aria-hidden="true"><use href="#i-check"/></svg>No subscription</li>
+        <li class="glass"><svg aria-hidden="true"><use href="#i-lock"/></svg>Photos stay on your iPhone</li>
+        <li class="glass"><svg aria-hidden="true"><use href="#i-clock"/></svg>Free: 50 deletions a day</li>
+      </ul>
+    </div>
+
+    <div class="hero-stage rise d5">
+      <div class="phone" id="demoPhone">
+        <div class="display">
+          <div class="island-cam"></div>
+          <!-- Filled by app.js: a working copy of the Swipe → Review → Done loop -->
+          <div class="screen" id="demoScreen" role="group" aria-roledescription="interactive demo" aria-label="Try Lighter: swipe the photo left to delete or right to keep" tabindex="0"></div>
+        </div>
+      </div>
+      <p class="demo-hint" id="demoHint">
+        <span>Drag the photo. Left deletes, right keeps.</span>
+        <span class="kbd-only" aria-hidden="true"><span class="kbd glass">←</span> <span class="kbd glass">→</span></span>
+      </p>
+      <p class="sr-only" aria-live="polite" id="demoLive"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAGLINE REVEAL ============ -->
+<section class="tagline" aria-label="What Lighter is for">
+  <div class="wrap">
+    <p id="tagline">Every photo gets one honest look. <span data-t="del">Left</span> lets it go. <span data-t="kp">Right</span> keeps it close. Nothing leaves until <em>you</em> say so.</p>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="how" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow glass"><span class="dot"></span>How it works</span>
+      <h2 class="h2" id="how-title">Four steps. No learning curve.</h2>
+      <p class="lead">One gesture does all the work. Every screen below is the real app.</p>
+    </div>
+    <div class="story">
+      <div class="story-phone" aria-hidden="true">
+        <div class="phone" id="storyPhone">
+          <div class="display">
+            <div class="island-cam"></div>
+            <img class="shot on" data-step="0" src="assets/02-albums-dark.webp" alt="">
+            <picture><source srcset="assets/03-swipe-light.webp" media="(prefers-color-scheme: light)"><img class="shot" data-step="1" src="assets/03-swipe-dark.webp" alt=""></picture>
+            <img class="shot" data-step="2" src="assets/04-review-ios-prompt-dark.webp" alt="">
+            <div class="screen" data-step="3" id="storyDone"></div>
+          </div>
+        </div>
+      </div>
+      <ol class="steps">
+        <li class="step active" data-step="0">
+          <div class="step-card glass reveal">
+            <span class="step-n glass">1</span>
+            <h3>Pick an album</h3>
+            <p>Recents, Screenshots, Videos, Selfies, Favourites or any album you made. Every album opens at its first photo.</p>
+            <div class="phone"><div class="display"><div class="island-cam"></div><img class="shot" src="assets/02-albums-dark.webp" alt="Lighter's Albums screen with filter chips and a Recents album tile" loading="lazy"></div></div>
+          </div>
+        </li>
+        <li class="step" data-step="1">
+          <div class="step-card glass reveal">
+            <span class="step-n glass">2</span>
+            <h3>Swipe left or right</h3>
+            <p>Left marks a photo for deletion. Right keeps it. The last photo peeks in from the side, so one tap undoes a decision.</p>
+            <div class="phone"><div class="display"><div class="island-cam"></div><picture><source srcset="assets/03-swipe-light.webp" media="(prefers-color-scheme: light)"><img class="shot" src="assets/03-swipe-dark.webp" alt="The Swipe screen: a flower photo with Delete, Undo and Keep buttons" loading="lazy"></picture></div></div>
+          </div>
+        </li>
+        <li class="step" data-step="2">
+          <div class="step-card glass reveal">
+            <span class="step-n glass">3</span>
+            <h3>Check before anything goes</h3>
+            <p>Review shows every photo you marked. Tap one to keep it after all. Then iOS asks you once, and the photos move to Recently Deleted for 30 days.</p>
+            <div class="phone"><div class="display"><div class="island-cam"></div><img class="shot" src="assets/04-review-ios-prompt-dark.webp" alt="The Review screen with the iOS prompt asking to delete 2 photos" loading="lazy"></div></div>
+          </div>
+        </li>
+        <li class="step" data-step="3">
+          <div class="step-card glass reveal">
+            <span class="step-n glass">4</span>
+            <h3>See the space you cleared</h3>
+            <p>A short celebration counts up the space you freed and how many photos you reviewed, kept and deleted.</p>
+            <p class="fine">Example numbers. Space returns once Recently Deleted empties.</p>
+            <div class="phone"><div class="display"><div class="island-cam"></div><div class="screen" id="stepDone"></div></div></div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUICK CLEAN-UP ============ -->
+<section class="cleanup" id="cleanup" aria-labelledby="cu-title">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="section-head" style="margin-bottom:0">
+        <span class="eyebrow glass"><span class="dot"></span>Quick clean-up</span>
+        <h2 class="h2" id="cu-title">The clutter you forgot about, found for you.</h2>
+        <p class="lead">Lighter looks through your library on your iPhone and gathers the easy wins. You still swipe each one.</p>
+      </div>
+      <ul class="cu-points">
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Duplicates.</b> Exact copies, plus almost identical shots taken within a minute of each other.</span></li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Pages and things.</b> Notes, receipts and accidental shots with no people in them.</span></li>
+        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Saved from WhatsApp.</b> Everything WhatsApp saved to your camera roll, in one place.</span></li>
+      </ul>
+    </div>
+    <div class="cu-panel-wrap reveal r1">
+      <div class="cu-panel-head"><b>Quick clean-up</b><span>Found on this iPhone</span></div>
+      <div class="cu-panel glass" id="cuPanel">
+        <div class="cu-row">
+          <span class="cu-ico mist"><svg aria-hidden="true"><use href="#i-dup"/></svg></span>
+          <span><b>Duplicates</b><small data-detail="Same or near-identical shots">Same or near-identical shots</small></span>
+          <span class="cu-count" data-to="86" data-suffix=" in 31 sets">86 in 31 sets</span>
+          <svg aria-hidden="true"><use href="#i-next"/></svg>
+          <span class="cu-bar"><i></i></span>
+        </div>
+        <div class="cu-row">
+          <span class="cu-ico blush"><svg aria-hidden="true"><use href="#i-page"/></svg></span>
+          <span><b>Pages &amp; Things</b><small data-detail="Notes, documents, no people">Notes, documents, no people</small></span>
+          <span class="cu-count" data-to="212">212</span>
+          <svg aria-hidden="true"><use href="#i-next"/></svg>
+          <span class="cu-bar"><i></i></span>
+        </div>
+        <div class="cu-row">
+          <span class="cu-ico sage"><svg aria-hidden="true"><use href="#i-chat"/></svg></span>
+          <span><b>From WhatsApp</b><small>Saved from your chats</small></span>
+          <span class="cu-count">1,480</span>
+          <svg aria-hidden="true"><use href="#i-next"/></svg>
+        </div>
+      </div>
+      <p class="fine" style="padding:0 8px">Example library of 4,812 photos. The scan uses Apple Vision on your iPhone, only while Lighter is open. Nothing is ever deleted automatically.</p>
+      <button class="btn btn-glass glass cu-replay" type="button" id="cuReplay">Run the scan again</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRIVACY ============ -->
+<section class="privacy" id="privacy" aria-labelledby="pv-title">
+  <div class="wrap">
+    <div class="privacy-card glass reveal">
+      <div class="lock-orbit" aria-hidden="true"></div>
+      <div class="section-head" style="margin-bottom:0">
+        <span class="eyebrow glass"><span class="dot"></span>Private by design</span>
+        <h2 class="h2" id="pv-title">Your photos never leave this iPhone.</h2>
+        <p class="lead">Lighter works entirely on your phone. There is nothing to sign up for and nothing watching what you do.</p>
+      </div>
+      <div class="facts">
+        <div class="fact glass reveal r1"><svg aria-hidden="true"><use href="#i-noacct"/></svg><b>No account</b><p>Open the app and start swiping. No email, no password, no sign in.</p></div>
+        <div class="fact glass reveal r2"><svg aria-hidden="true"><use href="#i-phone"/></svg><b>No uploads</b><p>Photos are read and scanned on the device. Lighter has no server to send them to.</p></div>
+        <div class="fact glass reveal r3"><svg aria-hidden="true"><use href="#i-eyeoff"/></svg><b>No tracking</b><p>No analytics, no ads, no third party trackers. What you keep is your business.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="pricing" id="pricing" aria-labelledby="pr-title">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <span class="eyebrow glass"><span class="dot"></span>Pricing</span>
+      <h2 class="h2" id="pr-title">Free to use. Pay once if you want more.</h2>
+      <p class="lead">No subscription, no trial that turns into a bill.</p>
+    </div>
+    <div class="plans">
+      <article class="plan glass reveal r1" aria-labelledby="plan-free">
+        <span class="tag glass" id="plan-free">Free</span>
+        <div class="price"><b>$0</b><span>forever</span></div>
+        <ul>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Swipe, keep and review as much as you like</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Quick clean-up on your whole library</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Up to 50 deletions a day, reset at midnight</span></li>
+        </ul>
+      </article>
+      <article class="plan pro glass reveal r2" aria-labelledby="plan-pro">
+        <span class="tag glass" id="plan-pro">Lighter Pro</span>
+        <div class="price"><b>$4.99</b><span>paid once</span></div>
+        <ul>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Unlimited deletions, every day</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Everything in Free stays the same</span></li>
+          <li><svg aria-hidden="true"><use href="#i-restore"/></svg><span>Restore Purchases at any time</span></li>
+        </ul>
+      </article>
+    </div>
+    <p class="fine plans-note reveal">Price shown in US dollars; the App Store shows it in your local currency. You only see the Pro offer when you try to delete more than today's free allowance.</p>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <span class="eyebrow glass"><span class="dot"></span>Questions</span>
+      <h2 class="h2" id="faq-title">Good questions, plain answers.</h2>
+    </div>
+    <div class="faq-list">
+      <details class="glass reveal"><summary>Does Lighter ever delete a photo without asking?<span class="pm" aria-hidden="true"></span></summary><p class="ans">No. You swipe every photo yourself, the Review screen shows everything you marked, and iOS asks you once before anything is deleted. Quick clean-up only finds photos; you still swipe each one.</p></details>
+      <details class="glass reveal"><summary>Can I get a deleted photo back?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Yes. Deleted photos go to Recently Deleted in the Photos app and stay there for 30 days. With iCloud Photos on, they are removed from your other devices too.</p></details>
+      <details class="glass reveal"><summary>Do my photos leave my iPhone?<span class="pm" aria-hidden="true"></span></summary><p class="ans">No. Lighter never uploads anything. There is no account, no server and no analytics. The clean-up scan runs on the iPhone using small local thumbnails.</p></details>
+      <details class="glass reveal"><summary>Why didn't my free storage go up straight away?<span class="pm" aria-hidden="true"></span></summary><p class="ans">iOS keeps deleted photos in Recently Deleted for 30 days. The space comes back once that album is emptied, either by you or automatically.</p></details>
+      <details class="glass reveal"><summary>What does the free plan include?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Swiping, keeping, reviewing and Quick clean-up are unlimited. You can delete up to 50 photos a day, and the count resets at midnight.</p></details>
+      <details class="glass reveal"><summary>How much is Lighter Pro?<span class="pm" aria-hidden="true"></span></summary><p class="ans">A single $4.99 purchase, shown in your local currency. It removes the daily limit. There is no subscription, and Restore Purchases is always in Settings.</p></details>
+      <details class="glass reveal"><summary>Does Lighter remember where I stopped?<span class="pm" aria-hidden="true"></span></summary><p class="ans">No, on purpose. Every album starts from its first photo, so there is no hidden history of what you kept.</p></details>
+      <details class="glass reveal"><summary>Which iPhones does it work on?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Any iPhone running iOS 18 or later. Lighter follows your light or dark appearance, supports VoiceOver and scales with large text.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final" id="download" aria-labelledby="final-title">
+  <div class="wrap">
+    <span class="eyebrow glass reveal"><span class="dot"></span>Ready when you are</span>
+    <h2 class="h2 reveal" id="final-title" style="max-width:680px">Make your camera roll lighter.</h2>
+    <p class="lead reveal">Free to download. Your first 50 deletions start today.</p>
+    <div class="reveal">
+      <a class="btn btn-primary" data-store href="#download">
+        <svg class="store-ico" aria-hidden="true"><use href="#i-get"/></svg>
+        <span class="two-line"><small data-store-small>Download on the</small><span data-store-big>App Store</span></span>
+      </a>
+    </div>
+    <div class="fan" id="fan" aria-hidden="true">
+      <div class="phone p0"><div class="display"><div class="island-cam"></div><picture><source srcset="assets/01-welcome-undetermined-light.webp" media="(prefers-color-scheme: light)"><img class="shot" src="assets/01-welcome-undetermined-dark.webp" alt="" loading="lazy"></picture></div></div>
+      <div class="phone p1"><div class="display"><div class="island-cam"></div><picture><source srcset="assets/03-swipe-light.webp" media="(prefers-color-scheme: light)"><img class="shot" src="assets/03-swipe-dark.webp" alt="" loading="lazy"></picture></div></div>
+      <div class="phone p2"><div class="display"><div class="island-cam"></div><img class="shot" src="assets/02-albums-dark.webp" alt="" loading="lazy"></div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="wordmark" href="#top">Lighter</a>
+    <nav aria-label="Legal">
+      <ul>
+        <li><a href="../legal/PRIVACY_POLICY.md">Privacy Policy</a></li>
+        <li><a href="../legal/TERMS_OF_USE.md">Terms of Use</a></li>
+        <li><a href="mailto:support@vericodestudio.com">Support</a></li>
+      </ul>
+    </nav>
+    <small>© 2026 VeriCode. iPhone and App Store are trademarks of Apple Inc. WhatsApp is a trademark of WhatsApp LLC. Lighter is not affiliated with either.</small>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
