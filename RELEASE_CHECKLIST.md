@@ -18,7 +18,7 @@
 ## Owner steps (not doable from here)
 1. No "Apple Distribution" certificate is on this Mac (only Apple Development and Developer ID). Create it in Xcode > Settings > Accounts > Manage Certificates, or let automatic signing do it on Archive.
 2. Create the app in App Store Connect (bundle ID `com.vericodestudio.lighter`) and the non-consumable `com.vericodestudio.lighter.pro`.
-3. Supply: support email, privacy policy URL, App Store link (Rate and Privacy rows stay hidden until then).
+3. Supply: support email, privacy policy URL, App Store link (Rate and Privacy rows stay hidden until then). Also host `legal/LICENSES.md` (font licence) with the other legal pages, and confirm `OFL.txt` is in the built app.
 4. Confirm the 3 MB average-photo assumption behind "room for about N photos".
 5. Product > Archive (Release, device) > Distribute > App Store Connect > Upload. Wait for processing.
 6. Add an internal TestFlight group, install on a real iPhone.
