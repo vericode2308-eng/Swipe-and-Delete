@@ -58,7 +58,7 @@ Dawn values were corrected on 2026-11-18 after a contrast check (see
   fill for the scheme, an edge stroke, a top-highlight gradient stroke and the
   shadow. Falls back to solid under Reduce Transparency.
 - Tokens live in one `Theme` with light/dark variants. Bundle Cormorant
-  Garamond (SIL OFL; list it in Acknowledgements).
+  Garamond (SIL OFL; licence file stays in the bundle; no Acknowledgements row, D-27).
 - `#Preview`s for every component in light, dark and AX3.
 
 ## 2. Screens
@@ -74,7 +74,7 @@ Dawn values were corrected on 2026-11-18 after a contrast check (see
 - Denied or restricted → the pill reads **Open Settings**, with one line on why.
 
 ### 2. Albums
-- Colour-field backdrop. Serif title "Albums" and an ⓘ glass button (About).
+- Colour-field backdrop. Serif title "Albums" and a gear glass button (Settings).
 - **Quick clean-up** (D-18): serif heading, small caption "Found on this
   iPhone", then one large glass panel with three rows (58 pt high, radius 18):
   round tinted icon · name · one-line detail · count · chevron.
@@ -171,10 +171,21 @@ skips to the end.
 - Reduce Motion: final state with a 0.3 s fade, plus the haptic.
 - Sparkles cover the whole screen layer, never clipped to a container.
 
-### 7. About (sheet from Albums ⓘ — R-14)
-- Pro status ("Pro · thank you" or "Free · 50 deletions a day").
-- Rows: Unlock Pro (free only), Restore Purchases, Rate on the App Store,
-  Privacy Policy, Acknowledgements (Cormorant Garamond, SIL OFL), version.
+### 7. Settings (sheet from the Albums gear — R-14, D-24)
+- Large sheet, glass over the canvas. Serif title "Settings" and a Done button
+  (44 pt minimum). Section titles are headings, left-aligned, in secondary text.
+- **Cleared so far** card (D-26): big serif size ("1.2 GB"), "from 312 photos and
+  videos since you started.", "Room for about N more photos", footnote "Space
+  returns once Recently Deleted empties." Empty state: "Nothing yet" and "Your
+  total appears here after your first delete." If PhotoKit gave no sizes, show
+  the photo count only.
+- **Lighter Pro**: status ("Lighter Pro · unlimited deletions" or "Free · 50
+  deletions a day"), Unlock Pro (free only,
+  real price or "Price unavailable"), Restore Purchases, plain result message.
+- **Appearance** (D-25): three choices, System / Light / Dark, as a custom
+  control (stacks at accessibility sizes), selected one has a checkmark.
+- **About**: Rate on the App Store, Privacy Policy, Terms of Use; each row shows
+  only when its link exists. Then "Lighter <version>".
 
 ## 3. Accessibility (every screen, as it is built)
 - Every action has a button. VoiceOver custom actions on the card: Delete,

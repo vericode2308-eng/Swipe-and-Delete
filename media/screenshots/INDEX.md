@@ -18,23 +18,19 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 
 | File | Build / commit | Date | Device |
 |---|---|---|---|
-| 01-welcome-undetermined-dark.png / -light.png | Change 42 build (721f8ba + uncommitted Swipe work) | 2026-11-19 | iPhone 17 simulator |
-| 01-welcome-denied-dark.png / -light.png | same | 2026-11-19 | iPhone 17 simulator |
-| 02-albums-dark.png / -light.png | same; the Quick clean-up panel is part of this screen ("None found" for 16 photos) | 2026-11-19 | iPhone 17 simulator |
-| 02-about-dark.png / -light.png | same; About sheet with Photo Access, Contact Support, Privacy, Terms | 2026-11-19 | iPhone 17 simulator |
-| 03-swipe-dark.png / -light.png | same; ring carousel, dot pill, Select, Review chip | 2026-11-19 | iPhone 17 simulator |
-| 04-review-dark.png | same; Review with 1 photo marked | 2026-11-19 | iPhone 17 simulator |
-| 04-review-ios-prompt-dark.png | same; the real iOS delete prompt (answered "Don't Allow", nothing deleted) | 2026-11-19 | iPhone 17 simulator |
-| 09-albums-ax5.png | same; Albums at accessibility-extra-extra-extra-large | 2026-11-19 | iPhone 17 simulator |
-| 10-privacy-policy-dark.png | same; Privacy Policy read in the app (top) | 2026-11-19 | iPhone 17 simulator |
-| 11-terms-of-use-dark.png | same; Terms of Use read in the app (top) | 2026-11-19 | iPhone 17 simulator |
-
-## Not recaptured (may be out of date; recapture before App Store use)
-- 03-swipe-end-dark.png (end card, 2026-11-18)
-- 07-swipe-video-card.png, 08-video-fullscreen-playing.png (video, 2026-11-18)
-- Missing: paywall, Done screen, light looks of Review, Privacy and Terms.
-
-## Notes
-- The simulator library holds earlier screenshots of the app, so some swipe cards show a picture of the app. Use a clean library of real photos for the App Store images.
-- The swipe shots include the uncommitted ring-carousel work from another session; its card edges are clipped at the top and bottom.
-- `simctl io screenshot` cannot overwrite some existing files ("Operation not permitted"); write to a temp file and copy.
+| 01-welcome-undetermined-dark.png | Stage 3 (Welcome, undetermined) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-undetermined-light.png | Stage 3 (Welcome, undetermined) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-denied-dark.png | Stage 3 (Welcome, denied) | 2026-11-18 | iPhone 18 Pro simulator |
+| 01-welcome-denied-light.png | Stage 3 (Welcome, denied) | 2026-11-18 | iPhone 18 Pro simulator |
+| 02-albums-dark.png | Stage 4 (Albums) | 2026-11-18 | iPhone 18 Pro simulator |
+| 02-about-dark.png | OUTDATED: About sheet replaced by Settings (D-24), recapture needed. Stage 4 | 2026-11-18 | iPhone 18 Pro simulator |
+| 02-about-light.png | OUTDATED: About sheet replaced by Settings (D-24), recapture needed. Stage 4 | 2026-11-18 | iPhone 18 Pro simulator |
+| 03-swipe-dark.png | Stage 5 (Swipe) | 2026-11-18 | iPhone 18 Pro simulator |
+| 03-swipe-light.png | Stage 5 (Swipe) | 2026-11-18 | iPhone 18 Pro simulator |
+| 03-swipe-end-dark.png | Stage 5 (end card) | 2026-11-18 | iPhone 18 Pro simulator |
+| 04-review-ios-prompt-dark.png | Stage 6 (Review with the real iOS delete prompt) | 2026-11-18 | iPhone 18 Pro simulator |
+- 05-albums-quick-cleanup-dark.png — Stage 6b: Quick clean-up panel, simulator (6 photos, scan finished, none found)
+- 06-about-pro-rows-dark.png — Stage 7: About sheet with Pro rows, simulator without a store file ("Price unavailable", Unlock disabled)
+- 07-swipe-video-card.png — Stage 8: video card with play button and "VIDEO · 0:10" (simulator)
+- 08-video-fullscreen-playing.png — Stage 8: full-screen video playing (two screenshots 2 s apart differed)
+- 09-albums-ax5.png — Stage 9: Albums at accessibility-extra-extra-extra-large Dynamic Type; titles wrap, filter chips stack (simulator)

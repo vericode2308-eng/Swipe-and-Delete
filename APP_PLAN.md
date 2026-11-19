@@ -22,7 +22,7 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 |---|---|
 | R-01 | Ask for Photos access. Support full, limited (with "Manage selection") and denied (with "Open Settings"). |
 | R-02 | List albums: All Photos, Screenshots, Videos, Selfies, Favourites and the user's own albums, each with a cover and a count. Hide empty albums. |
-| R-03 | Opening an album always starts at its first item (newest first, changed 2026-11-18; was oldest first). Nothing from an earlier visit is remembered. |
+| R-03 | Opening an album always starts at its first item (oldest first). Nothing from an earlier visit is remembered. |
 | R-04 | Swipe left = mark for deletion. Swipe right = keep. Buttons do the same. |
 | R-05 | One Undo reverses the last decision, repeatedly back to the first item. |
 | R-06 | Album chips on the Swipe screen switch album and start from item 1. Switching discards current marks after a confirm ("Discard 9 marks?") if any exist (owner confirmed, D-23). |
@@ -33,8 +33,8 @@ Design canvas: https://claude.ai/artifact/Jn3jbGXcMaqwmxhM4HLq5z
 | R-11 | Free plan: up to **50 deletions per calendar day** (device's local time). Swiping, keeping and reviewing are always unlimited. |
 | R-12 | Pro: one-time purchase (**$4.99**, StoreKit 2, non-consumable) removes the daily limit. Restore Purchases is always available. |
 | R-13 | Paywall appears only when the user taps Delete with more marked than today's allowance left. It offers **Unlock Pro** and **Delete N now**, where N = deletions left today (50 on a fresh day; the first N marked, in order). The marks left over are dropped, not kept for tomorrow (D-22). Never on launch. |
-| R-14 | About sheet (from an ⓘ button on Albums): Pro status, Restore Purchases, Photo Access (opens iOS Settings), Rate on the App Store *(hidden until the link exists)*, Contact Support *(mail to the support address)*, **Privacy Policy and Terms of Use read inside the app, offline (D-27)**, Acknowledgements. |
-| R-15 | Light and dark looks that follow the iPhone's appearance setting. |
+| R-14 | Settings sheet (from a gear button on Albums; replaces the About sheet, D-24): space cleared so far (D-26), Pro status, Unlock Pro, Restore Purchases, Appearance (D-25), Rate on the App Store, Privacy Policy, Terms of Use, version. |
+| R-15 | Light and dark looks. They follow the iPhone's appearance setting unless the user picks Light or Dark in Settings (D-25). |
 | R-16 | Full VoiceOver, Dynamic Type up to AX5, Reduce Motion and Reduce Transparency support. |
 | R-17 | The app never uploads anything. No account, no server, no analytics. |
 | R-18 | **Quick clean-up** section at the top of Albums with three filters. Each opens the normal swipe flow (nothing is ever deleted automatically). Free for everyone, whole library (D-19). |
@@ -50,16 +50,16 @@ Adding any of these needs a new dated row in the decision log first.
 - Whole-library storage totals ("you could free 8 GB"). The clean-up scan
   finds photos; it does not report storage. *(Duplicate detection was a
   non-goal until D-18.)*
-- Automatic deletion. *(Superseded by D-24: the user may now pick many photos in a
-  grid; nothing is ever deleted without the Review screen and the iOS prompt.)*
+- Automatic deletion or "select all and delete" from a filter: every photo
+  is still swiped.
 - Telling forwarded WhatsApp photos from received ones (not possible).
 - Filters beyond the three in R-18 (blurry-only, people, places, large
   videos…) unless a new decision adds them.
-- Statistics or history beyond the Done screen of the current delete.
+- Statistics or history beyond the Done screen and the single "cleared so far" total in Settings (D-26): no charts, per-album history or streaks.
 - Video compression, editing, sharing, cloud backup.
 - Accounts, sign-in, sync, analytics, ads.
 - Subscriptions.
-- A Settings screen (the About sheet covers the required items).
+- Settings beyond the rows in R-14 (no notifications, haptics toggle, accounts or data export).
 
 ## Failure paths
 
@@ -81,7 +81,7 @@ Adding any of these needs a new dated row in the decision log first.
 | No duplicates / no matches found | Row says "None found" and is not a button. |
 
 ## Owner questions still open
-- URLs for the privacy, terms and support web pages (to be built with the VeriCode website; the owner will say when) and the App Store link for Rate. The in-app Privacy Policy and Terms already work without them. *(Support email, publisher name and governing law answered by D-27.)*
+- Support email address and the URL for privacy, terms and support pages.
 - Apple team ID for `project.yml`.
 
 ## Decision log
@@ -103,7 +103,7 @@ Adding any of these needs a new dated row in the decision log first.
 | D-13 | 2026-11-18 | Name "Swipe & Delete"; bundle ID `com.vericodestudio.swipeanddelete` (widget `.widgets`, tests `.tests`, IAP `.pro`). | Superseded by D-17 |
 | D-14 | 2026-11-18 | Keep pill-shaped (capsule) main buttons. Exception to the standing rule "buttons are rounded rectangles". | Active |
 | D-15 | 2026-11-18 | Add a light look alongside Dusk, following the system appearance. | Active |
-| D-16 | 2026-11-18 | Add an About sheet for Restore, Rate, Privacy and Acknowledgements (required by the standing rules once Pro exists). Not a Settings screen. Owner confirmed. | Active |
+| D-16 | 2026-11-18 | Add an About sheet for Restore, Rate, Privacy and Acknowledgements (required by the standing rules once Pro exists). Not a Settings screen. Owner confirmed. | Superseded by D-24 |
 | D-17 | 2026-11-18 | App name **Lighter**; App Store title "Lighter: Swipe Photo Cleaner". Reason: at least 6 App Store apps already use "Swipe & Delete", one exactly "Swipe & Delete - Photo Cleaner". Bundle ID `com.vericodestudio.lighter` confirmed by the owner (not yet registered). | Active |
 | D-18 | 2026-11-18 | Add **Quick clean-up** filters: Duplicates, Pages & Things (no people: pages, notes, documents, accidental shots), From WhatsApp. They open the same swipe flow. Reverses the non-goal "duplicate or similar-photo detection". | Active |
 | D-19 | 2026-11-18 | The filters are free for everyone on the whole library. Pro still only removes the 50-a-day deletion limit. | Active |
@@ -111,7 +111,7 @@ Adding any of these needs a new dated row in the decision log first.
 | D-21 | 2026-11-18 | The scan's results (per-photo labels and image fingerprints, not swipe progress) are kept on the iPhone so the scan does not repeat on every launch. D-02 still holds: swiping always starts from item 1. Owner confirmed ("Keep d21"). | Active |
 | D-22 | 2026-11-18 | After **Delete N now** on the paywall, the marks beyond N are dropped, not kept for the next day (keeps D-02: nothing is remembered). | Active |
 | D-23 | 2026-11-18 | Confirmed: switching album with marks asks "Discard 9 marks?" first (R-06). | Active |
-| D-24 | 2026-11-18 | Add **Select** on the swipe screen: a grid of the open album where the user taps many photos (or Select all) and goes to Review. Owner request (150 screenshots). Supersedes the non-goal "select all and delete". Still ends in Review and the one iOS prompt; free-plan limit unchanged. | Active |
-| D-25 | 2026-11-18 | Add a **filmstrip** under the swipe controls: small thumbnails that turn in 3D; sliding it browses quickly. Photos slid past are **kept** (owner: "1 kept"), the swiping continues from the photo where it stops, and sliding back undoes those decisions. Owner request. Not a "Skip"/"Later" choice. | Active |
-| D-26 | 2026-11-19 | Upgrade the swipe-screen carousel to a Cover Flow **ring** (several cards each side, progressive turn / depth / fade; dots become a pill; tap a dot to jump; haptic when the ring settles). Ring turns only via the dot scrubber; dragging the photo still means Delete / Keep. **No wrap-around** in Swipe (album stays finite). Owner chose these three options. | Active |
-| D-27 | 2026-11-19 | Owner asked for Privacy, Terms "etc" in the settings page. The About sheet *is* that page (no separate Settings screen; the non-goal stands). It now has **Privacy Policy and Terms of Use read in the app** (bundled text, works offline), **Photo Access**, **Contact Support**; Rate stays hidden until the App Store link exists. Publisher **VeriCode**, support **support@vericodestudio.com**, governing law **India**: taken from the owner's VeriCode website records. Legal text corrected against the code the same day (see MASTER Change 42). Website and its legal pages come later, when the owner says. | Active |
+| D-24 | 2026-11-19 | Owner asked for a proper Settings page. It replaces the About sheet (gear button on Albums) and holds Pro and Restore, Appearance, "cleared so far", and legal and support links. Photo-access status was offered and not chosen. | Active |
+| D-25 | 2026-11-19 | Appearance setting: System (default), Light or Dark. Stored on the device (`settings.appearance`). Changes R-15. | Active |
+| D-26 | 2026-11-19 | Settings shows the total space and number of photos cleared since install, to motivate. Counted only after iOS confirms a delete; stored on the device (`stats.bytes`, `stats.deleted`). Narrows the non-goal on statistics. D-02 still holds: swipe progress is never remembered. | Active |
+| D-27 | 2026-11-19 | Owner asked to remove Acknowledgements. The row and text are gone from the app. The font's licence file (`App/Resources/Fonts/OFL.txt`) stays in the bundle. Open owner question: the OFL asks that its copyright notice and licence travel with the font; confirm this is enough. | Active |

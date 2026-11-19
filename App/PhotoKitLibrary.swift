@@ -37,9 +37,9 @@ struct PhotoKitLibrary: PhotoLibrary {
     func assets(in album: Album) async -> [Asset] {
         guard let collection = PHAssetCollection.fetchAssetCollections(
             withLocalIdentifiers: [album.id], options: nil).firstObject else { return [] }
-        let newestFirst = PHFetchOptions()
-        newestFirst.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        let found = PHAsset.fetchAssets(in: collection, options: newestFirst)
+        let oldestFirst = PHFetchOptions()
+        oldestFirst.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+        let found = PHAsset.fetchAssets(in: collection, options: oldestFirst)
         var out: [Asset] = []
         out.reserveCapacity(found.count)
         found.enumerateObjects { a, _, _ in

@@ -12,7 +12,7 @@ public struct AlbumsView: View {
     let model: AppModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var typeSize
-    @State private var showsAbout = false
+    @State private var showsSettings = false
 
     public init(model: AppModel) { self.model = model }
 
@@ -32,7 +32,7 @@ public struct AlbumsView: View {
         .scrollBounceBehavior(.basedOnSize)
         .appCanvas()
         .task { await model.loadAlbums(); model.startScan() }
-        .sheet(isPresented: $showsAbout) { AboutSheet(model: model) }
+        .sheet(isPresented: $showsSettings) { SettingsView(model: model) }
     }
 
     private func header(_ t: Theme) -> some View {
@@ -40,14 +40,14 @@ public struct AlbumsView: View {
             Text("Albums").font(.display(44)).foregroundStyle(Color(hex: t.text))
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: 12)
-            Button { showsAbout = true } label: {
-                Image(systemName: "info")
+            Button { showsSettings = true } label: {
+                Image(systemName: "gearshape")
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(Color(hex: t.text))
                     .frame(width: 44, height: 44)
                     .glass(in: Circle())
             }
-            .accessibilityLabel("About Lighter")
+            .accessibilityLabel("Settings")
         }
         .padding(.top, 8)
     }

@@ -372,7 +372,6 @@ Working branch: `claude/sweet-gauss-20esu8`
 | M-14 | 2026-11-18 | Card drag gesture never fired (no commit) while buttons worked | Claude (simulator test) | Gesture moved to the carousel container | Drive every gesture in the simulator before calling it done; a button working proves nothing about the drag |
 
 | M-15 | 2026-11-18 | Plan for Stage 6 UI test assumed the simulator was mine alone; another app (COLREGs) kept coming to the front during the iOS prompt | Claude (simulator test) | Reported the gap instead of claiming it | Use a dedicated simulator for destructive tests |
-| M-16 | 2026-11-19 | Told the owner there was no settings page; the About sheet (R-14) already is one, and I had only searched for "Settings" in the Swift code | Claude (while reading the plan) | Corrected in the same session; Privacy, Terms, Photo Access, Support added to About | Search the plan docs and UI entry points by purpose, not only by the word the owner used |
 
 ## Owner decisions
 See the decision log in `APP_PLAN.md` (D-01 onwards).
@@ -418,78 +417,15 @@ Checked closed / half-open / open poses on the iPhone Duo simulator. Fixed: (1) 
 ## Change 31 — Re-check after the Duo pass; Quick clean-up width
 Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simulator: Albums (light), Albums in dark at the largest accessibility size, Welcome in dark at normal and largest sizes — nothing clipped, grid keeps 2 columns, panel no longer stretches. Not verified: Swipe, Review, Done and Paywall on the SE or at AX5 (no tap access to the simulator panel); scrolling Welcome at AX5 now that the hero art sits behind the scroll view; Dawn at AX5 on the other screens; the open-pose Duo panel width after the cap.
 
-## Change 32 — Newest-first albums; clearer Delete / Keep cues
-- **Why (owner report 2026-11-18):** Recents opened on old photos, not the latest; the ✕ / ✓ icons did not say which side deletes.
-- **What:** albums now open newest first (`PhotoKitLibrary.assets(in:)`; R-03 in APP_PLAN updated, old rule superseded). Swipe screen: dock buttons are labelled ("Delete" with trash on red, "Keep" with heart on green), a line above them reads "Swipe left to delete / Swipe right to keep" with arrows, the drag tag and the peek-card badge use trash / heart instead of ✕ / ✓.
-- **Verified:** SwipeCore 48 and SwipeFeatures 41 tests pass; app builds for the iOS Simulator.
-- **Not verified:** how it looks on a simulator or device (not run); Dawn look; AX5 and iPhone SE layout of the new dock; the Review screen still uses ✓ / ✕ on tiles; screenshots in media/screenshots are now out of date for Swipe.
+## Change 32 — Settings page replaces About; Acknowledgements removed
+- **What:** `SettingsView` (was `AboutSheet`), opened from a gear on Albums. Sections: **Cleared so far** (lifetime space and photo count, "Room for about N more photos"), **Lighter Pro** (status, Unlock, Restore), **Appearance** (System / Light / Dark, custom control that stacks at AX sizes), **About** (Rate, Privacy Policy, Terms of Use; each hidden until its link exists; version). Acknowledgements row and text removed. New in core: `LifetimeStats` + store, `AppearanceSetting` + store. `AppModel` records totals only after iOS confirms a delete; `RootView` applies `preferredColorScheme`. `AppLinks` gained `termsOfUse`.
+- **Decisions (APP_PLAN):** D-24 Settings replaces About (supersedes D-16), D-25 Appearance, D-26 cleared-so-far total, D-27 Acknowledgements removed. Docs updated: APP_PLAN (R-14, R-15, non-goals), DESIGN_BRIEF (section 7, font note), BUILD_PLAN, ASO_PLAN, privacy policy (two new stored items).
+- **Verified:** nothing run. This Linux container has no Swift toolchain, so the code was not compiled and the new tests (`LifetimeStatsTests`, `SettingsTests`) were not run. Docs were checked against the code by reading.
+- **Not verified:** build; unit tests; the Settings layout in Dusk and Dawn; AX5; VoiceOver; that the appearance override reaches the sheet; physical device. `media/screenshots` 02-about-* are marked OUTDATED and must be recaptured as Settings screenshots.
+- **Open owner questions:** (1) Terms and Rate URLs are still not supplied, so those rows stay hidden. (2) D-27: the OFL asks that the font's copyright and licence travel with it. `OFL.txt` stays in the bundle, but confirm that is enough without an in-app notice. (3) Lifetime totals count only deletes made after this build, so existing testers start at zero.
+- **Follow-up (D-27):** added `legal/LICENSES.md` (Cormorant copyright notice + full OFL text, copied from `OFL.txt`). It must be hosted at a public URL with the other legal pages. Not verified: that `OFL.txt` lands in the built `.app` (check after the next build); legal review not done.
 
-## Change 33 — Select many photos at once (D-24)
-- **Why (owner, 2026-11-18):** 150 screenshots to delete; swiping one by one is too slow.
-- **What:** "Select" button on the swipe screen opens `SelectView`, a grid of the open album: tap tiles (red tint + tick), "Select all" / "Clear", "Review N photos" sends the picks to the normal Review screen, so the single iOS prompt and the 50-a-day free limit still apply. Marks already made by swiping start selected. Non-goal "select all and delete" superseded by D-24.
-- **Verified:** SwipeFeatures tests pass; builds; installed on the owner's iPhone (Reftyy).
-- **Not verified:** how the grid looks or behaves (not run); performance with thousands of photos; AX5 / SE / Dawn / VoiceOver; no new unit test for the grid (logic reuses `SwipeSession.mark/unmark`).
-
-## Change 34 — Select grid: smooth scroll, drag-to-select, exact taps
-- **Why (owner, from a screen recording, 2026-11-18):** scrolling felt stuck; no Photos-style drag to select; tapping the bottom of a photo selected the one below.
-- **Cause / fix:** (1) one big glass card behind the whole grid and every tile re-drawing on each pick → plain grid, each tile is an `Equatable` view that only sees its own state. (2) Tiles were Buttons whose scaled-to-fill image could overflow the cell, so touches landed on a neighbour → fixed-size cells and taps resolved by arithmetic on the touch position (one tile per touch point, no overlap). (3) Added a sideways swipe that selects (or deselects, depending on the first tile touched) every tile it passes, including fast moves; mostly-vertical drags still scroll.
-- **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
-- **Not verified:** nothing seen running (the simulator run did not reach the grid, the recording was not played back), so smoothness, drag-select and tap accuracy are untested; no auto-scroll while dragging near the screen edge; AX5 / SE / VoiceOver.
-
-## Change 35 — Select grid: edge auto-scroll; Back cancels
-- **Why (owner, 2026-11-18):** drag-select needed to scroll near the edge; going Back left the picks marked, so they reappeared on return.
-- **What:** while a drag-select is active, a finger within 80 pt of the top or bottom scrolls the grid (faster nearer the edge) and keeps selecting the tiles it passes. Back now discards the picks; only "Review N photos" writes them to the session's marks.
-- **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
-- **Not verified:** nothing seen running, so scroll speed, the drag range while scrolling and Back-cancel are untested on screen.
-
-## Change 36 — Next photo slides in from the right
-- **Why (owner, 2026-11-18):** after a swipe the new photo seemed to come from the left, where the deleted one just left, though the next photo is already visible on the right.
-- **What:** the new current card's insertion transition starts at the next-card position (right) instead of a full screen to the left; the old right-hand preview is removed without a fade so there is no double image.
-- **Verified:** SwipeFeatures 41 tests pass; builds; installed on Reftyy. **Not verified:** the animation itself was not watched (device or simulator); Reduce Motion path unchanged (fade).
-
-## Change 37 — Filmstrip: slide to browse with a 3D turn (D-25)
-- **Why (owner, 2026-11-18):** wants to slide through the next photos quickly, not swipe one by one; answered: slid-past photos are kept, continue from where it stops, 3D rotation feel.
-- **What:** a strip of 54×72 pt thumbnails under the Delete / Undo / Keep dock. It is centred on the current photo, snaps loosely (a flick can carry through many photos), and each thumbnail turns around the vertical axis and scales by its distance from the centre. Sliding forward calls `keep()` for every photo passed; sliding back calls `undo()` (so a deleted photo passed on the way back loses its mark). The strip follows swipes and the dock buttons. Photos marked for deletion carry a small trash badge. Hidden from VoiceOver (Delete / Keep actions remain on the card).
-- **Verified:** SwipeFeatures 41 tests pass; app builds; installed on Reftyy.
-- **Not verified:** nothing seen running: the 3D direction and amount, snap feel, loops between the strip and the card, performance with thousands of photos, Reduce Motion, SE / AX5 / Dawn, filter sessions (Duplicates). No unit test for the strip.
-
-## Change 38 — Dot scrubber + 3D carousel (revises Change 37 / D-25)
-- **What:** Owner said the thumbnail strip was not what they meant. Replaced it with a row of small dots above the bottom edge (centre dot big, others shrink/fade; marked photos are red). Sliding the dots moves through photos; the main photos now sit on a 3D carousel (each card turned about the vertical axis) and rotate round as the dots move. Passing keeps photos, sliding back undoes (unchanged).
-- **Files:** `SwipeView.swift`.
-- **Verified:** SwipeFeatures tests (41) pass; device build and install on Reftyy.
-- **Not verified:** nothing seen running. Tilt direction/strength, snap feel, many-photo performance, Reduce Motion (carousel rotation off while scrubbing), AX sizes.
-
-## Change 39 — Slimmer dock and smaller date caption
-- **What:** Owner wanted more photo on screen. Dock is now one row of 48 pt buttons (icon beside label), hint line removed (swipe cues remain on the card); date caption on the photo shrunk (footnote text, tighter box); gap between sections 14→10.
-- **Files:** `SwipeView.swift`.
-- **Verified:** SwipeFeatures tests pass; device build and install.
-- **Not verified:** not seen running; AX sizes and iPhone SE layout.
-
-## Change 40 — Neighbour card no longer covers the photo's corner
-- **What:** Owner's screenshot showed the current photo's bottom-right cut off. Cause (my reading of the screenshot, not reproduced): the 3D-tilted next card's near edge grew with perspective and overlapped it. Fix: current card drawn on top (zIndex), tilt 40°→32°, perspective 0.5→0.2.
-- **Files:** `SwipeView.swift`.
-- **Verified:** tests pass; device build and install.
-- **Not verified:** not seen on screen; whether the cut-off is fully gone, and the look of the tilt.
-
-## Change 41 — Cover Flow ring carousel (D-26)
-- **What:** owner pasted a React Native "3D ring carousel" spec; this app is SwiftUI, so it was translated. New `CoverFlowRing` (pure geometry, configurable: tilt per card, cap, perspective, scale/opacity falloff, drop, spacing, visible count). The swipe carousel now draws 2 cards each side, each turned, shrunk, dropped and faded by its distance from the centre, all moving together as the dot scrubber turns the ring. The active dot stretches into a pill; tapping a dot jumps there; a selection haptic fires when scrubbing settles. Reduce Motion: tilt off. Drag on the photo is unchanged (Delete / Keep). Wrap-around left out on purpose (finite album).
-- **Files:** `CoverFlowRing.swift`, `SwipeView.swift`, `CoverFlowRingTests.swift`; `APP_PLAN.md` D-26.
-- **Verified:** SwipeFeatures tests pass (46, incl. 5 new ring-geometry tests).
-- **Not verified:** nothing seen running (no simulator or device pass): look and balance of the ring, overlap with the current photo (cf. Change 40), pill animation, tap-to-jump, haptic, 60/120 FPS and memory with 5 live cards, Reduce Motion, SE / AX sizes. Spec items not done: press-and-drag *position-mapped* scrubbing (dots still scroll under the finger), infinite loop, flick-across-many-photos is the scroll view's own momentum, not custom physics.
-
-## Change 42 — Privacy, Terms and more in the About sheet; legal text checked against the code (D-27)
-- **Why (owner, 2026-11-19):** "add privacy and terms etc in the page"; then "check the legal documents thoroughly". I had first said there was no settings page; the About sheet (R-14) is that page.
-- **What:** About now has Photo Access (opens iOS Settings), Contact Support (mail), Privacy Policy and Terms of Use (read in the app, offline, new `LegalView`; text in `LegalDocument.swift`), Acknowledgements. Rate and web-link rows stay hidden until those links exist. `AppLinks` gained `termsOfUse`, `supportEmail`, `developerName`, `jurisdiction`; the app passes VeriCode / support@vericodestudio.com / India (from the owner's website records). A detail the owner has not supplied is left out of the text, never shown as a placeholder.
-- **Legal check against the code — what was wrong and is fixed (in `LegalDocument.swift` and `legal/*.md`):** (1) the policy named only "a fingerprint and a quality score"; the cache also holds dates, a has-people flag, an is-page flag and Vision's feature print; (2) it said scan results are "never sent off your device", but the file is in Application Support and can be in device backups: now stated; (3) it listed "screenshots" and "similar photos" as clean-up finds; the scanner skips screenshots and videos and finds duplicates and pages and things; (4) WhatsApp is a shortcut to the user's album, not a suggestion; (5) analysis never downloads from iCloud, viewing may; now stated; (6) the daily limit counts any deleted item, so "items (photos or videos)"; (7) "last updated" moved to 19 November 2026.
-- **Files:** `LegalDocument.swift`, `LegalView.swift`, `AboutSheet.swift`, `AppModel.swift`, `App/LighterApp.swift`, `LegalTests.swift` (5 tests), `legal/*.md`, `APP_PLAN.md`, `RELEASE_CHECKLIST.md`, `media/screenshots/` (02-about both looks recaptured; 06 old About shot removed; 10, 11 added).
-- **Verified:** SwipeFeatures 51 tests pass (incl. no placeholders, supplied details appear, limit matches `DeletionAllowance.dailyFree`); app builds; on the iPhone 17 simulator the About sheet (light and dark), Privacy Policy (top and bottom, Contact line) and Terms of Use (top) opened and read correctly.
-- **Not verified:** physical device; AX5, iPhone SE, VoiceOver and Reduce Motion on the new screens; the Photo Access and Contact Support rows (they open iOS Settings and Mail; not tapped); the rest of the Terms text on screen; Dawn look. The "Done" button floats over the text when the policy is scrolled. **The legal text is a good-faith draft written from the code, not reviewed by a lawyer.** Open points for the owner: add an in-app Rate row once the App Store link exists; decide whether to exclude the scan cache from backups (then the backup sentence can go); the web versions of both documents come with the website.
-
-**Screenshots refreshed (2026-11-19, owner: "update the screenshots"):** Welcome (4), Albums (2), About (2), Swipe (2), Review, iOS delete prompt, Albums AX5, Privacy, Terms recaptured on the iPhone 17 simulator; the old Quick clean-up shot was removed (Albums shows the panel). **Not recaptured:** swipe end card, the two video shots, and no paywall/Done shot exists. See `media/screenshots/INDEX.md`. The swipe shots show the other session's uncommitted ring carousel with clipped card edges.
-
-## Change 43 — Swipe carousel: flat front-facing photos, bigger centre, dimmed background (supersedes the tilt in Change 41)
-- **Why (owner, 2026-11-19):** reference video IMG_1032.MOV (Cover Flow). Owner: photos must not bend or tilt while sliding, every photo faces front and the ring just slides; centre photo bigger and background photos smaller; front and background photos must read as different photos without a border; dots above the Delete/Undo/Keep bar, bar lower so the photo gets more height.
-- **What:** tilt and perspective removed from `CoverFlowRing` (no rotation, no drop). Centre card 86% of the width (was 66%); neighbours tuck at 0.62 of the card width and shrink faster (scale 0.74 first neighbour, floor 0.5). New `dim` and `shadow` in the pose: photos behind are darkened (up to 0.4) and slightly desaturated; the front photo casts a soft shadow onto them. Dot scrubber moved above the dock; stack spacing 6 pt. Reduce Motion special-case for tilt removed (nothing tilts any more).
-- **Files:** `CoverFlowRing.swift`, `SwipeView.swift`, `CoverFlowRingTests.swift`.
-- **Verified:** SwipeFeatures tests pass (46); built and run on the iPhone 18 Pro simulator (still frames: flat cards, dimmed neighbours, dots above the bar); installed on the owner's iPhone 17 Pro "Reftyy".
-- **Not verified:** motion while dragging/scrubbing (only still frames seen), feel on the physical device, Reduce Motion, iPhone SE, AX sizes, iPhone Duo. **Swipe screenshots in `media/screenshots/` are now out of date and were not recaptured.** Only the first neighbour per side is visible at this card width.
+## Change 33 — Legal documents re-checked against the app
+- **What:** compared `PRIVACY_POLICY.md` and `TERMS_OF_USE.md` with the code. Fixed three mismatches: (1) both said Quick clean-up finds "similar photos" and screenshots; it finds **duplicates** and **Pages & Things** (screenshots and videos are never scanned) and has a WhatsApp album shortcut; (2) the cache description now lists what is really stored (identifier, dates, people/document flags, quality score, image hash and feature print); (3) iCloud wording now covers videos and says the scan uses only on-device thumbnails and skips iCloud-only photos. Terms now mention the Settings running total and use Apple's correct EULA name.
+- **Checked and already correct:** 50 free deletions a day resetting at local midnight; one-time Pro with Restore; no network calls or third-party SDKs in the source; UserDefaults keys (`allowance.*`, `review.*`, `stats.*`, `settings.appearance`) and `cleanup-v1.bin`; Recently Deleted 30 days; Photos permission text; privacy manifest (no tracking, no collected data).
+- **Verified:** read against the source. **Not verified:** nothing run; legal review not done; the five placeholders (developer name, support email twice, governing law) are still the owner's to fill; the App Store privacy label must be re-checked to match.

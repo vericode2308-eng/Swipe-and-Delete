@@ -93,7 +93,7 @@ considered; no screenshot with a StoreKit "price unavailable" state.
 
 ## Review prompt
 See `BUILD_PLAN.md` → ReviewPromptPolicy. A permanent "Rate on the App Store"
-row lives in the About sheet.
+row lives in the Settings sheet.
 
 ## Claims never to make
 "Official", "frees space instantly" (space returns after Recently Deleted
