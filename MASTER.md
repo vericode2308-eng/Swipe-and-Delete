@@ -449,3 +449,10 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 - **Files:** `App/Resources/Assets.xcassets/AppIcon.appiconset/icon.png`, `design/logo/` (sources, `lighter-icon-1024.png`), `DESIGN_BRIEF.md` (App icon section).
 - **Verified:** icon is 1024×1024 RGB, no alpha; Debug device build succeeded (signed with the Apple Development certificate, team in `project.yml`); installed over the existing copy on the physical iPhone 17 Pro without an uninstall (app data kept); launch command succeeded; `AppIcon60x60@2x.png` and `Assets.car` are in the built app.
 - **Not verified:** how the icon looks on the phone's home screen (not seen); dark and tinted iOS 18 icon variants (not made); small sizes checked only in a browser mock-up at 180, 120 and 60 px for the earlier B1 badge size; the website's Lighter icon is a separate repo and was not changed.
+
+## Change 36 — Restore swipe work lost in merge 391da1b
+- **What:** Merge `391da1b` ("keeping main's content only") silently reverted the swipe screen to the old version. Restored from `be21d03`: flat Cover Flow ring, dots above the bar, tap-to-jump (`SwipeView`, `CoverFlowRing`), multi-select grid (`SelectView`, `selecting` state in `AppModel`, branch in `RootView`), newest-first albums (`PhotoKitLibrary`), `CoverFlowRingTests`.
+- **Kept:** main's Settings page, lifetime stats, Appearance, licences, and all legal/landing/icon work since. The About/Legal views from `be21d03` were NOT restored (owner chose "swipe work only").
+- **Verified:** `swift test` in SwipeFeatures, 49 tests pass.
+- **Not verified:** not built or run in the simulator, so the ring, dots and select grid are not visually confirmed. Screenshots in `media/screenshots/` are still the old ones. The `be21d03` Privacy/Terms/Photo Access/Support rows are gone from the app (Settings replaced About); the owner has not yet said whether to bring them back.
+- **Lesson:** after any merge, diff the result against both parents before committing; "keep one side" merges delete the other side's features.

@@ -19,6 +19,9 @@ public struct SwipeView: View {
     @State private var pendingAlbum: Album?
     @State private var viewing: Asset?
     @State private var holdingLive = false
+    @State private var stripID: String?
+    @State private var scrubPos: CGFloat = 0
+    @State private var scrubbing = false
     @State private var width: CGFloat = 393   // last measured screen width, for prefetch sizing
 
     private let spring = Animation.spring(response: 0.3, dampingFraction: 0.8)
@@ -36,6 +39,7 @@ public struct SwipeView: View {
         }
             .background { backdrop(t) }
             .sensoryFeedback(.impact(weight: .light), trigger: commitTick)
+            .sensoryFeedback(.selection, trigger: scrubbing) { _, now in !now }
             .onChange(of: session.index) { prefetch(); holdingLive = false }
             .mediaCover(item: $viewing, model: model)
             .onAppear { prefetch() }
@@ -51,14 +55,15 @@ public struct SwipeView: View {
     }
 
     private func content(_ t: Theme, screenW: CGFloat) -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 6) {
             topBar(t)
             chips(t)
             carousel(t)
+            strip(t, screenW: screenW)
             dock(t, screenW)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+        .padding(.bottom, 0)
     }
 
     // MARK: Backdrop
@@ -107,15 +112,27 @@ public struct SwipeView: View {
         }
         .disabled(session.marked.isEmpty)
         .accessibilityLabel("Review \(session.marked.count) marked for deletion")
+        let select = Button { model.beginSelect() } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.circle")
+                Text("Select")
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color(hex: t.text))
+            .padding(.horizontal, 14).frame(minHeight: 44)
+            .glass(in: Capsule())
+        }
+        .accessibilityLabel("Select many photos")
+        .accessibilityHint("Pick several photos at once to delete")
         return Group {
             if typeSize.isAccessibilitySize {
                 // Big text: buttons share a row, the title gets the full width below.
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack { back; Spacer(minLength: 8); review }
+                    HStack { back; Spacer(minLength: 8); select; review }
                     title
                 }
             } else {
-                HStack(spacing: 12) { back; title; Spacer(minLength: 8); review }
+                HStack(spacing: 8) { back; title; Spacer(minLength: 4); select; review }
             }
         }
         .padding(.top, 4)
@@ -155,26 +172,42 @@ public struct SwipeView: View {
     private struct Slot: Identifiable {
         let asset: Asset?          // nil = the "That's all" card
         let rel: Int               // -1 previous, 0 current, 1 next
-        var id: String { rel == -1 ? "peek-\(asset!.id)" : (asset.map { "card-\($0.id)" } ?? "end") }
+        var id: String { rel < 0 ? "peek-\(asset!.id)" : (asset.map { "card-\($0.id)" } ?? "end") }
     }
 
     private var slots: [Slot] {
         var out: [Slot] = []
         let i = session.index, a = session.assets
-        if i - 1 >= 0, i - 1 < a.count { out.append(Slot(asset: a[i - 1], rel: -1)) }
-        if i < a.count { out.append(Slot(asset: a[i], rel: 0)) } else { out.append(Slot(asset: nil, rel: 0)) }
-        if i + 1 < a.count { out.append(Slot(asset: a[i + 1], rel: 1)) }
+        let n = ring.visible
+        for rel in -n...n {
+            let j = i + rel
+            if rel == 0 { out.append(Slot(asset: i < a.count ? a[i] : nil, rel: 0)) }
+            else if j >= 0, j < a.count { out.append(Slot(asset: a[j], rel: rel)) }
+        }
         return out
+    }
+
+    private var ring: CoverFlowRing {
+        CoverFlowRing()
     }
 
     private func carousel(_ t: Theme) -> some View {
         GeometryReader { geo in
-            let cardW = geo.size.width * 0.78
+            let cardW = geo.size.width * 0.86
             let size = CGSize(width: cardW, height: geo.size.height)
-            let step = cardW + gap
+            let step = cardW * 0.62  // neighbours tuck behind the centre card (Cover Flow)
+            let ring = self.ring
             ZStack {
                 ForEach(slots) { slot in
+                    let pose = ring.pose(at: CGFloat(slot.rel) - scrubFrac, step: step, cardWidth: cardW)
                     slotView(slot, size: size, step: step, screenW: geo.size.width, t)
+                        .brightness(-pose.dim)
+                        .saturation(1 - pose.dim * 0.6)
+                        .shadow(color: .black.opacity(0.45 * pose.shadow), radius: 22, x: 0, y: 6)
+                        .scaleEffect(pose.scale)
+                        .opacity(pose.opacity)
+                        .offset(x: pose.x, y: pose.y)
+                        .zIndex(pose.depth)
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height)
@@ -195,8 +228,6 @@ public struct SwipeView: View {
                     .overlay(alignment: .topTrailing) { badge(for: asset, t).padding(.top, 14).padding(.trailing, 3) }
             }
             .buttonStyle(.plain)
-            .scaleEffect(0.94)
-            .offset(x: -step)
             .transition(fade)
             .accessibilityLabel("Undo last decision")
         case (let asset?, 0):
@@ -213,7 +244,7 @@ public struct SwipeView: View {
                 .onTapGesture { viewing = asset }
                 .onLongPressGesture(minimumDuration: 0.3, maximumDistance: 24, perform: {},
                                     onPressingChanged: { if asset.kind == .livePhoto { holdingLive = $0 } })
-                .transition(reduceMotion ? fade : .asymmetric(insertion: .offset(x: -screenW), removal: .identity))
+                .transition(reduceMotion ? fade : .asymmetric(insertion: .offset(x: step), removal: .identity))
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(cardLabel(asset))
                 .accessibilityAction(named: "Delete") { commit(.left, screenW) }
@@ -222,8 +253,7 @@ public struct SwipeView: View {
                 .accessibilityAction(named: asset.kind == .video ? "Play" : "Open") { viewing = asset }
         case (let asset?, _):
             PhotoCard(asset: asset, size: size, loader: model.images, theme: t, showsCaption: false)
-                .offset(x: step)
-                .transition(fade)
+                .transition(.asymmetric(insertion: fade, removal: .identity))
                 .accessibilityHidden(true)
         default:
             endCard(size: size, t)
@@ -265,7 +295,7 @@ public struct SwipeView: View {
 
     private func badge(for asset: Asset, _ t: Theme) -> some View {
         let deleted = session.marked.contains(asset.id)
-        return Image(systemName: deleted ? "xmark" : "checkmark")
+        return Image(systemName: deleted ? "trash.fill" : "heart.fill")
             .font(.system(size: 12, weight: .bold))
             .foregroundStyle(Color(hex: deleted ? t.deleteTint : t.keepTint))
             .frame(width: 28, height: 28).glass(in: Circle())
@@ -282,7 +312,7 @@ public struct SwipeView: View {
         if abs(p) > 0.05 {
             let del = p < 0
             HStack(spacing: 6) {
-                Image(systemName: del ? "xmark" : "checkmark")
+                Image(systemName: del ? "trash.fill" : "heart.fill")
                 Text(del ? "DELETE" : "KEEP").tracking(1)
             }
             .font(.footnote.weight(.bold))
@@ -317,37 +347,116 @@ public struct SwipeView: View {
 
     private func dock(_ t: Theme, _ screenW: CGFloat) -> some View {
         let p = max(-1, min(1, dragX / (screenW * 0.3)))
-        return HStack(spacing: 22) {
-            dockButton("xmark", "Delete", fill: Theme.blush, size: 64, grow: p < 0 ? -p : 0) {
-                commit(.left, screenW)
-            }
-            dockButton("arrow.uturn.backward", "Undo", fill: nil, size: 48, grow: 0, t: t) {
-                undo(screenW)
-            }
-            .disabled(!session.canUndo)
-            .opacity(session.canUndo ? 1 : 0.4)
-            dockButton("checkmark", "Keep", fill: Theme.sage, size: 64, grow: p > 0 ? p : 0) {
-                commit(.right, screenW)
+        return VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                dockButton("trash.fill", "Delete", fill: Theme.blush, grow: p < 0 ? -p : 0) {
+                    commit(.left, screenW)
+                }
+                dockButton("arrow.uturn.backward", "Undo", fill: nil, grow: 0, t: t) {
+                    undo(screenW)
+                }
+                .disabled(!session.canUndo)
+                .opacity(session.canUndo ? 1 : 0.4)
+                dockButton("heart.fill", "Keep", fill: Theme.sage, grow: p > 0 ? p : 0) {
+                    commit(.right, screenW)
+                }
             }
         }
-        .padding(.horizontal, 22).padding(.vertical, 12)
-        .glass(in: Capsule())
+        .padding(.horizontal, 8).padding(.vertical, 6)
+        .glass(in: RoundedRectangle(cornerRadius: 26, style: .continuous))
         .disabled(session.isFinished && !session.canUndo)
     }
 
-    private func dockButton(_ symbol: String, _ label: String, fill: UInt32?, size: CGFloat,
+    private func dockButton(_ symbol: String, _ label: String, fill: UInt32?,
                             grow: CGFloat, t: Theme? = nil, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: size * 0.38, weight: .bold))
-                .foregroundStyle(Color(hex: fill == nil ? (t?.text ?? 0xFFFFFF) : Theme.onFill))
-                .frame(width: size, height: size)
-                .background { if let fill { Circle().fill(Color(hex: fill)) } else { Circle().fill(Color(hex: t?.text ?? 0xFFFFFF, opacity: 0.12)) } }
-                .scaleEffect(1 + 0.25 * grow)
+        let isUndo = fill == nil
+        return Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 17, weight: .bold))
+                Text(label).font(.subheadline.weight(.bold))
+            }
+            .foregroundStyle(Color(hex: isUndo ? (t?.text ?? 0xFFFFFF) : Theme.onFill))
+            .frame(maxWidth: .infinity, minHeight: 48)
+            .background {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(isUndo ? Color(hex: t?.text ?? 0xFFFFFF, opacity: 0.12) : Color(hex: fill!))
+            }
+            .scaleEffect(1 + 0.06 * grow)
         }
         .buttonStyle(.plain)
+        .layoutPriority(isUndo ? 0 : 1)
+        .frame(maxWidth: isUndo ? 110 : .infinity)
         .disabled(label != "Undo" && session.isFinished)
         .accessibilityLabel(label)
+    }
+
+    // MARK: Dot scrubber (D-25, revised)
+
+    private let dotPitch: CGFloat = 16
+
+    /// Slide the dots to browse. The big photo rotates through a 3D carousel as you go.
+    /// Sliding forward keeps every photo it passes (D-25); sliding back undoes those decisions.
+    private func strip(_ t: Theme, screenW: CGFloat) -> some View {
+        let viewW = max(1, screenW - 32)
+        let pitch = dotPitch
+        let marked = Set(session.marked)
+        return ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 0) {
+                ForEach(session.assets) { a in
+                    let isMarked = marked.contains(a.id)
+                    Capsule()
+                        .fill(isMarked ? Color(hex: Theme.blush) : Color(hex: t.text))
+                        .frame(width: 8, height: 8)
+                        .frame(width: pitch, height: 44)
+                        .contentShape(Rectangle())
+                        .visualEffect { c, proxy in
+                            let f = proxy.frame(in: .scrollView(axis: .horizontal))
+                            let d = min(6, abs(f.midX - viewW / 2) / pitch)
+                            let near = max(0, 1 - d)          // 1 at the centre: dot stretches into a pill
+                            let s = max(0.45, 1.5 - d * 0.2)
+                            return c.scaleEffect(x: s * (1 + 1.2 * near), y: s)
+                                .opacity(max(0.25, 1 - d * 0.12))
+                        }
+                        .onTapGesture {
+                            withAnimation(reduceMotion ? nil : spring) { stripID = a.id }
+                        }
+                        .id(a.id)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollPosition(id: $stripID, anchor: .center)
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
+        .contentMargins(.horizontal, max(0, (viewW - pitch) / 2), for: .scrollContent)
+        .onScrollGeometryChange(for: CGFloat.self) { g in
+            (g.contentOffset.x + g.contentInsets.leading) / pitch
+        } action: { _, pos in
+            scrubPos = pos
+        }
+        .onScrollPhaseChange { _, phase in
+            scrubbing = phase == .tracking || phase == .interacting || phase == .decelerating
+        }
+        .frame(height: 44)
+        .onAppear { stripID = session.current?.id }
+        .onChange(of: stripID) { _, id in followStrip(id) }
+        .onChange(of: session.index) { _, i in
+            guard i < session.assets.count, stripID != session.assets[i].id else { return }
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) { stripID = session.assets[i].id }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// How far the dots are between photos, -0.5...0.5, while a finger is scrubbing; else 0.
+    private var scrubFrac: CGFloat {
+        guard scrubbing, !reduceMotion else { return 0 }
+        return max(-1, min(1, scrubPos - CGFloat(session.index)))
+    }
+
+    /// The strip settled on or passed a photo: everything in between is kept (forward) or un-decided (back).
+    private func followStrip(_ id: String?) {
+        guard let id, !busy, let target = session.assets.firstIndex(where: { $0.id == id }) else { return }
+        while session.index < target { session.keep() }
+        while session.index > target, session.canUndo { session.undo() }
     }
 
     // MARK: Gestures and decisions
@@ -431,11 +540,11 @@ struct PhotoCard: View {
     }
 
     private var caption: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(asset.created.formatted(.dateTime.day().month(.wide).year()))
-                .font(.display(24))
-            HStack(spacing: 8) {
-                Text(kindLabel).font(.caption.weight(.semibold)).tracking(1.2)
+                .font(.footnote.weight(.semibold))
+            HStack(spacing: 6) {
+                Text(kindLabel).font(.caption2.weight(.semibold)).tracking(1)
                     .foregroundStyle(Color(hex: theme.textSecondary))
                 if let p = setPosition {
                     Text("Set \(p.set) · \(p.item) of \(p.ofItems)")
@@ -448,9 +557,9 @@ struct PhotoCard: View {
         }
         .foregroundStyle(Color(hex: theme.text))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16).padding(.vertical, 12)
-        .glass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .padding(10)
+        .padding(.horizontal, 12).padding(.vertical, 6)
+        .glass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(8)
     }
 
     private var kindLabel: String {
