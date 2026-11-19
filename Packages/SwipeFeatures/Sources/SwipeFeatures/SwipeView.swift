@@ -55,15 +55,15 @@ public struct SwipeView: View {
     }
 
     private func content(_ t: Theme, screenW: CGFloat) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 6) {
             topBar(t)
             chips(t)
             carousel(t)
-            dock(t, screenW)
             strip(t, screenW: screenW)
+            dock(t, screenW)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+        .padding(.bottom, 0)
     }
 
     // MARK: Backdrop
@@ -188,23 +188,22 @@ public struct SwipeView: View {
     }
 
     private var ring: CoverFlowRing {
-        var r = CoverFlowRing()
-        if reduceMotion { r.tilt = 0; r.maxTilt = 0 }
-        return r
+        CoverFlowRing()
     }
 
     private func carousel(_ t: Theme) -> some View {
         GeometryReader { geo in
-            let cardW = geo.size.width * 0.78
+            let cardW = geo.size.width * 0.86
             let size = CGSize(width: cardW, height: geo.size.height)
-            let step = cardW + gap
+            let step = cardW * 0.62  // neighbours tuck behind the centre card (Cover Flow)
             let ring = self.ring
             ZStack {
                 ForEach(slots) { slot in
                     let pose = ring.pose(at: CGFloat(slot.rel) - scrubFrac, step: step, cardWidth: cardW)
                     slotView(slot, size: size, step: step, screenW: geo.size.width, t)
-                        .rotation3DEffect(.degrees(pose.rotation), axis: (x: 0, y: 1, z: 0),
-                                          anchor: .center, perspective: ring.perspective)
+                        .brightness(-pose.dim)
+                        .saturation(1 - pose.dim * 0.6)
+                        .shadow(color: .black.opacity(0.45 * pose.shadow), radius: 22, x: 0, y: 6)
                         .scaleEffect(pose.scale)
                         .opacity(pose.opacity)
                         .offset(x: pose.x, y: pose.y)
