@@ -476,3 +476,11 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 **Files:** `landing-page-design/{index.html,styles.css,app.js}`, `assets/02-albums-{dark,light}.webp`.
 **Verified (headless Chrome, desktop 1440 and mobile 390):** ring renders at rest, mid-drag and after decisions; Keep/Delete/Undo; dot scrub; Select drag-select (4 selected) to Review to Done; no console errors; no horizontal scroll at 390 px; Reduce Motion and light look load and respond.
 **Not verified:** Safari and real touch devices; VoiceOver; the 04 Review and 01 Welcome screenshots on the page predate this build and need a recapture; Swipe, Select and Albums shots need a clean simulator library before they can be used.
+
+## Change 40 — Web pages for Privacy, Terms, Support and Licences; Settings opens them in the browser
+
+**What:** `landing-page-design/privacy.html`, `terms.html`, `licenses.html` (generated from `legal/*.md` by `build_legal.py`, so the Markdown stays the single source) and a hand-written `support.html`, all styled like the landing page with the real app icon (favicon, touch icon, header mark). Landing footer links to them. App: `AppLinks` gained `supportPage` and `AppLinks(website:)`; Settings → About shows Support Page, Privacy Policy and Terms of Use as browser links once `LighterApp.websiteBase` is set. While it is nil the rows keep opening the bundled in-app reader, so nothing is a dead tap.
+**Owner decision (2026-11-19):** build the pages now; the owner will supply the hosting URL later. Until then no public link exists.
+**To finish:** host the `landing-page-design/` folder, then give the base URL. Links for App Store Connect will be `<base>/privacy.html`, `/terms.html`, `/support.html`. Set `websiteBase` in `App/LighterApp.swift`. Re-check the Privacy Policy wording in section 8 (it says the Settings rows open text in the app) when the base URL is set.
+**Verified:** pages render at 1100 and 390 px dark and light, no horizontal scroll, no console errors; app builds for the simulator; package tests run (see output).
+**Not verified:** the browser-link rows in a running app (websiteBase is nil, so only the in-app fallback path is live); any real hosted URL; Support page answers against a device walk-through.

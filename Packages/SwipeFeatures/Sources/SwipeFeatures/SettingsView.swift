@@ -141,10 +141,14 @@ struct SettingsView: View {
         if let email = model.links.supportEmail, let url = URL(string: "mailto:\(email)") {
             divider(t); link("Contact Support", url, t)
         }
+        if let url = model.links.supportPage { divider(t); link("Support Page", url, t) }
+        // Once the pages are hosted these open in the browser; until then the bundled copy opens in the app.
         divider(t)
-        legalRow("Privacy Policy", t) { legal = .privacy }
+        if let url = model.links.privacyPolicy { link("Privacy Policy", url, t) }
+        else { legalRow("Privacy Policy", t) { legal = .privacy } }
         divider(t)
-        legalRow("Terms of Use", t) { legal = .terms }
+        if let url = model.links.termsOfUse { link("Terms of Use", url, t) }
+        else { legalRow("Terms of Use", t) { legal = .terms } }
     }
 
     private func legalRow(_ title: String, _ t: Theme, _ open: @escaping () -> Void) -> some View {

@@ -34,10 +34,19 @@ public struct AppLinks: Sendable {
     public var termsOfUse: URL?
     public var rateOnAppStore: URL?
     public var supportEmail: String?
+    public var supportPage: URL?
     public init(privacyPolicy: URL? = nil, termsOfUse: URL? = nil, rateOnAppStore: URL? = nil,
-                supportEmail: String? = nil) {
+                supportEmail: String? = nil, supportPage: URL? = nil) {
         self.privacyPolicy = privacyPolicy; self.termsOfUse = termsOfUse; self.rateOnAppStore = rateOnAppStore
-        self.supportEmail = supportEmail
+        self.supportEmail = supportEmail; self.supportPage = supportPage
+    }
+
+    /// Page URLs for a hosted copy of `landing-page-design/` (privacy.html, terms.html, support.html).
+    public init(website base: URL, rateOnAppStore: URL? = nil, supportEmail: String? = nil) {
+        self.init(privacyPolicy: base.appendingPathComponent("privacy.html"),
+                  termsOfUse: base.appendingPathComponent("terms.html"),
+                  rateOnAppStore: rateOnAppStore, supportEmail: supportEmail,
+                  supportPage: base.appendingPathComponent("support.html"))
     }
 }
 

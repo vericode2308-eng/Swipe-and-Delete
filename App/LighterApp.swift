@@ -6,6 +6,10 @@ import SwipeFeatures
 import UIKit
 
 @main struct LighterApp: App {
+    /// Where landing-page-design/ is hosted, for example URL(string: "https://lighter.example.com"). Set it to make
+    /// Settings open Privacy, Terms and Support in the browser; nil keeps the in-app reader.
+    private static let websiteBase: URL? = nil
+
     @State private var model: AppModel = {
         let loader = PhotoKitImageLoader()
         return AppModel(
@@ -13,7 +17,8 @@ import UIKit
         thumbnails: loader,
         images: loader,
         media: loader,
-        links: AppLinks(supportEmail: "support@vericodestudio.com"),
+        links: Self.websiteBase.map { AppLinks(website: $0, supportEmail: "support@vericodestudio.com") }
+            ?? AppLinks(supportEmail: "support@vericodestudio.com"),
         scanner: CleanupScanner(library: PhotoKitLibrary(), analyzer: VisionPhotoAnalyzer(),
                                 store: .standard(), shouldPause: {
             // Low Power Mode or a hot phone: wait instead of draining the battery.

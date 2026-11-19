@@ -1,0 +1,27 @@
+/* Shared layout for privacy.html, terms.html, support.html and licenses.html. Tokens come from styles.css. */
+.doc-head { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; max-width: 1000px; margin: 0 auto; padding: 24px 16px 0; }
+.doc-nav { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 9999px; }
+.doc-nav a { padding: 8px 14px; border-radius: 9999px; text-decoration: none; font: 500 14px/20px var(--sans, inherit); color: var(--text-2); transition: color .3s, background-color .3s; }
+.doc-nav a:hover { color: var(--text); }
+.doc-nav a[aria-current="page"] { background: var(--pill); color: var(--pill-text); }
+.doc { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+.doc h1 { font: 600 clamp(2.25rem, 6vw, 3.5rem)/1.05 var(--serif); letter-spacing: -.01em; text-wrap: balance; margin: 0 0 12px; }
+.doc .meta { color: var(--text-2); font-size: 14px; line-height: 22px; margin: 0 0 32px; }
+.doc h2 { font: 600 28px/34px var(--serif); margin: 48px 0 12px; scroll-margin-top: 24px; text-wrap: balance; }
+.doc h3 { font: 600 17px/24px var(--sans, inherit); margin: 24px 0 4px; }
+.doc p, .doc li { font-size: 16px; line-height: 26px; max-width: 70ch; text-wrap: pretty; }
+.doc p { margin: 0 0 16px; }
+.doc ul { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 8px; }
+.doc a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.doc a:hover { color: var(--sage); }
+.doc code { font: 500 .9em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--glass); padding: 1px 6px; border-radius: 6px; }
+.doc hr { border: 0; border-top: 1px solid var(--glass-border, rgba(128,128,128,.25)); margin: 32px 0; }
+.toc { padding: 16px 20px; border-radius: 22px; margin: 0 0 16px; }
+.toc ol { margin: 0; padding-left: 22px; columns: 2 220px; column-gap: 32px; font-size: 14px; line-height: 28px; }
+.toc a { text-decoration: none; }
+.tbl { overflow-x: auto; margin: 0 0 24px; border-radius: 16px; }
+.tbl table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14px; line-height: 21px; }
+.tbl th, .tbl td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--glass-border, rgba(128,128,128,.25)); }
+.tbl th { font-weight: 600; color: var(--text-2); }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand img { width: 40px; height: 40px; border-radius: 9px; }

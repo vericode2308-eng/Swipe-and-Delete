@@ -575,3 +575,6 @@ footer small { color: var(--text-2); font-size: 14px; line-height: 20px; }
   .fan .phone { transition: opacity .3s; }
   .story-phone .shot { transform: none; filter: none; }
 }
+
+.brand-mark { display: inline-flex; align-items: center; gap: 10px; }
+.brand-mark img { width: 28px; height: 28px; border-radius: 7px; }
