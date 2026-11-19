@@ -5,10 +5,10 @@ Last updated: 18 November 2026
 These terms apply to your use of Lighter ("the app"), published by **[DEVELOPER NAME — fill in before publishing]** ("we", "us"). By downloading or using the app you agree to them.
 
 ## Apple's standard licence
-The app is licensed to you under Apple's Standard End User Licence Agreement ("Standard EULA") for Apple-branded apps: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/ . These terms add to it. If they conflict, the Standard EULA prevails.
+The app is licensed to you under Apple's Standard Licensed Application End User Licence Agreement ("Standard EULA"): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/ . These terms add to it. If they conflict, the Standard EULA prevails.
 
 ## What the app does
-Lighter lets you review the photos and videos in your Photos library and delete the ones you choose. It also offers a Quick clean-up that suggests duplicates, similar photos and similar items. Suggestions are only suggestions: you decide what to delete.
+Lighter lets you review the photos and videos in your Photos library and delete the ones you choose. It also offers a Quick clean-up that groups duplicates (identical or near-identical shots) and "Pages & Things" (documents and other utility photos), and a shortcut to your WhatsApp album if you have one. Groupings are only suggestions: you decide what to delete. Settings also shows a running total of the space you have cleared.
 
 ## You are responsible for your photos
 - Nothing is deleted until you confirm in the iOS prompt.

@@ -12,7 +12,7 @@ Lighter ("the app") is an iPhone app that helps you review your photos and delet
 ## What the app accesses
 **Your photo library.** Lighter asks for permission to your Photos so it can show your photos and videos, let you mark them to keep or delete, and delete the ones you confirm. You can choose full access or a limited selection, and you can change this at any time in iOS Settings > Photos > Lighter. Lighter only reads photos to display and analyse them on your device, and only deletes after you confirm in the standard iOS prompt.
 
-**iCloud photos.** If a photo is stored in iCloud Photos and not on your iPhone, iOS may download it from iCloud so Lighter can show it to you. This is done by Apple's Photos service under your Apple Account. Lighter does not send the photo to us or to anyone else.
+**iCloud photos.** If a photo or video is stored in iCloud Photos and not on your iPhone, iOS may download it from iCloud so Lighter can show or play it when you review it. This is done by Apple's Photos service under your Apple Account. Lighter does not send the photo to us or to anyone else. The Quick clean-up scan uses only thumbnails already on your iPhone and skips photos that exist only in iCloud.
 
 ## What the app stores on your device
 All of the following stays on your iPhone and is removed when you delete the app:
@@ -20,7 +20,7 @@ All of the following stays on your iPhone and is removed when you delete the app
 - **Totals for Settings.** The number of photos you have deleted and roughly how much space they took, added up since you installed Lighter, so Settings can show how much you have cleared.
 - **Your appearance choice** (System, Light or Dark).
 - **Rating-prompt state** (for example, how many albums you finished and when you last saw the prompt), so the app does not ask for a rating too often.
-- **Clean-up scan results.** The Quick clean-up feature analyses your photos on your iPhone using Apple's Vision framework to find duplicates, similar photos, screenshots and similar groups. Results (the photo's Photos-library identifier, a fingerprint and a quality score per photo) are saved in the app's private storage so a scan can resume. They are not readable as images and are never sent off your device.
+- **Clean-up scan results.** The Quick clean-up feature analyses your photos on your iPhone using Apple's Vision framework to find duplicates (identical or near-identical shots) and "Pages & Things" (documents, receipts and other low-quality or utility photos). For each photo it saves the photo's Photos-library identifier, its dates, whether it appears to show people or a document, a quality score and two numeric fingerprints. This is kept in the app's private storage so the scan does not repeat on every launch. It is not readable as an image and is never sent off your device.
 - **Photos you have marked** during a session are held only while you review them.
 
 ## Purchases
