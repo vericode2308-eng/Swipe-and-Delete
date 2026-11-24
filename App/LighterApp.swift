@@ -6,9 +6,9 @@ import SwipeFeatures
 import UIKit
 
 @main struct LighterApp: App {
-    /// Where landing-page-design/ is hosted, for example URL(string: "https://lighter.example.com"). Set it to make
-    /// Settings open Privacy, Terms and Support in the browser; nil keeps the in-app reader.
-    private static let websiteBase: URL? = nil
+    /// Where the Lighter pages are hosted. Settings open Privacy, Terms and Support in the browser;
+    /// nil would keep the in-app reader.
+    private static let websiteBase: URL? = URL(string: "https://vericodestudio.com/products/lighter/")
 
     @State private var model: AppModel = {
         let loader = PhotoKitImageLoader()

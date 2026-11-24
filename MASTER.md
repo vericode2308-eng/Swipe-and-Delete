@@ -484,3 +484,10 @@ Quick clean-up panel capped at 560 pt. Re-checked on an iPhone SE (3rd gen) simu
 **To finish:** host the `landing-page-design/` folder, then give the base URL. Links for App Store Connect will be `<base>/privacy.html`, `/terms.html`, `/support.html`. Set `websiteBase` in `App/LighterApp.swift`. Re-check the Privacy Policy wording in section 8 (it says the Settings rows open text in the app) when the base URL is set.
 **Verified:** pages render at 1100 and 390 px dark and light, no horizontal scroll, no console errors; app builds for the simulator; package tests run (see output).
 **Not verified:** the browser-link rows in a running app (websiteBase is nil, so only the in-app fallback path is live); any real hosted URL; Support page answers against a device walk-through.
+
+## Change 41 — Settings opens the hosted Privacy, Terms and Support pages; build-dev untracked
+
+**What:** `LighterApp.websiteBase` is now `https://vericodestudio.com/products/lighter/`. `AppLinks(website:)` builds `privacy/`, `terms/`, `support/` (the site serves directory URLs; the old `.html` form returned 404). Privacy Policy section 8 now says the rows open the website in the browser (it said they opened text in the app); `landing-page-design/*.html` rebuilt from `legal/`. `build-dev/` (4,694 build-output files) was tracked in git; added to `.gitignore` and removed from the index (files stay on disk).
+**Owner decision (2026-11-24):** link Settings Privacy/Terms to the live site URLs.
+**Verified:** all four live pages return 200; generated URLs match; 52 SwipeFeatures tests pass; Debug build installed and launched on the owner's iPhone.
+**Not verified:** tapping the rows on the phone (Safari opening); the live pages matching the current `legal/` text; the VeriCode Website copy (`app-sites/sources/lighter/`) still has the old section 8 wording and needs the rebuilt files copied in and deployed. The bundled in-app reader (`LegalView`) is now unreachable from Settings but kept as source.

@@ -41,12 +41,12 @@ public struct AppLinks: Sendable {
         self.supportEmail = supportEmail; self.supportPage = supportPage
     }
 
-    /// Page URLs for a hosted copy of `landing-page-design/` (privacy.html, terms.html, support.html).
+    /// Page URLs for a hosted copy of `landing-page-design/` (privacy/, terms/, support/ on vericodestudio.com).
     public init(website base: URL, rateOnAppStore: URL? = nil, supportEmail: String? = nil) {
-        self.init(privacyPolicy: base.appendingPathComponent("privacy.html"),
-                  termsOfUse: base.appendingPathComponent("terms.html"),
+        self.init(privacyPolicy: base.appendingPathComponent("privacy", isDirectory: true),
+                  termsOfUse: base.appendingPathComponent("terms", isDirectory: true),
                   rateOnAppStore: rateOnAppStore, supportEmail: supportEmail,
-                  supportPage: base.appendingPathComponent("support.html"))
+                  supportPage: base.appendingPathComponent("support", isDirectory: true))
     }
 }
 
