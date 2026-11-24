@@ -35,3 +35,4 @@ Naming: `<NN>-<screen>-<state>-<light|dark>.png`
 | 08-video-fullscreen-playing.png | Stage 8: full-screen video playing (not re-checked against current build) | 2026-11-18 | iPhone 18 Pro simulator |
 
 Still to recapture: Settings top (cleared-so-far card) in both looks, the in-app legal reader, swipe end card, video card (removed as outdated; need a Done state and a video in the simulator library). Note: the photos in the simulator library include earlier app screenshots, so the card inside the ring shows a nested app screen.
+| 05-paywall-dark.png | Paywall (76 marked, 50 free left), HEAD 730b5d6 Debug build via simctl; price "$4.99" came from StoreKit | 2026-11-24 | iPhone 17 simulator (1206x2622, RGB, no alpha) |
