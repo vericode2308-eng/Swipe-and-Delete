@@ -9,7 +9,7 @@ Store text drafts live in `store_drafts/`, one file per field, with character co
 ### Final draft fields (also in `store_drafts/`)
 | Field | Limit | Draft | Length |
 |---|---|---|---|
-| App name | 30 | `Lighter: Swipe Photo Cleaner` | 28 |
+| App name | 30 | `Lighter – Swipe Photo Cleaner` | 29 |
 | Subtitle | 30 | `Delete Pics & Free Up Storage` | 29 |
 | Keywords | 100 | `camera,roll,gallery,album,screenshot,declutter,tidy,remove,space,organize,sort,video,clear,memory` | 97 |
 | Home-screen name | ~12 | `Lighter` | 7 |
