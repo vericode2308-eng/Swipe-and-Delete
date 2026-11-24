@@ -71,7 +71,7 @@ Why: the code has no network calls, SDKs or analytics (security audit 2026-11-18
 | Price | **$4.99 USD** base price (D-12); check the regional prices Apple generates |
 | Display name (11/30) | `Lighter Pro` |
 | Description (41/45) | `Unlimited deletions every day. Paid once.` |
-| Family Sharing | **Off** (cannot be turned off once on; matches `familyShareable: false`) |
+| Family Sharing | **On in App Store Connect** (owner's choice; cannot be turned off once on). `Products.storekit` still says `familyShareable: false`, which only affects Xcode testing |
 | Availability | Same as the app |
 | Review screenshot | Full-size capture (1206×2622) of the paywall **with the real price loaded**. Captured: `media/screenshots/05-paywall-dark.png` (1206×2622, RGB, shows "Unlock Pro – $4.99"). To redo it: Select all in Recents with 51+ photos, Review, Delete |
 | Review notes | `Unlocks unlimited deletions per day (free plan: 50 a day). To see it: in any album mark more than 50 photos, open Review and tap Delete; the paywall appears. Restore Purchases is in Settings (gear on the Albums screen).` |
